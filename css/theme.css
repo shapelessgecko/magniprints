@@ -1,0 +1,387 @@
+/* ========================================
+   MAGNIPRINTS THEME SYSTEM
+   Black & White Japanese Aesthetic
+   ======================================== */
+
+:root {
+  /* Dark Mode (Default) */
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  --bg-card: #0f0f0f;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  --accent: #667eea;
+  --accent-glow: rgba(102, 126, 234, 0.4);
+  --border: #222222;
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --shadow-color: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --bg-tertiary: #f0f0f0;
+  --bg-card: #fafafa;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --accent: #22c55e;
+  --accent-glow: rgba(34, 197, 94, 0.3);
+  --border: #e0e0e0;
+  --gradient-start: #22c55e;
+  --gradient-end: #16a34a;
+  --success: #16a34a;
+  --warning: #ea580c;
+  --error: #dc2626;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   JAPANESE TYPOGRAPHY
+   ======================================== */
+
+.jp-text {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.jp-text-huge {
+  font-size: clamp(4rem, 15vw, 12rem);
+  line-height: 1;
+  opacity: 0.15;
+  position: absolute;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.jp-text-section {
+  font-size: clamp(3rem, 10vw, 6rem);
+  opacity: 0.1;
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+}
+
+/* ========================================
+   THEME TOGGLE
+   ======================================== */
+
+.theme-toggle {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.theme-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.theme-icon.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+
+.nav-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(var(--bg-primary), 0.8);
+}
+
+.nav-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo span {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--text-primary);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  color: white;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px var(--accent-glow);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px var(--shadow-color);
+}
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+
+input, select, textarea {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow {
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+  50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px var(--accent-glow); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  
+  .theme-toggle {
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  .jp-text-section {
+    display: none;
+  }
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-end);
+}

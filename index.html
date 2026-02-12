@@ -1,1148 +1,795 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マグニプリンツ — MagniPrints</title>
-    <meta name="description" content="Precision in Every Layer — Premium 3D Printing Services">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MAGNIPRINTS | Premium 3D Printing</title>
+  <meta name="description" content="Premium 3D printing services - custom products, designs, and precision manufacturing.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/theme.css">
+  
+  <style>
+    /* Hero Section */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+    #hero-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
     
-    <!-- Lenis Smooth Scroll -->
-    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 800px;
+      padding: 0 2rem;
+    }
     
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --bg: #050505;
-            --bg-alt: #0a0a0a;
-            --text: #ffffff;
-            --text-muted: rgba(255,255,255,0.4);
-            --accent-purple: #667eea;
-            --accent-green: #22c55e;
-            --border: rgba(255,255,255,0.1);
-        }
-        
-        html { scroll-behavior: smooth; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-        
-        /* Navigation - Claygarden Style */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 2rem 3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            mix-blend-mode: difference;
-        }
-        
-        .nav-brand {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.75rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            font-weight: 300;
-        }
-        
-        .nav-brand span {
-            display: block;
-            line-height: 1.8;
-        }
-        
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.5rem;
-        }
-        
-        .nav-link {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text);
-            text-decoration: none;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .nav-link::before {
-            content: attr(data-num);
-            font-size: 0.6rem;
-            opacity: 0.5;
-        }
-        
-        .nav-link:hover { opacity: 1; }
-        
-        /* WebGL Canvas */
-        #webgl-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        /* Sections */
-        .section {
-            min-height: 100vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 0 6vw;
-            z-index: 1;
-        }
-        
-        .section-number {
-            position: absolute;
-            top: 50%;
-            left: 3vw;
-            transform: translateY(-50%);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            color: var(--text-muted);
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-        }
-        
-        /* Hero Section */
-        .hero {
-            justify-content: center;
-            text-align: center;
-            flex-direction: column;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-        
-        .hero-jp {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: clamp(3rem, 15vw, 12rem);
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            line-height: 1;
-            margin-bottom: 2rem;
-            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .hero-en {
-            font-size: clamp(0.65rem, 1.2vw, 0.8rem);
-            letter-spacing: 0.5em;
-            text-transform: uppercase;
-            opacity: 0.5;
-            margin-bottom: 1.5rem;
-        }
-        
-        .hero-tagline {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            opacity: 0.7;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .scroll-indicator {
-            position: absolute;
-            bottom: 3rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            opacity: 0.4;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        .scroll-line {
-            width: 1px;
-            height: 60px;
-            background: linear-gradient(to bottom, var(--text), transparent);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
-            50% { opacity: 0.6; transform: translateX(-50%) translateY(10px); }
-        }
-        
-        /* Products Section */
-        .products-section {
-            background: var(--bg-alt);
-        }
-        
-        .section-header {
-            margin-bottom: 4rem;
-        }
-        
-        .section-title {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: clamp(2rem, 6vw, 4rem);
-            font-weight: 400;
-            letter-spacing: 0.05em;
-            margin-bottom: 1rem;
-        }
-        
-        .section-subtitle {
-            font-size: 0.75rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--accent-purple);
-            opacity: 0.8;
-        }
-        
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            width: 100%;
-            max-width: 1400px;
-        }
-        
-        .product-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            padding: 2rem;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
-            transform: scaleX(0);
-            transition: transform 0.5s;
-        }
-        
-        .product-card:hover::before { transform: scaleX(1); }
-        
-        .product-card:hover {
-            background: rgba(255,255,255,0.05);
-            transform: translateY(-5px);
-        }
-        
-        .product-num {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-        
-        .product-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-green));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .product-name {
-            font-size: 1.25rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        
-        .product-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.7;
-        }
-        
-        .product-price {
-            margin-top: 1.5rem;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--accent-green);
-        }
-        
-        /* Custom Section */
-        .custom-section {
-            background: var(--bg);
-        }
-        
-        .custom-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            width: 100%;
-            max-width: 1400px;
-            align-items: center;
-        }
-        
-        .upload-zone {
-            border: 1px dashed var(--border);
-            border-radius: 2px;
-            padding: 4rem 2rem;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .upload-zone:hover, .upload-zone.dragover {
-            border-color: var(--accent-purple);
-            background: rgba(102, 126, 234, 0.05);
-        }
-        
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.5;
-        }
-        
-        .upload-text {
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-        
-        .upload-hint {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        
-        #stl-input { display: none; }
-        
-        .preview-panel {
-            background: var(--bg-alt);
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            padding: 2rem;
-        }
-        
-        .preview-canvas {
-            width: 100%;
-            height: 400px;
-            background: radial-gradient(circle at center, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .preview-placeholder {
-            text-align: center;
-            color: var(--text-muted);
-        }
-        
-        .preview-placeholder svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 1rem;
-            opacity: 0.3;
-        }
-        
-        .calculator {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        
-        .calc-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.85rem;
-        }
-        
-        .calc-total {
-            grid-column: span 2;
-            font-family: 'Space Mono', monospace;
-            font-size: 1.25rem;
-            color: var(--accent-green);
-            padding-top: 1rem;
-            border-bottom: none;
-        }
-        
-        /* Track Section */
-        .track-section {
-            background: var(--bg-alt);
-        }
-        
-        .track-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .track-visual {
-            height: 300px;
-            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #layer-canvas {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .timeline {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-        }
-        
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 10%;
-            right: 10%;
-            height: 1px;
-            background: var(--border);
-        }
-        
-        .timeline::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 10%;
-            width: 65%;
-            height: 1px;
-            background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
-            animation: progress 3s ease-in-out infinite;
-        }
-        
-        @keyframes progress {
-            0%, 100% { width: 0%; opacity: 0.5; }
-            50% { width: 65%; opacity: 1; }
-        }
-        
-        .timeline-step {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .step-dot {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            transition: all 0.3s;
-        }
-        
-        .timeline-step.active .step-dot {
-            background: var(--accent-purple);
-            border-color: var(--accent-purple);
-        }
-        
-        .timeline-step.completed .step-dot {
-            background: var(--accent-green);
-            border-color: var(--accent-green);
-        }
-        
-        .step-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        
-        .step-date {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        
-        /* Footer */
-        .footer {
-            padding: 4rem 6vw;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            letter-spacing: 0.1em;
-        }
-        
-        .footer-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .footer-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-link:hover { color: var(--text); }
-        
-        /* Responsive */
-        @media (max-width: 968px) {
-            .nav { padding: 1.5rem; }
-            .section { padding: 0 4vw; }
-            .custom-container { grid-template-columns: 1fr; gap: 2rem; }
-            .products-grid { grid-template-columns: 1fr; }
-            .timeline { flex-direction: column; gap: 2rem; }
-            .timeline::before, .timeline::after { display: none; }
-        }
-        
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            html { scroll-behavior: auto; }
-        }
-        
-        /* Cursor effects */
-        .cursor-blur {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-            transform: translate(-50%, -50%);
-            filter: blur(60px);
-            transition: opacity 0.3s;
-        }
-    </style>
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .hero-badge span {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse-glow 2s infinite;
+    }
+    
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero h1 .jp-text {
+      display: block;
+      font-size: 1.2em;
+      opacity: 0.9;
+      letter-spacing: 0.1em;
+      margin-top: 0.5rem;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .jp-text-hero {
+      position: absolute;
+      font-size: clamp(6rem, 20vw, 18rem);
+      opacity: 0.06;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1;
+      user-select: none;
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 8rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+      position: relative;
+    }
+    
+    .section-header h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 30px 60px var(--shadow-color);
+    }
+    
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    
+    .feature-card p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    /* Products Preview Section */
+    .products-preview {
+      padding: 8rem 2rem;
+      background: var(--bg-secondary);
+      position: relative;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .product-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: 0 25px 50px var(--shadow-color);
+    }
+    
+    .product-image {
+      aspect-ratio: 4/3;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .product-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, transparent, rgba(102, 126, 234, 0.1));
+    }
+    
+    .product-info {
+      padding: 1.5rem;
+    }
+    
+    .product-info h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+    }
+    
+    .product-price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .view-all {
+      text-align: center;
+      margin-top: 3rem;
+    }
+    
+    /* CTA Section */
+    .cta {
+      padding: 8rem 2rem;
+      position: relative;
+      text-align: center;
+    }
+    
+    .cta-content {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 4rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-content::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at center, var(--accent-glow), transparent 70%);
+      animation: spin-slow 20s linear infinite;
+      pointer-events: none;
+    }
+    
+    .cta h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .cta p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 4rem 2rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+    }
+    
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+    }
+    
+    .footer-brand h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    
+    .footer-brand p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .footer-links h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+    
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Scroll reveal animation classes */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    @media (max-width: 768px) {
+      .hero h1 .jp-text {
+        font-size: 0.8em;
+      }
+      
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+      
+      .cta-content {
+        padding: 2rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <canvas id="webgl-canvas"></canvas>
-    <div class="cursor-blur" id="cursor-blur"></div>
-    
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-brand">
-            <span>M</span>
-            <span>a</span>
-            <span>g</span>
-            <span>n</span>
-            <span>i</span>
-            <span>P</span>
-            <span>r</span>
-            <span>i</span>
-            <span>n</span>
-            <span>t</span>
-            <span>s</span>
-        </div>
-        <div class="nav-links">
-            <a href="#products" class="nav-link" data-num="1">Products</a>
-            <a href="#custom" class="nav-link" data-num="2">Custom</a>
-            <a href="#track" class="nav-link" data-num="3">Track</a>
-        </div>
-    </nav>
-    
-    <!-- Hero Section -->
-    <section class="section hero" id="hero">
-        <div class="hero-content">
-            <div class="hero-jp">マグニプリンツ</div>
-            <div class="hero-en">MagniPrints</div>
-            <p class="hero-tagline">Precision in Every Layer</p>
-        </div>
-        <div class="scroll-indicator">
-            <span style="font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;">Scroll</span>
-            <div class="scroll-line"></div>
-        </div>
-    </section>
-    
-    <!-- Products Section -->
-    <section class="section products-section" id="products">
-        <span class="section-number">01 / Products</span>
-        <div class="section-header">
-            <h2 class="section-title">製品群</h2>
-            <p class="section-subtitle">Explore Our Collection</p>
-        </div>
-        <div class="products-grid">
-            <div class="product-card" data-product="1">
-                <div class="product-num">01</div>
-                <div class="product-icon">⚙️</div>
-                <h3 class="product-name">Gear Assembly</h3>
-                <p class="product-desc">Precision mechanical components for robotics and industrial applications. Tolerance ±0.1mm.</p>
-                <div class="product-price">From $49</div>
-            </div>
-            <div class="product-card" data-product="2">
-                <div class="product-num">02</div>
-                <div class="product-icon">🏛️</div>
-                <h3 class="product-name">Architectural Model</h3>
-                <p class="product-desc">Detailed scale models for architectural visualization and client presentations.</p>
-                <div class="product-price">From $89</div>
-            </div>
-            <div class="product-card" data-product="3">
-                <div class="product-num">03</div>
-                <div class="product-icon">🎨</div>
-                <h3 class="product-name">Sculptural Art</h3>
-                <p class="product-desc">Gallery-quality artistic prints with intricate details and premium finishes.</p>
-                <div class="product-price">From $129</div>
-            </div>
-            <div class="product-card" data-product="4">
-                <div class="product-num">04</div>
-                <div class="product-icon">📱</div>
-                <h3 class="product-name">Phone Accessories</h3>
-                <p class="product-desc">Custom phone stands, cable organizers, and protective cases.</p>
-                <div class="product-price">From $19</div>
-            </div>
-            <div class="product-card" data-product="5">
-                <div class="product-num">05</div>
-                <div class="product-icon">🧩</div>
-                <h3 class="product-name">Puzzle & Games</h3>
-                <p class="product-desc">Interlocking puzzles, chess pieces, and educational toys.</p>
-                <div class="product-price">From $35</div>
-            </div>
-            <div class="product-card" data-product="6">
-                <div class="product-num">06</div>
-                <div class="product-icon">🔧</div>
-                <h3 class="product-name">Tool Holders</h3>
-                <p class="product-desc">Custom organizational solutions for workshops and maker spaces.</p>
-                <div class="product-price">From $29</div>
-            </div>
-            <div class="product-card" data-product="7">
-                <div class="product-num">07</div>
-                <div class="product-icon">💡</div>
-                <h3 class="product-name">Lighting Fixtures</h3>
-                <p class="product-desc">Modern lampshades and decorative lighting elements.</p>
-                <div class="product-price">From $59</div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Custom Section -->
-    <section class="section custom-section" id="custom">
-        <span class="section-number">02 / Custom</span>
-        <div class="custom-container">
-            <div class="upload-section">
-                <div class="section-header">
-                    <h2 class="section-title">カスタム</h2>
-                    <p class="section-subtitle">Create Your Design</p>
-                </div>
-                <div class="upload-zone" id="upload-zone">
-                    <div class="upload-icon">↑</div>
-                    <p class="upload-text">Drop STL file or click to browse</p>
-                    <p class="upload-hint">Max 50MB • .stl, .obj, .3mf</p>
-                    <input type="file" id="stl-input" accept=".stl,.obj,.3mf">
-                </div>
-            </div>
-            <div class="preview-section">
-                <div class="preview-panel">
-                    <div class="preview-canvas" id="preview-canvas">
-                        <div class="preview-placeholder">
-                            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M20 80 L50 20 L80 80 Z"/>
-                                <circle cx="50" cy="55" r="15"/>
-                                <line x1="35" y1="70" x2="65" y2="70"/>
-                            </svg>
-                            <p>3D Preview</p>
-                            <p style="font-size: 0.75rem; margin-top: 0.5rem;">Upload a model to see preview</p>
-                        </div>
-                    </div>
-                    <div class="calculator">
-                        <div class="calc-item">
-                            <span>Material</span>
-                            <span >PLA Pro</span>
-                        </div>
-                        <div class="calc-item">
-                            <span>Volume</span>
-                            <span id="calc-volume">— cm³</span>
-                        </div>
-                        <div class="calc-item">
-                            <span>Print Time</span>
-                            <span id="calc-time">— hours</span>
-                        </div>
-                        <div class="calc-item calc-total">
-                            <span>Estimated Cost</span>
-                            <span id="calc-price">$—</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Track Section -->
-    <section class="section track-section" id="track">
-        <span class="section-number">03 / Track</span>
-        <div class="track-container">
-            <div class="section-header">
-                <h2 class="section-title">追跡</h2>
-                <p class="section-subtitle">Track Your Order</p>
-            </div>
-            <div class="track-visual">
-                <canvas id="layer-canvas"></canvas>
-            </div>
-            <div class="timeline">
-                <div class="timeline-step completed">
-                    <div class="step-dot">✓</div>
-                    <p class="step-label">Received</p>
-                    <p class="step-date">Feb 12</p>
-                </div>
-                <div class="timeline-step completed">
-                    <div class="step-dot">✓</div>
-                    <p class="step-label">Preparing</p>
-                    <p class="step-date">Feb 12</p>
-                </div>
-                <div class="timeline-step active">
-                    <div class="step-dot">●</div>
-                    <p class="step-label">Printing</p>
-                    <p class="step-date">Layer 47/128</p>
-                </div>
-                <div class="timeline-step">
-                    <div class="step-dot">○</div>
-                    <p class="step-label">Finishing</p>
-                    <p class="step-date">—</p>
-                </div>
-                <div class="timeline-step">
-                    <div class="step-dot">○</div>
-                    <p class="step-label">Shipping</p>
-                    <p class="step-date">—</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Footer -->
-    <footer class="footer">
-        <div>© 2025 MagniPrints. All rights reserved.</div>
-        <div class="footer-links">
-            <a href="#" class="footer-link">GitHub</a>
-            <a href="#" class="footer-link">Twitter</a>
-            <a href="#" class="footer-link">Instagram</a>
-        </div>
-    </footer>
-    
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
-    <script>
-        // WebGL Background Animation
-        const canvas = document.getElementById('webgl-canvas');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // Morphing sphere geometry
-        const geometry = new THREE.IcosahedronGeometry(2, 60);
-        const material = new THREE.MeshBasicMaterial({
-            color: 0x667eea,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.3
-        });
-        const sphere = new THREE.Mesh(geometry, material);
-        scene.add(sphere);
-        
-        // Second sphere (green accent)
-        const geometry2 = new THREE.IcosahedronGeometry(1.5, 40);
-        const material2 = new THREE.MeshBasicMaterial({
-            color: 0x22c55e,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15
-        });
-        const sphere2 = new THREE.Mesh(geometry2, material2);
-        sphere2.position.set(3, -2, -2);
-        scene.add(sphere2);
-        
-        // Particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 500;
-        const posArray = new Float32Array(particlesCount * 3);
-        
-        for (let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 15;
-        }
-        
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.02,
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.6
-        });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        
-        camera.position.z = 5;
-        
-        // Mouse tracking
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-        
-        // Cursor blur effect
-        const cursorBlur = document.getElementById('cursor-blur');
-        document.addEventListener('mousemove', (e) => {
-            cursorBlur.style.left = e.clientX + 'px';
-            cursorBlur.style.top = e.clientY + 'px';
-        });
-        
-        // Animation loop
-        const clock = new THREE.Clock();
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            const elapsedTime = clock.getElapsedTime();
-            
-            // Smooth mouse follow
-            targetX += (mouseX - targetX) * 0.02;
-            targetY += (mouseY - targetY) * 0.02;
-            
-            // Animate spheres
-            sphere.rotation.y += 0.002;
-            sphere.rotation.x += 0.001;
-            sphere.position.x = targetX * 0.5;
-            sphere.position.y = targetY * 0.5;
-            
-            sphere2.rotation.y -= 0.003;
-            sphere2.rotation.z += 0.001;
-            
-            // Morph sphere vertices
-            const positions = geometry.attributes.position;
-            for (let i = 0; i < positions.count; i++) {
-                const x = positions.getX(i);
-                const y = positions.getY(i);
-                const z = positions.getZ(i);
-                
-                const wave = Math.sin(x * 2 + elapsedTime) * Math.cos(y * 2 + elapsedTime) * 0.1;
-                positions.setZ(i, z + wave * 0.01);
-            }
-            positions.needsUpdate = true;
-            
-            // Animate particles
-            particlesMesh.rotation.y = elapsedTime * 0.05;
-            particlesMesh.rotation.x = elapsedTime * 0.02;
-            
-            renderer.render(scene, camera);
-        }
-        
-        animate();
-        
-        // Resize handler
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // GSAP ScrollTrigger Animations
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // Hero parallax
-        gsap.to('.hero-jp', {
-            scrollTrigger: {
-                trigger: '.hero',
-                start: 'top top',
-                end: 'bottom top',
-                scrub: 1
-            },
-            y: 200,
-            opacity: 0
-        });
-        
-        // Section reveals
-        gsap.utils.toArray('.section').forEach((section, i) => {
-            if (i === 0) return;
-            
-            gsap.from(section.querySelector('.section-header'), {
-                scrollTrigger: {
-                    trigger: section,
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
-                },
-                y: 60,
-                opacity: 0,
-                duration: 1,
-                ease: 'power3.out'
-            });
-        });
-        
-        // Product cards stagger
-        gsap.from('.product-card', {
-            scrollTrigger: {
-                trigger: '.products-grid',
-                start: 'top 80%'
-            },
-            y: 80,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: 'power3.out'
-        });
-        
-        // Upload zone interaction
-        const uploadZone = document.getElementById('upload-zone');
-        const stlInput = document.getElementById('stl-input');
-        
-        uploadZone.addEventListener('click', () => stlInput.click());
-        
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-        
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-        
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
-        });
-        
-        stlInput.addEventListener('change', (e) => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
-        
-        function handleFile(file) {
-            // Simulate processing
-            uploadZone.innerHTML = `
-                <div class="upload-icon">✓</div>
-                <p class="upload-text">${file.name}</p>
-                <p class="upload-hint">Processing...</p>
-            `;
-            
-            setTimeout(() => {
-                document.getElementById('calc-volume').textContent = '34.7 cm³';
-                document.getElementById('calc-time').textContent = '4.2 hours';
-                document.getElementById('calc-price').textContent = '$47';
-                
-                uploadZone.innerHTML = `
-                    <div class="upload-icon">✓</div>
-                    <p class="upload-text">${file.name}</p>
-                    <p class="upload-hint">Ready for print</p>
-                `;
-            }, 1500);
-        }
-        
-        // Layer visualization
-        const layerCanvas = document.getElementById('layer-canvas');
-        const ctx = layerCanvas.getContext('2d');
-        let layerAnimationId;
-        
-        function resizeLayerCanvas() {
-            layerCanvas.width = layerCanvas.offsetWidth;
-            layerCanvas.height = layerCanvas.offsetHeight;
-        }
-        resizeLayerCanvas();
-        window.addEventListener('resize', resizeLayerCanvas);
-        
-        let currentLayer = 0;
-        const totalLayers = 128;
-        
-        function drawLayers() {
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
-            
-            const centerX = layerCanvas.width / 2;
-            const bottomY = layerCanvas.height - 50;
-            const layerHeight = 2;
-            const modelWidth = 120;
-            
-            // Draw completed layers
-            for (let i = 0; i < currentLayer; i++) {
-                const y = bottomY - (i * layerHeight);
-                const progress = i / totalLayers;
-                const width = modelWidth * (1 - progress * 0.3);
-                
-                // Gradient from purple to green
-                const r = 102 + (34 - 102) * progress;
-                const g = 126 + (197 - 126) * progress;
-                const b = 234 + (94 - 234) * progress;
-                
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.3 + progress * 0.4})`;
-                ctx.fillRect(centerX - width/2, y, width, layerHeight - 0.5);
-            }
-            
-            // Draw current printing layer with glow
-            if (currentLayer < totalLayers) {
-                const y = bottomY - (currentLayer * layerHeight);
-                const progress = currentLayer / totalLayers;
-                const width = modelWidth * (1 - progress * 0.3);
-                
-                ctx.shadowColor = '#667eea';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = '#667eea';
-                ctx.fillRect(centerX - width/2, y, width, layerHeight * 2);
-                ctx.shadowBlur = 0;
-            }
-            
-            // Animate layer progress
-            currentLayer = 47 + Math.floor(Math.sin(Date.now() / 1000) * 3);
-            
-            layerAnimationId = requestAnimationFrame(drawLayers);
-        }
-        
-        // Start layer animation when track section is visible
-        ScrollTrigger.create({
-            trigger: '#track',
-            start: 'top 80%',
-            onEnter: () => drawLayers(),
-            onLeave: () => cancelAnimationFrame(layerAnimationId),
-            onEnterBack: () => drawLayers(),
-            onLeaveBack: () => cancelAnimationFrame(layerAnimationId)
-        });
-        
-        // ============================================
-        // Lenis Smooth Scroll (Like the YouTube video)
-        // ============================================
-        
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-            smoothWheel: true,
-            touchMultiplier: 2
-        });
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <a href="index.html" class="logo">
+      <span>◉</span> MAGNIPRINTS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products/index.html">Products</a></li>
+      <li><a href="custom/index.html">Custom</a></li>
+      <li><a href="track/index.html">Track</a></li>
+    </ul>
+  </nav>
 
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
+  <!-- Hero Section -->
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="jp-text-hero jp-text">マグニプリンツ</div>
+    
+    <div class="hero-content">
+      <div class="hero-badge"><span></span> Now Accepting Orders</div>
+      <h1>
+        Precision 3D Printing
+        <span class="jp-text">マグニプリンツ</span>
+      </h1>
+      <p>Transform your ideas into reality. Premium desktop FDM printing with meticulous attention to detail, quality, and craftsmanship.</p>
+      <div class="hero-buttons">
+        <a href="products/index.html" class="btn btn-primary">Browse Products</a>
+        <a href="custom/index.html" class="btn btn-secondary">Custom Print</a>
+      </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; opacity: 0.5; animation: float 3s ease-in-out infinite;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <span class="jp-text-section jp-text">特徴</span>
+    <div class="section-container">
+      <div class="section-header reveal">
+        <h2>Why Choose <span class="text-gradient">MagniPrints</span>?</h2>
+        <p>Premium 3D printing services tailored for quality enthusiasts</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">📐</div>
+          <h3>Precision Crafted</h3>
+          <p>0.1mm layer height resolution ensures every detail is captured with exceptional accuracy and smooth surface finish.</p>
+        </div>
+        
+        <div class="feature-card reveal">
+          <div class="feature-icon">⚡</div>
+          <h3>Lightning Fast</h3>
+          <p>Fast turnaround times with optimized print settings. Most orders complete within 24-48 hours of confirmation.</p>
+        </div>
+        
+        <div class="feature-card reveal">
+          <div class="feature-icon">✨</div>
+          <h3>Premium Materials</h3>
+          <p>Choose from high-quality PLA, durable PETG, or flexible TPU. Each print is post-processed for perfect finish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Preview -->
+  <section class="products-preview">
+    <span class="jp-text-section jp-text">製品</span>
+    <div class="section-container">
+      <div class="section-header reveal">
+        <h2>Featured <span class="text-gradient">Products</span></h2>
+        <p>Functional designs, ready to print</p>
+      </div>
+      
+      <div class="products-grid">
+        <a href="products/index.html?product=phone-stand" class="product-card reveal">
+          <div class="product-image">📱</div>
+          <div class="product-info">
+            <h3>Phone Stand</h3>
+            <div class="product-price">₹250</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=succulent-planter" class="product-card reveal">
+          <div class="product-image">🪴</div>
+          <div class="product-info">
+            <h3>Succulent Planter</h3>
+            <div class="product-price">₹350</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=cable-organizer" class="product-card reveal">
+          <div class="product-image">🔌</div>
+          <div class="product-info">
+            <h3>Cable Organizer</h3>
+            <div class="product-price">₹180</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=keychain" class="product-card reveal">
+          <div class="product-image">🔑</div>
+          <div class="product-info">
+            <h3>Keychain</h3>
+            <div class="product-price">₹120</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=controller-stand" class="product-card reveal">
+          <div class="product-image">🎮</div>
+          <div class="product-info">
+            <h3>Controller Stand</h3>
+            <div class="product-price">₹450</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=desk-organizer" class="product-card reveal">
+          <div class="product-image">📦</div>
+          <div class="product-info">
+            <h3>Desk Organizer</h3>
+            <div class="product-price">₹550</div>
+          </div>
+        </a>
+        
+        <a href="products/index.html?product=lithophane-frame" class="product-card reveal">
+          <div class="product-image">🖼️</div>
+          <div class="product-info">
+            <h3>Lithophane Frame</h3>
+            <div class="product-price">₹800</div>
+          </div>
+        </a>
+      </div>
+      
+      <div class="view-all reveal">
+        <a href="products/index.html" class="btn btn-primary">View All Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="section-container">
+      <div class="cta-content reveal">
+        <h2>Ready to Create?</h2>
+        <p>Have your own design? Upload your STL file and get an instant quote. We print with precision and deliver with care.</p>
+        <a href="custom/index.html" class="btn btn-primary">Upload Your Design</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>◉ MAGNIPRINTS</h3>
+        <p>Premium 3D printing services. Precision, quality, and innovation in every print.</p>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="products/index.html">Products</a></li>
+          <li><a href="custom/index.html">Custom Print</a></li>
+          <li><a href="track/index.html">Track Order</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Printing Guide</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 MagniPrints. All rights reserved. マグニプリンツ</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  
+  <script>
+    // ========================================
+    // HERO WEBGL PARTICLE SPHERE
+    // ========================================
+    const canvas = document.getElementById('hero-canvas');
+    const renderer = new THREE.WebGLRenderer({ 
+      canvas, 
+      antialias: true,
+      alpha: true 
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+    
+    // Particle sphere
+    const particleCount = 1500;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    
+    const radius = 12;
+    for (let i = 0; i < particleCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos((Math.random() * 2) - 1);
+      const r = radius + (Math.random() - 0.5) * 4;
+      
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+      
+      // Theme-aware colors (will be updated)
+      colors[i * 3] = 0.4;
+      colors[i * 3 + 1] = 0.49;
+      colors[i * 3 + 2] = 0.92;
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    const material = new THREE.PointsMaterial({
+      size: 0.2,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+    
+    const sphere = new THREE.Points(geometry, material);
+    scene.add(sphere);
+    
+    // Inner wireframe icosahedron
+    const icoGeom = new THREE.IcosahedronGeometry(8, 1);
+    const icoMat = new THREE.MeshBasicMaterial({
+      color: 0x667eea,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.15
+    });
+    const icosahedron = new THREE.Mesh(icoGeom, icoMat);
+    scene.add(icosahedron);
+    
+    // Mouse tracking
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+    
+    // Animation loop
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      
+      // Rotate sphere
+      sphere.rotation.y += 0.001;
+      sphere.rotation.x = mouseY * 0.1;
+      
+      // Rotate icosahedron
+      icosahedron.rotation.y -= 0.002;
+      icosahedron.rotation.x += 0.001;
+      icosahedron.rotation.z = mouseX * 0.1;
+      
+      // Pulse effect
+      const scale = 1 + Math.sin(time * 2) * 0.02;
+      sphere.scale.set(scale, scale, scale);
+      
+      renderer.render(scene, camera);
+    }
+    animate();
+    
+    // Update colors based on theme
+    function updateColors(theme) {
+      const colorAttr = geometry.getAttribute('color');
+      const icoColor = theme === 'light' ? 0x22c55e : 0x667eea;
+      
+      for (let i = 0; i < particleCount; i++) {
+        if (theme === 'light') {
+          colorAttr.setXYZ(i, 0.133, 0.773, 0.369); // Green
+        } else {
+          colorAttr.setXYZ(i, 0.4, 0.49, 0.92); // Purple
         }
-        requestAnimationFrame(raf);
-        
-        // Connect Lenis to GSAP ScrollTrigger
-        lenis.on('scroll', ScrollTrigger.update);
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
-        gsap.ticker.lagSmoothing(0);
-        
-        // ============================================
-        // Scroll-Triggered Reveal Animations
-        // ============================================
-        
-        // Hero text reveal on load
-        gsap.from('.hero-title', {
-            y: 100,
-            opacity: 0,
-            duration: 1.5,
-            ease: 'power4.out',
-            delay: 0.5
-        });
-        
-        gsap.from('.hero-subtitle', {
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: 'power3.out',
-            delay: 0.8
-        });
-        
-        // Section reveals on scroll
-        gsap.utils.toArray('.section').forEach((section, i) => {
-            gsap.from(section, {
-                scrollTrigger: {
-                    trigger: section,
-                    start: 'top 85%',
-                    toggleActions: 'play none none reverse'
-                },
-                y: 60,
-                opacity: 0,
-                duration: 1,
-                ease: 'power3.out'
-            });
-        });
-        
-        // Product cards stagger reveal
-        gsap.from('.product-card', {
-            scrollTrigger: {
-                trigger: '#products',
-                start: 'top 70%'
-            },
-            y: 80,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: 'power3.out'
-        });
-        
-        // Track status items stagger
-        gsap.from('.track-status-item', {
-            scrollTrigger: {
-                trigger: '#track',
-                start: 'top 60%'
-            },
-            x: -50,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.15,
-            ease: 'power2.out'
-        });
-        
-        // Custom section reveal
-        gsap.from('.custom-dropzone', {
-            scrollTrigger: {
-                trigger: '#custom',
-                start: 'top 70%'
-            },
-            scale: 0.9,
-            opacity: 0,
-            duration: 1,
-            ease: 'power3.out'
-        });
-    </script>
+      }
+      colorAttr.needsUpdate = true;
+      icoMat.color.setHex(icoColor);
+    }
+    
+    // Listen for theme changes
+    window.addEventListener('themechange', (e) => {
+      updateColors(e.detail.theme);
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // ========================================
+    // GSAP SCROLL ANIMATIONS
+    // ========================================
+    gsap.registerPlugin(ScrollTrigger);
+    
+    // Reveal animations
+    gsap.utils.toArray('.reveal').forEach((elem, i) => {
+      gsap.to(elem, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: elem,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        },
+        delay: i % 3 * 0.1
+      });
+    });
+    
+    // Stagger product cards
+    gsap.from('.product-card', {
+      opacity: 0,
+      y: 40,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.products-grid',
+        start: 'top 80%'
+      }
+    });
+    
+    // Hero parallax
+    gsap.to('.hero-content', {
+      y: 100,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+    
+    gsap.to('#hero-canvas', {
+      scale: 1.5,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+    
+    // Initialize colors based on saved theme
+    const savedTheme = localStorage.getItem('magniprints-theme') || 'dark';
+    updateColors(savedTheme);
+  </script>
 </body>
 </html>
