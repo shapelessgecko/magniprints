@@ -1,336 +1,712 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Order — MagniPrints</title>
+    <title>Track Order - MagniPrints</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/track.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Enhanced track page styles */
+        .eta-box {
+            background: linear-gradient(135deg, var(--accent) 0%, #9333ea 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .eta-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.9;
+        }
+        
+        .eta-time {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+        }
+        
+        .layer-info {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        
+        .layer-info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .layer-info-label {
+            opacity: 0.7;
+        }
+        
+        .layer-info-value {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .printer-status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: statusPulse 2s infinite;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .nozzle-temp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .progress-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-details {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .order-details h4 {
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .order-detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-    <!-- Mobile Navigation Overlay -->
-    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
-    
-    <!-- Mobile Navigation Sidebar -->
-    <div class="mobile-nav-sidebar" id="mobileNavSidebar">
-        <nav class="mobile-nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../products/">Products</a>
-            <a href="../custom/">Custom Print</a>
-            <a href="index.html" class="active">Track</a>
-        </nav>
-        <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-theme">
-            <span>Dark Mode</span>
-            <button class="theme-toggle mobile-sidebar-toggle" aria-label="Toggle theme">
-                <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-                <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-            </button>
-        </div>
-    </div>
-
     <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-logo">
-            <svg viewBox="0 0 40 40" class="logo-icon">
-                <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
-                <circle cx="20" cy="22" r="4" fill="currentColor"/>
-            </svg>
-            <span class="logo-text">MagniPrints</span>
+    <nav class="navbar">
+        <div class="logo">MagniPrints</div>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../products/">Products</a></li>
+            <li><a href="../custom/">Custom Print</a></li>
+            <li><a href="./">Track Order</a></li>
+        </ul>
+        <div class="nav-controls">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">☀️</span>
+            </button>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         </div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../products/">Products</a>
-            <a href="../custom/">Custom Print</a>
-            <a href="index.html" class="active">Track</a>
-        </div>
-        <button class="theme-toggle desktop-toggle" aria-label="Toggle theme">
-            <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-            <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-        </button>
-        <button class="hamburger" id="hamburgerMenu" aria-label="Open menu">
-            <span class="hamburger-lines"></span>
-        </button>
     </nav>
 
-    <main class="track-page">
-        <div class="container">
-            <div class="track-header">
-                <h1>Track Your Order</h1>
-                <p>Real-time print progress and delivery updates</p>
+    <section class="track-section">
+        <div class="track-header reveal">
+            <h1 class="section-title">Track Your Print</h1>
+            <p class="section-subtitle">Monitor your order in real-time with 3D visualization</p>
+        </div>
+
+        <!-- Order Input -->
+        <div class="order-input-group reveal">
+            <input type="text" class="order-input" id="orderInput" placeholder="Enter Order ID (e.g., MP-2024-001)" maxlength="12">
+            <button class="track-btn" onclick="trackOrder()">Track</button>
+        </div>
+
+        <!-- Tracking Display -->
+        <div class="tracking-display" id="trackingDisplay" style="display: none;">
+            <!-- 3D Layer Visualization -->
+            <div class="layer-visualization" style="position: relative;">
+                <canvas id="layerCanvas" style="width: 100%; height: 100%;"></canvas>
+                <div class="layer-info">
+                    <div class="layer-info-row">
+                        <span class="layer-info-label">Layer:</span>
+                        <span class="layer-info-value"><span id="currentLayer">0</span> / <span id="totalLayers">0</span></span>
+                    </div>
+                    <div class="layer-info-row">
+                        <span class="layer-info-label">Height:</span>
+                        <span class="layer-info-value"><span id="currentHeight">0</span> mm</span>
+                    </div>
+                    <div class="layer-info-row">
+                        <span class="layer-info-label">Speed:</span>
+                        <span class="layer-info-value"><span id="printSpeed">60</span> mm/s</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Order Search -->
-            <div class="search-section">
-                <div class="search-box">
-                    <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    <input type="text" id="order-input" placeholder="Enter Order ID (e.g., MP25021201)" maxlength="10">
-                    <button class="btn btn-primary" id="track-btn">Track</button>
-                </div>
-                <p class="search-hint">Try "DEMO" to see a live print preview</p>
-            </div>
-
-            <!-- Order Status (hidden by default) -->
-            <div class="order-status hidden" id="order-status">
-                <!-- Order Summary -->
-                <div class="status-header">
-                    <div class="order-id">
-                        <span class="label">Order ID</span>
-                        <span class="value" id="display-order-id">MP25021201</span>
+            <!-- Progress Panel -->
+            <div class="progress-panel">
+                <div class="progress-bar-container">
+                    <div class="progress-detail">
+                        <span>Print Progress</span>
+                        <span><span id="progressPercent">0</span>%</span>
                     </div>
-                    <div class="eta-block">
-                        <span class="label">Estimated Completion</span>
-                        <div class="countdown" id="countdown">
-                            <span class="time-unit">
-                                <span class="number" id="hours">02</span>
-                                <span class="unit">hrs</span>
-                            </span>
-                            <span class="separator">:</span>
-                            <span class="time-unit">
-                                <span class="number" id="minutes">34</span>
-                                <span class="unit">min</span>
-                            </span>
-                            <span class="separator">:</span>
-                            <span class="time-unit">
-                                <span class="number" id="seconds">18</span>
-                                <span class="unit">sec</span>
-                            </span>
-                        </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
                     </div>
                 </div>
 
-                <!-- Progress Steps -->
-                <div class="progress-tracker">
-                    <div class="progress-line">
-                        <div class="progress-fill" id="step-progress"></div>
+                <!-- Status Steps -->
+                <div class="status-steps" id="statusSteps">
+                    <div class="status-step completed" data-step="1">
+                        <div class="status-icon">📋</div>
+                        <div class="status-label">Received</div>
                     </div>
-                    <div class="steps">
-                        <div class="step completed" data-step="1">
-                            <div class="step-icon">
-                                <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                            </div>
-                            <span class="step-label">Confirmed</span>
-                            <span class="step-time">Today, 09:30</span>
-                        </div>
-                        <div class="step completed" data-step="2">
-                            <div class="step-icon">
-                                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                            </div>
-                            <span class="step-label">Preparing</span>
-                            <span class="step-time">Today, 10:15</span>
-                        </div>
-                        <div class="step active" data-step="3">
-                            <div class="step-icon">
-                                <span class="pulse"></span>
-                                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5v8c0 5-4 9-10 9s-10-4-10-9V7l10 5z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                            </div>
-                            <span class="step-label">Printing</span>
-                            <span class="step-time">In Progress</span>
-                        </div>
-                        <div class="step" data-step="4">
-                            <div class="step-icon">
-                                <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                            </div>
-                            <span class="step-label">Quality Check</span>
-                            <span class="step-time">Pending</span>
-                        </div>
-                        <div class="step" data-step="5">
-                            <div class="step-icon">
-                                <svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7M5 9V5a2 2 0 012-2h10a2 2 0 012 2v4M5 9h14" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                            </div>
-                            <span class="step-label">Shipped</span>
-                            <span class="step-time">Pending</span>
-                        </div>
+                    <div class="status-step completed" data-step="2">
+                        <div class="status-icon">🖨️</div>
+                        <div class="status-label">Queued</div>
+                    </div>
+                    <div class="status-step active" data-step="3">
+                        <div class="status-icon">⚙️</div>
+                        <div class="status-label">Printing</div>
+                    </div>
+                    <div class="status-step" data-step="4">
+                        <div class="status-icon">🔍</div>
+                        <div class="status-label">QC Check</div>
+                    </div>
+                    <div class="status-step" data-step="5">
+                        <div class="status-icon">📦</div>
+                        <div class="status-label">Ready</div>
                     </div>
                 </div>
 
-                <!-- Main Content Grid -->
-                <div class="status-grid">
-                    <!-- Left: 3D Print Visualization -->
-                    <div class="visualization-panel">
-                        <div class="panel-header">
-                            <h3>Live Print Preview</h3>
-                            <span class="live-badge">LIVE</span>
-                        </div>
-                        
-                        <div class="layer-visualizer" id="layer-visualizer">
-                            <!-- 3D Layer visualization -->
-                        </div>
-
-                        <!-- Print Stats -->
-                        <div class="print-stats">
-                            <div class="stat-row">
-                                <div class="stat-item">
-                                    <span class="stat-icon">
-                                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Current Layer</span>
-                                        <span class="stat-value" id="current-layer">147 / 312</span>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-icon">
-                                        <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Progress</span>
-                                        <span class="stat-value" id="print-progress">47.1%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="stat-row">
-                                <div class="stat-item">
-                                    <span class="stat-icon">
-                                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 2v6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Layer Height</span>
-                                        <span class="stat-value">0.2mm</span>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-icon">
-                                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Print Speed</span>
-                                        <span class="stat-value" id="print-speed">60mm/s</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="stat-row">
-                                <div class="stat-item">
-                                    <span class="stat-icon hot">
-                                        <svg viewBox="0 0 24 24"><path d="M12 9a4 4 0 014 4c0 2.5-2 3.5-2 6M12 3c.5 2.5-2 4-2 7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="15" width="12" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Nozzle Temp</span>
-                                        <span class="stat-value" id="nozzle-temp">205°C</span>
-                                    </div>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-icon warm">
-                                        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M12 5v14" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                                    </span>
-                                    <div class="stat-details">
-                                        <span class="stat-label">Bed Temp</span>
-                                        <span class="stat-value" id="bed-temp">60°C</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Print Stats -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="statTempHead">200°C</div>
+                        <div class="stat-label-small">Nozzle</div>
                     </div>
-
-                    <!-- Right: G-Code Stream & Timeline -->
-                    <div class="details-panel">
-                        <!-- G-Code Terminal -->
-                        <div class="gcode-panel">
-                            <div class="panel-header">
-                                <h3>G-Code Stream</h3>
-                                <div class="terminal-controls">
-                                    <button class="term-btn" id="pause-term">⏸</button>
-                                    <button class="term-btn" id="clear-term">⌫</button>
-                                </div>
-                            </div>
-                            <div class="gcode-terminal" id="gcode-terminal">
-                                <div class="terminal-line system">
-                                    <span class="timestamp">[09:45:12]</span>
-                                    <span class="message">Printer connected - Ender-3 V2</span>
-                                </div>
-                                <div class="terminal-line system">
-                                    <span class="timestamp">[09:45:13]</span>
-                                    <span class="message">Bed heating to 60°C...</span>
-                                </div>
-                                <div class="terminal-line system">
-                                    <span class="timestamp">[09:46:45]</span>
-                                    <span class="message">Nozzle heating to 205°C...</span>
-                                </div>
-                                <div class="terminal-line command">
-                                    <span class="timestamp">[09:47:58]</span>
-                                    <span class="cmd">G28</span>
-                                    <span class="message">Auto home</span>
-                                </div>
-                                <div class="terminal-line command">
-                                    <span class="timestamp">[09:48:23]</span>
-                                    <span class="cmd">G29</span>
-                                    <span class="message">Leveling mesh</span>
-                                </div>
-                                <div class="terminal-line gcode">
-                                    <span class="timestamp">[09:48:45]</span>
-                                    <span class="cmd">G1</span>
-                                    <span class="params">X42.5 Y23.4 Z0.2 F1800</span>
-                                </div>
-                                <!-- Lines will be added dynamically -->
-                            </div>
-                            <div class="terminal-input">
-                                <span class="prompt">&gt;</span>
-                                <input type="text" placeholder="Enter G-code command (disabled during print)" disabled>
-                            </div>
-                        </div>
-
-                        <!-- Order Details -->
-                        <div class="order-details">
-                            <h3>Order Details</h3>
-                            <div class="details-list">
-                                <div class="detail-row">
-                                    <span class="detail-label">Product</span>
-                                    <span class="detail-value" id="detail-product">Phone Stand - Purple PLA</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Quantity</span>
-                                    <span class="detail-value">2 pieces</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Print Started</span>
-                                    <span class="detail-value">Today, 09:47 AM</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Est. Complete</span>
-                                    <span class="detail-value" id="detail-complete">Today, 12:30 PM</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Filament Used</span>
-                                    <span class="detail-value" id="detail-filament">142g / 320g</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Printer</span>
-                                    <span class="detail-value">Station #3 (Ender-3 V2)</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statTempBed">60°C</div>
+                        <div class="stat-label-small">Bed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statFan">100%</div>
+                        <div class="stat-label-small">Fan</div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="track-actions">
-                    <button class="btn btn-secondary" id="notify-btn">
-                        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                        Get Status Updates
-                    </button>
-                    <a href="https://wa.me/918800000000?text=Hi%20MagniPrints,%20inquiry%20about%20order%20MP25021201" 
-                       target="_blank" 
-                       class="btn btn-primary">
-                        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 016.5 11.4 8.5 8.5 0 0111.3 3.9 8.38 8.38 0 0115.2 3 8.5 8.5 0 0121 11.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                        Contact Support
-                    </a>
+                <!-- ETA Countdown -->
+                <div class="eta-box">
+                    <div class="eta-label">Estimated Completion</div>
+                    <div class="eta-time" id="etaTime">--:--:--</div>
+                </div>
+
+                <!-- Printer Status -->
+                <div class="printer-status">
+                    <div class="status-indicator"></div>
+                    <span style="font-weight: 600;">Printer Active</span>
+                    <span class="nozzle-temp" style="margin-left: auto; color: var(--accent);">
+                        🌡️ <span id="liveTemp">200</span>/<span id="targetTemp">200</span>°C
+                    </span>
+                </div>
+
+                <!-- Order Details -->
+                <div class="order-details">
+                    <h4>Order Details</h4>
+                    <div class="order-detail-row">
+                        <span>Order ID</span>
+                        <span id="detailOrderId">--</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>Product</span>
+                        <span id="detailProduct">--</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>Material</span>
+                        <span id="detailMaterial">--</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>Started</span>
+                        <span id="detailStarted">--</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span>Filament Used</span>
+                        <span id="detailFilament">--</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
 
-    <footer class="footer simple">
-        <div class="container">
-            <p>&copy; 2025 MagniPrints. All rights reserved.</p>
+        <!-- G-code Terminal -->
+        <div class="terminal-window" id="terminalWindow" style="display: none;">
+            <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">GCODE Monitor — ~/printer.log</span>
+            </div>
+            <div class="terminal-body" id="terminalBody">
+                <!-- Terminal lines will be added here -->
+            </div>
         </div>
-    </footer>
+    </section>
 
-    <script src="../js/track.js"></script>
-    <script src="../js/main.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Mobile Menu
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Simulated Order Database
+        const orders = {
+            'MP-2024-001': {
+                product: 'Phone Stand',
+                material: 'PLA White',
+                started: 'Feb 12, 14:30',
+                totalLayers: 147,
+                currentLayer: 89,
+                totalHeight: 29.4,
+                filamentUsed: 42.5,
+                filamentTotal: 65,
+                printTime: '4h 30m',
+                remaining: 98, // minutes
+                status: 3, // 1-5
+                tempHead: 200,
+                tempBed: 60,
+                speed: 60,
+                fan: 100
+            },
+            'MP-2024-002': {
+                product: 'Geometric Planter',
+                material: 'PETG Blue',
+                started: 'Feb 12, 10:15',
+                totalLayers: 203,
+                currentLayer: 203,
+                totalHeight: 50.75,
+                filamentUsed: 82,
+                filamentTotal: 82,
+                printTime: '6h 45m',
+                remaining: 0,
+                status: 4,
+                tempHead: 240,
+                tempBed: 80,
+                speed: 50,
+                fan: 80
+            },
+            'MP-2024-003': {
+                product: 'Custom Lithophane',
+                material: 'PLA White',
+                started: 'Feb 11, 09:00',
+                totalLayers: 98,
+                currentLayer: 98,
+                totalHeight: 19.6,
+                filamentUsed: 35,
+                filamentTotal: 35,
+                printTime: '3h 30m',
+                remaining: 0,
+                status: 5,
+                tempHead: 195,
+                tempBed: 60,
+                speed: 30,
+                fan: 100
+            },
+            'DEMO': {
+                product: 'Controller Stand',
+                material: 'TPU Green',
+                started: new Date().toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                totalLayers: 180,
+                currentLayer: 1,
+                totalHeight: 36.0,
+                filamentUsed: 0,
+                filamentTotal: 78,
+                printTime: '5h 15m',
+                remaining: 315,
+                status: 3,
+                tempHead: 220,
+                tempBed: 50,
+                speed: 45,
+                fan: 100
+            }
+        };
+
+        let currentOrder = null;
+        let updateInterval = null;
+        let terminalInterval = null;
+
+        // G-code commands
+        const gcodeCommands = [
+            'G1 X120.45 Y89.23 E2.456 ; extrude line',
+            'G1 F1800 X121.12 Y90.45 E2.512',
+            'G1 X122.34 Y91.67 E2.568',
+            'G1 X123.56 Y92.89 E2.624',
+            'M104 S200 ; hotend temp',
+            'M140 S60 ; bed temp',
+            'G1 F1500 E2.5 ; retract',
+            'G1 X150 Y150 F3000 ; move to next position',
+            'G1 X150.2 Y150.3 E2.55 ; resume extrusion',
+            'M105 ; report temps',
+            'G1 X151 Y151 E2.61',
+            'G1 X152 Y152 E2.67',
+            'M109 S200 ; wait for temp',
+            'G1 Z0.3 F1500 ; next layer',
+            'G1 X100 Y100 F3000 ; rapid move',
+            'G28 ; home axes',
+            'G29 ; auto bed level',
+            'M107 ; fan off',
+            'M106 S255 ; fan on',
+            '; Layer 89 of 180',
+            'M73 P49 ; progress update',
+            'G2 X120 Y80 I10 J10 F1800 ; arc move',
+            'G3 X100 Y100 I-10 J-10 F1800',
+            'M105 ; T:200.5 /200 B:60.2 /60',
+            'G1 F1200 X125.45 Y95.12 E3.1',
+            'G1 X126.34 Y96.23 E3.15',
+            'M104 S200.5 ; maintain temp',
+            'G1 Z0.4 E3.2 F1500 ; z-hop'
+        ];
+
+        function trackOrder() {
+            const orderId = document.getElementById('orderInput').value.toUpperCase().trim();
+            
+            if (!orderId) {
+                alert('Please enter an Order ID');
+                return;
+            }
+
+            // Check for demo or real order
+            const order = orders[orderId] || orders['DEMO'];
+            currentOrder = order;
+            
+            // Show tracking display
+            document.getElementById('trackingDisplay').style.display = 'grid';
+            document.getElementById('terminalWindow').style.display = 'block';
+
+            // Update details
+            document.getElementById('detailOrderId').textContent = orderId;
+            document.getElementById('detailProduct').textContent = order.product;
+            document.getElementById('detailMaterial').textContent = order.material;
+            document.getElementById('detailStarted').textContent = order.started;
+            document.getElementById('detailFilament').textContent = `${order.filamentTotal}g`;
+            document.getElementById('totalLayers').textContent = order.totalLayers;
+
+            // Start visualization
+            initLayerVisualization();
+            startLiveUpdates();
+            startTerminal();
+
+            // Scroll to display
+            document.getElementById('trackingDisplay').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Live updates
+        function startLiveUpdates() {
+            if (updateInterval) clearInterval(updateInterval);
+            
+            updateDisplay();
+            
+            updateInterval = setInterval(() => {
+                if (!currentOrder) return;
+                
+                // Simulate progress
+                if (currentOrder.currentLayer < currentOrder.totalLayers) {
+                    currentOrder.currentLayer += 1;
+                    currentOrder.filamentUsed += currentOrder.filamentTotal / currentOrder.totalLayers;
+                    
+                    if (currentOrder.remaining > 0) {
+                        currentOrder.remaining -= 1;
+                    }
+                    
+                    // Random temp fluctuation
+                    currentOrder.tempHead = 200 + (Math.random() - 0.5) * 2;
+                }
+                
+                // Update status if complete
+                if (currentOrder.currentLayer >= currentOrder.totalLayers) {
+                    currentOrder.status = 5;
+                    currentOrder.remaining = 0;
+                } else if (currentOrder.currentLayer > currentOrder.totalLayers * 0.95) {
+                    currentOrder.status = 4;
+                }
+                
+                updateDisplay();
+            }, 2000); // Update every 2 seconds for demo
+        }
+
+        function updateDisplay() {
+            if (!currentOrder) return;
+            
+            const progress = Math.round((currentOrder.currentLayer / currentOrder.totalLayers) * 100);
+            const currentHeight = (currentOrder.currentLayer / currentOrder.totalLayers * currentOrder.totalHeight).toFixed(1);
+            
+            // Update layer info
+            document.getElementById('currentLayer').textContent = currentOrder.currentLayer;
+            document.getElementById('currentHeight').textContent = currentHeight;
+            document.getElementById('printSpeed').textContent = currentOrder.speed;
+            
+            // Update progress
+            document.getElementById('progressPercent').textContent = progress;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
+            // Update stats
+            document.getElementById('statTempHead').textContent = `${currentOrder.tempHead.toFixed(1)}°C`;
+            document.getElementById('statTempBed').textContent = `${currentOrder.tempBed}°C`;
+            document.getElementById('statFan').textContent = `${currentOrder.fan}%`;
+            document.getElementById('liveTemp').textContent = currentOrder.tempHead.toFixed(1);
+            document.getElementById('targetTemp').textContent = currentOrder.tempHead.toFixed(0);
+            
+            // Update filament
+            document.getElementById('detailFilament').textContent = 
+                `${currentOrder.filamentUsed.toFixed(1)}/${currentOrder.filamentTotal}g`;
+            
+            // Update ETA
+            if (currentOrder.remaining > 0) {
+                const hours = Math.floor(currentOrder.remaining / 60);
+                const mins = currentOrder.remaining % 60;
+                const secs = Math.floor(Math.random() * 59);
+                document.getElementById('etaTime').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('etaTime').textContent = 'COMPLETE';
+            }
+            
+            // Update status steps
+            const steps = document.querySelectorAll('.status-step');
+            steps.forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('completed', 'active');
+                
+                if (stepNum < currentOrder.status) {
+                    step.classList.add('completed');
+                } else if (stepNum === currentOrder.status) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update 3D visualization
+            updateLayerVisualization(progress / 100);
+        }
+
+        // Terminal
+        function startTerminal() {
+            const terminal = document.getElementById('terminalBody');
+            terminal.innerHTML = '';
+            
+            if (terminalInterval) clearInterval(terminalInterval);
+            
+            // Add initial lines
+            addTerminalLine('Connecting to printer...', 'info');
+            addTerminalLine('Connection established', 'success');
+            addTerminalLine('Marlin 2.1.2 ready', 'info');
+            
+            terminalInterval = setInterval(() => {
+                const cmd = gcodeCommands[Math.floor(Math.random() * gcodeCommands.length)];
+                const type = cmd.includes('error') ? 'error' : 
+                            cmd.includes('warn') ? 'warning' : '';
+                addTerminalLine(`> ${cmd}`, type);
+            }, 800);
+        }
+
+        function addTerminalLine(text, type = '') {
+            const terminal = document.getElementById('terminalBody');
+            const line = document.createElement('div');
+            const time = new Date().toLocaleTimeString('en-GB');
+            line.className = `terminal-line ${type}`;
+            line.textContent = `[${time}] ${text}`;
+            terminal.appendChild(line);
+            
+            // Keep only last 50 lines
+            while (terminal.children.length > 50) {
+                terminal.removeChild(terminal.firstChild);
+            }
+            
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Three.js Layer Visualization
+        let layerScene, layerCamera, layerRenderer, layerModel;
+
+        function initLayerVisualization() {
+            const canvas = document.getElementById('layerCanvas');
+            const container = canvas.parentElement;
+            
+            layerScene = new THREE.Scene();
+            layerScene.background = new THREE.Color(getComputedStyle(document.body).getPropertyValue('--card').trim() || 0x0a0a0a);
+            
+            layerCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            layerCamera.position.set(4, 3, 4);
+            layerCamera.lookAt(0, 0, 0);
+            
+            layerRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            layerRenderer.setSize(container.clientWidth, container.clientHeight);
+            
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            layerScene.add(ambient);
+            
+            const dir = new THREE.DirectionalLight(0x667eea, 0.8);
+            dir.position.set(3, 5, 2);
+            layerScene.add(dir);
+            
+            const back = new THREE.DirectionalLight(0x9333ea, 0.3);
+            back.position.set(-3, -2, -2);
+            layerScene.add(back);
+            
+            // Create stacked layers visualization
+            createLayerStack();
+            
+            animateLayers();
+        }
+
+        function createLayerStack() {
+            layerModel = new THREE.Group();
+            
+            const totalLayers = 20;
+            const baseSize = 1.5;
+            const heightStep = 0.15;
+            
+            for (let i = 0; i < totalLayers; i++) {
+                // Create a pattern that represents a simple object
+                const progress = i / totalLayers;
+                const size = baseSize * (0.8 + 0.4 * Math.sin(progress * Math.PI));
+                
+                // Layer geometry
+                const geometry = new THREE.BoxGeometry(size, heightStep * 0.8, size * 0.8);
+                
+                // Gradient color based on layer
+                const hue = 0.65 + (progress * 0.15); // Blue to purple
+                const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
+                
+                const material = new THREE.MeshStandardMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.9,
+                    roughness: 0.5,
+                    metalness: 0.2
+                });
+                
+                const layer = new THREE.Mesh(geometry, material);
+                layer.position.y = i * heightStep;
+                layer.userData.layerIndex = i;
+                layer.userData.originalOpacity = 0.9;
+                
+                layerModel.add(layer);
+            }
+            
+            // Grid
+            const grid = new THREE.GridHelper(6, 20, 0x667eea, 0x334155);
+            grid.position.y = -0.5;
+            layerScene.add(grid);
+            
+            layerScene.add(layerModel);
+        }
+
+        function updateLayerVisualization(progress) {
+            if (!layerModel) return;
+            
+            const layers = layerModel.children.filter(c => c.userData.layerIndex !== undefined);
+            const completedCount = Math.floor(progress * layers.length);
+            
+            layers.forEach((layer, index) => {
+                if (index < completedCount) {
+                    // Completed layers
+                    layer.material.opacity = 1;
+                    layer.material.emissive.setHex(0x222244);
+                    layer.position.z = 0;
+                } else if (index === completedCount) {
+                    // Current layer - highlight
+                    layer.material.opacity = 1;
+                    layer.material.emissive.setHex(0x4444ff);
+                    layer.position.z = 0.1;
+                } else {
+                    // Future layers - fade
+                    layer.material.opacity = 0.3;
+                    layer.material.emissive.setHex(0x000000);
+                    layer.position.z = 0;
+                }
+            });
+        }
+
+        function animateLayers() {
+            if (!layerRenderer) return;
+            requestAnimationFrame(animateLayers);
+            
+            // Gentle rotation
+            if (layerModel) {
+                layerModel.rotation.y += 0.005;
+            }
+            
+            layerRenderer.render(layerScene, layerCamera);
+        }
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            if (layerRenderer && layerCamera) {
+                const container = document.querySelector('.layer-visualization');
+                const size = Math.min(container.clientWidth, container.clientHeight);
+                layerRenderer.setSize(size, size);
+                layerCamera.aspect = 1;
+                layerCamera.updateProjectionMatrix();
+            }
+        });
+
+        // Scroll reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        });
+        reveals.forEach(el => observer.observe(el));
+
+        // Enter key triggers search
+        document.getElementById('orderInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') trackOrder();
+        });
+
+        // Add initial terminal log
+        addTerminalLine('System initialized. Waiting for input...', 'info');
+    </script>
 </body>
 </html>

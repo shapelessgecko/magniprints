@@ -1,334 +1,639 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products — MagniPrints</title>
+    <title>Products - MagniPrints 3D Store</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/products.css">
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <!-- Mobile Navigation Overlay -->
-    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
-    
-    <!-- Mobile Navigation Sidebar -->
-    <div class="mobile-nav-sidebar" id="mobileNavSidebar">
-        <nav class="mobile-nav-links">
-            <a href="../index.html">Home</a>
-            <a href="index.html" class="active">Products</a>
-            <a href="../custom/">Custom Print</a>
-            <a href="../track/">Track</a>
-        </nav>
-        <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-theme">
-            <span>Dark Mode</span>
-            <button class="theme-toggle mobile-sidebar-toggle" aria-label="Toggle theme">
-                <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-                <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-            </button>
-        </div>
-    </div>
-
     <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-logo">
-            <svg viewBox="0 0 40 40" class="logo-icon">
-                <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
-                <circle cx="20" cy="22" r="4" fill="currentColor"/>
-            </svg>
-            <span class="logo-text">MagniPrints</span>
+    <nav class="navbar">
+        <div class="logo">MagniPrints</div>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="./">Products</a></li>
+            <li><a href="../custom/">Custom Print</a></li>
+            <li><a href="../track/">Track Order</a></li>
+        </ul>
+        <div class="nav-controls">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">☀️</span>
+            </button>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         </div>
-        <div class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="index.html" class="active">Products</a>
-            <a href="../custom/">Custom Print</a>
-            <a href="../track/">Track</a>
-        </div>
-        <button class="theme-toggle desktop-toggle" aria-label="Toggle theme">
-            <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-            <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-        </button>
-        <button class="hamburger" id="hamburgerMenu" aria-label="Open menu">
-            <span class="hamburger-lines"></span>
-        </button>
     </nav>
 
-    <main class="products-page">
-        <!-- Sidebar: 3D Viewer -->
-        <aside class="viewer-sidebar">
-            <div class="viewer-container">
-                <div id="product-viewer" class="viewer-canvas"></div>
-                
-                <!-- Viewer Controls -->
-                <div class="viewer-controls">
-                    <button id="btn-rotate" class="control-btn active" title="Auto Rotate">
-                        <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </button>
-                    <button id="btn-wireframe" class="control-btn" title="Wireframe">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M9 3v18" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </button>
-                    <button id="btn-reset" class="control-btn" title="Reset View">
-                        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8M3 3v5h5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </button>
-                    <button id="btn-fullscreen" class="control-btn" title="Fullscreen">
-                        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </button>
-                </div>
-                
-                <!-- Loading Indicator -->
-                <div id="viewer-loading" class="viewer-loading hidden">
-                    <div class="spinner"></div>
-                </div>
+    <!-- Products Layout -->
+    <div class="products-layout">
+        <!-- 3D Viewer Sidebar -->
+        <aside class="sidebar-3d">
+            <div class="viewer-3d" id="viewer3d"></div>
+            
+            <div class="viewer-controls">
+                <button class="viewer-btn active" id="btnRotate">
+                    <span>🔄 Auto-Rotate</span>
+                </button>
+                <button class="viewer-btn" id="btnWireframe">
+                    <span>⌨️ Wireframe</span>
+                </button>
+                <button class="viewer-btn" id="btnReset">
+                    <span>↺ Reset View</span>
+                </button>
+                <button class="viewer-btn" id="btnScreenshot">
+                    <span>📷 Capture</span>
+                </button>
             </div>
             
-            <!-- Filament Selector -->
             <div class="filament-selector">
-                <h3>Filament Material</h3>
-                <div class="filament-options">
-                    <button class="filament-btn active" data-filament="pla" data-price="0">
-                        <span class="filament-color" style="background: #667eea;"></span>
-                        <span class="filament-info">
-                            <strong>PLA</strong>
-                            <small>Standard • Matte</small>
-                        </span>
-                    </button>
-                    <button class="filament-btn" data-filament="petg" data-price="50">
-                        <span class="filament-color" style="background: #3b82f6;"></span>
-                        <span class="filament-info">
-                            <strong>PETG</strong>
-                            <small>Strong • Durable</small>
-                        </span>
-                    </button>
-                    <button class="filament-btn" data-filament="tpu" data-price="100">
-                        <span class="filament-color" style="background: #f59e0b;"></span>
-                        <span class="filament-info">
-                            <strong>TPU</strong>
-                            <small>Flexible • Rugged</small>
-                        </span>
-                    </button>
+                <h4>Filament Material</h4>
+                <div class="filament-colors" id="filamentColors">
+                    <div class="filament-color active" data-material="pla" data-price="2.5" style="background: #ffffff;" title="PLA White"></div>
+                    <div class="filament-color" data-material="pla-black" data-price="2.5" style="background: #1a1a1a;" title="PLA Black"></div>
+                    <div class="filament-color" data-material="petg" data-price="3.5" style="background: #3b82f6;" title="PETG Blue"></div>
+                    <div class="filament-color" data-material="abs" data-price="4.0" style="background: #ef4444;" title="ABS Red"></div>
+                    <div class="filament-color" data-material="tpu" data-price="5.5" style="background: #22c55e;" title="TPU Green"></div>
+                    <div class="filament-color" data-material="wood" data-price="6.0" style="background: #92400e;" title="Wood"></div>
+                    <div class="filament-color" data-material="metal" data-price="8.0" style="background: linear-gradient(135deg, #6b7280, #9ca3af);" title="Metal Fill"></div>
+                    <div class="filament-color" data-material="glow" data-price="7.0" style="background: #a855f7; box-shadow: 0 0 10px #a855f7;" title="Glow in Dark"></div>
                 </div>
-                
-                <!-- Color Selector -->
-                <div class="color-selector">
-                    <h4>Choose Color</h4>
-                    <div class="color-options" id="color-options">
-                        <button class="color-btn active" style="background: #667eea;" data-color="0x667eea" title="Purple"></button>
-                        <button class="color-btn" style="background: #22c55e;" data-color="0x22c55e" title="Green"></button>
-                        <button class="color-btn" style="background: #ef4444;" data-color="0xef4444" title="Red"></button>
-                        <button class="color-btn" style="background: #3b82f6;" data-color="0x3b82f6" title="Blue"></button>
-                        <button class="color-btn" style="background: #f59e0b;" data-color="0xf59e0b" title="Orange"></button>
-                        <button class="color-btn" style="background: #ec4899;" data-color="0xec4899" title="Pink"></button>
-                        <button class="color-btn" style="background: #14b8a6;" data-color="0x14b8a6" title="Teal"></button>
-                        <button class="color-btn" style="background: #ffffff;" data-color="0xffffff" title="White"></button>
-                        <button class="color-btn" style="background: #1a1a1a;" data-color="0x1a1a1a" title="Black"></button>
-                        <button class="color-btn" style="background: #fbbf24;" data-color="0xfbbf24" title="Gold"></button>
-                    </div>
+                <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
+                    <span id="currentMaterial">PLA White</span> - ₹<span id="materialPrice">2.5</span>/g
+                </p>
+            </div>
+            
+            <div class="price-calculator">
+                <h4>Cost Estimator</h4>
+                <div class="calc-row">
+                    <span>Material Cost:</span>
+                    <span>₹<span id="calcMaterial">125</span></span>
+                </div>
+                <div class="calc-row">
+                    <span>Print Time:</span>
+                    <span id="calcTime">4h 30m</span></span>
+                </div>
+                <div class="calc-row">
+                    <span>Setup Fee:</span>
+                    <span>₹50</span>
+                </div>
+                <div class="calc-total">
+                    <span>Total Est:</span>
+                    <span>₹<span id="calcTotal">175</span></span>
                 </div>
             </div>
         </aside>
 
-        <!-- Product Grid -->
-        <section class="products-section">
-            <div class="products-header">
-                <h1>Our Products</h1>
-                <p>Premium 3D printed essentials for your desk and home</p>
+        <!-- Products Grid -->
+        <main class="products-main">
+            <div class="products-header" style="margin-bottom: 2rem; padding: 1.5rem; background: var(--card); border-radius: 16px; border: 1px solid var(--border);">
+                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">3D Printed Products</h1>
+                <p style="opacity: 0.7;">Click any product to view in 3D. Customize with different materials.</p>
             </div>
             
-            <div class="products-grid">
+            <div class="products-grid" id="productsGrid">
                 <!-- Product 1: Phone Stand -->
-                <article class="product-card active" data-product="phone-stand" data-base-price="299">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-phone-stand"></div>
-                        <span class="product-badge">Best Seller</span>
-                    </div>
+                <div class="product-card active" data-product="phone-stand">
+                    <div class="product-image">📱</div>
                     <div class="product-info">
-                        <h3>Phone Stand</h3>
-                        <p class="product-desc">Ergonomic stand with adjustable viewing angle. Perfect for desk setup and video calls.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 8cm x 8cm x 10cm</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 45g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">299</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Ergonomic Phone Stand</h3>
+                        <p class="product-desc">Adjustable 60° viewing angle with cable management</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹125</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('phone-stand')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 2: Planter -->
-                <article class="product-card" data-product="planter" data-base-price="349">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-planter"></div>
-                    </div>
+                <div class="product-card" data-product="planter">
+                    <div class="product-image">🪴</div>
                     <div class="product-info">
-                        <h3>Geometric Planter</h3>
-                        <p class="product-desc">Modern geometric design planter. Self-watering feature with drainage hole.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 10cm diameter</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 80g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">349</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Geometric Planter</h3>
+                        <p class="product-desc">Self-watering design with drainage system</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹175</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('planter')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 3: Cable Holder -->
-                <article class="product-card" data-product="cable-holder" data-base-price="149">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-cable-holder"></div>
-                    </div>
+                <div class="product-card" data-product="cable-holder">
+                    <div class="product-image">🔌</div>
                     <div class="product-info">
-                        <h3>Cable Holder Set</h3>
-                        <p class="product-desc">Keep your cables organized. Set of 3 holders for different cable sizes.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 3 sizes incl.</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 25g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">149</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Magnetic Cable Holder</h3>
+                        <p class="product-desc">6-slot organizer with magnetic attachments</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹75</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('cable-holder')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 4: Keychain -->
-                <article class="product-card" data-product="keychain" data-base-price="99">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-keychain"></div>
-                        <span class="product-badge">New</span>
-                    </div>
+                <div class="product-card" data-product="keychain">
+                    <div class="product-image">🔑</div>
                     <div class="product-info">
-                        <h3>Custom Keychain</h3>
-                        <p class="product-desc">Personalized 3D printed keychain. Add your name or custom text.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 6cm x 3cm</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 10g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">99</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Custom Keychain</h3>
+                        <p class="product-desc">Durable ring with optional name engraving</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹45</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('keychain')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 5: Controller Stand -->
-                <article class="product-card" data-product="controller-stand" data-base-price="449">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-controller-stand"></div>
-                    </div>
+                <div class="product-card" data-product="controller-stand">
+                    <div class="product-image">🎮</div>
                     <div class="product-info">
-                        <h3>Controller Stand</h3>
-                        <p class="product-desc">Premium dual controller holder. Show off your controllers in style.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 22cm x 12cm</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 120g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">449</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Dual Controller Stand</h3>
+                        <p class="product-desc">Universal fit for PS5, Xbox, Switch controllers</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹225</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('controller-stand')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 6: Desk Organizer -->
-                <article class="product-card" data-product="desk-organizer" data-base-price="399">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-desk-organizer"></div>
-                        <span class="product-badge">Popular</span>
-                    </div>
+                <div class="product-card" data-product="desk-organizer">
+                    <div class="product-image">📦</div>
                     <div class="product-info">
-                        <h3>Desk Organizer</h3>
-                        <p class="product-desc">All-in-one desk solution with pen holder, phone slot, and storage tray.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 18cm x 12cm</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 150g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">399</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Modular Desk Organizer</h3>
+                        <p class="product-desc">5 compartments with phone slot and pen holders</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹295</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('desk-organizer')">Order</button>
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Product 7: Lithophane -->
-                <article class="product-card" data-product="lithophane" data-base-price="599">
-                    <div class="product-preview">
-                        <div class="preview-3d" id="preview-lithophane"></div>
-                        <span class="product-badge">Premium</span>
-                    </div>
+                <div class="product-card" data-product="lithophane">
+                    <div class="product-image">🖼️</div>
                     <div class="product-info">
-                        <h3>3D Lithophane</h3>
-                        <p class="product-desc">3D printed photo that reveals when backlit. Perfect gift for loved ones.</p>
-                        <div class="product-specs">
-                            <span><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2"/></svg> 10cm x 15cm</span>
-                            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> 60g</span>
-                        </div>
-                        <div class="product-price">
-                            <span class="price">₹<span class="price-value">599</span></span>
-                            <button class="btn btn-primary view-btn">View in 3D</button>
+                        <h3 class="product-name">Custom Lithophane</h3>
+                        <p class="product-desc">Upload your photo for a stunning light art piece</p>
+                        <div class="product-footer">
+                            <span class="product-price">₹350</span>
+                            <button class="product-btn" onclick="event.stopPropagation(); orderProduct('lithophane')">Order</button>
                         </div>
                     </div>
-                </article>
-            </div>
-
-            <!-- Price Calculator Panel -->
-            <div class="calculator-panel">
-                <div class="calculator-header">
-                    <h3>Order Summary</h3>
-                </div>
-                <div class="calculator-body">
-                    <div class="calc-row">
-                        <span class="calc-label">Selected Product</span>
-                        <span class="calc-value" id="calc-product">Phone Stand</span>
-                    </div>
-                    <div class="calc-row">
-                        <span class="calc-label">Filament</span>
-                        <span class="calc-value" id="calc-filament">PLA Standard</span>
-                    </div>
-                    <div class="calc-row">
-                        <span class="calc-label">Base Price</span>
-                        <span class="calc-value" id="calc-base">₹299</span>
-                    </div>
-                    <div class="calc-row">
-                        <span class="calc-label">Filament Surcharge</span>
-                        <span class="calc-value" id="calc-surcharge">₹0</span>
-                    </div>
-                    <div class="quantity-selector">
-                        <span class="calc-label">Quantity</span>
-                        <div class="qty-controls">
-                            <button id="qty-minus" class="qty-btn">−</button>
-                            <input type="number" id="qty-input" value="1" min="1" max="100">
-                            <button id="qty-plus" class="qty-btn">+</button>
-                        </div>
-                    </div>
-                    <div class="calc-row total">
-                        <span class="calc-label">Total</span>
-                        <span class="calc-value" id="calc-total">₹299</span>
-                    </div>
-                </div>
-                <div class="calculator-footer">
-                    <a href="https://wa.me/918800000000?text=Hi%20MagniPrints,%20I%20want%20to%20order%20a%20Phone%20Stand" 
-                       target="_blank" 
-                       id="order-btn" 
-                       class="btn btn-primary btn-block">
-                        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 016.5 11.4 8.5 8.5 0 0111.3 3.9 8.38 8.38 0 0115.2 3 8.5 8.5 0 0121 11.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                        Order via WhatsApp
-                    </a>
-                    <p class="delivery-note">Free delivery on orders above ₹500</p>
                 </div>
             </div>
-        </section>
-    </main>
+        </main>
+    </div>
 
-    <script src="../js/products-3d.js"></script>
-    <script src="../js/main.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // 3D Viewer Setup
+        const viewerContainer = document.getElementById('viewer3d');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(getComputedStyle(document.body).getPropertyValue('--card').trim() || 0x0a0a0a);
+        
+        const camera = new THREE.PerspectiveCamera(45, 400 / 600, 0.1, 100);
+        camera.position.set(5, 5, 5);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(400, 600);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        viewerContainer.appendChild(renderer.domElement);
+        
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 7);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const spotLight = new THREE.SpotLight(0x667eea, 0.5);
+        spotLight.position.set(-5, 5, 0);
+        scene.add(spotLight);
+
+        // Materials
+        const materials = {
+            'pla': { color: 0xffffff, roughness: 0.8, metalness: 0.1, name: 'PLA White' },
+            'pla-black': { color: 0x1a1a1a, roughness: 0.8, metalness: 0.1, name: 'PLA Black' },
+            'petg': { color: 0x3b82f6, roughness: 0.6, metalness: 0.2, name: 'PETG Blue' },
+            'abs': { color: 0xef4444, roughness: 0.7, metalness: 0.1, name: 'ABS Red' },
+            'tpu': { color: 0x22c55e, roughness: 0.9, metalness: 0, name: 'TPU Green' },
+            'wood': { color: 0x92400e, roughness: 0.9, metalness: 0, name: 'Wood' },
+            'metal': { color: 0x6b7280, roughness: 0.4, metalness: 0.8, name: 'Metal Fill' },
+            'glow': { color: 0xa855f7, roughness: 0.8, metalness: 0, emissive: 0x4c1d95, emissiveIntensity: 0.2, name: 'Glow in Dark' }
+        };
+
+        let currentMaterial = materials['pla'];
+        let currentModel = null;
+        let isAutoRotating = true;
+        let isWireframe = false;
+
+        // Product Model Generators
+        const productModels = {
+            'phone-stand': () => {
+                const group = new THREE.Group();
+                
+                // Base
+                const baseGeom = new THREE.BoxGeometry(3, 0.3, 2);
+                const base = new THREE.Mesh(baseGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                base.position.y = 0.15;
+                base.castShadow = true;
+                base.receiveShadow = true;
+                group.add(base);
+                
+                // Support
+                const supportGeom = new THREE.BoxGeometry(3, 1.5, 0.15);
+                const support = new THREE.Mesh(supportGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                support.position.set(0, 0.9, 0.9);
+                support.rotation.x = -0.2;
+                support.castShadow = true;
+                group.add(support);
+                
+                // Phone rest
+                const restGeom = new THREE.BoxGeometry(3, 0.1, 0.2);
+                const rest = new THREE.Mesh(restGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                rest.position.set(0, 1.6, 0.5);
+                rest.castShadow = true;
+                group.add(rest);
+                
+                return group;
+            },
+            
+            'planter': () => {
+                const group = new THREE.Group();
+                
+                // Main body (tapered cylinder)
+                const shape = new THREE.Shape();
+                shape.moveTo(1.5, 0);
+                shape.lineTo(1.2, 2.5);
+                shape.lineTo(-1.2, 2.5);
+                shape.lineTo(-1.5, 0);
+                shape.lineTo(1.5, 0);
+                
+                const extrudeSettings = { depth: 0, bevelEnabled: false };
+                const geom = new THREE.LatheGeometry([
+                    new THREE.Vector2(1.5, 0),
+                    new THREE.Vector2(1.3, 0.2),
+                    new THREE.Vector2(1.2, 2.5)
+                ], 32);
+                
+                const body = new THREE.Mesh(geom, new THREE.MeshStandardMaterial(currentMaterial));
+                body.castShadow = true;
+                body.receiveShadow = true;
+                group.add(body);
+                
+                // Saucer
+                const saucerGeom = new THREE.CylinderGeometry(1.6, 1.6, 0.1, 32);
+                const saucer = new THREE.Mesh(saucerGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                saucer.position.y = -0.05;
+                saucer.receiveShadow = true;
+                group.add(saucer);
+                
+                return group;
+            },
+            
+            'cable-holder': () => {
+                const group = new THREE.Group();
+                
+                // Base curved shape using tube
+                const curve = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(-2, 0, 0),
+                    new THREE.Vector3(-1, 0.3, 0),
+                    new THREE.Vector3(0, 0.5, 0),
+                    new THREE.Vector3(1, 0.3, 0),
+                    new THREE.Vector3(2, 0, 0)
+                ]);
+                
+                const tubeGeom = new THREE.TubeGeometry(curve, 64, 0.4, 16, false);
+                const tube = new THREE.Mesh(tubeGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                tube.castShadow = true;
+                tube.receiveShadow = true;
+                group.add(tube);
+                
+                // Slots
+                for (let i = -1.5; i <= 1.5; i += 1) {
+                    const slotGeom = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 16);
+                    const slot = new THREE.Mesh(slotGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                    slot.position.set(i, 0.4 + Math.abs(i) * 0.1, 0);
+                    slot.castShadow = true;
+                    group.add(slot);
+                }
+                
+                return group;
+            },
+            
+            'keychain': () => {
+                const group = new THREE.Group();
+                
+                // Ring
+                const ringGeom = new THREE.TorusGeometry(0.8, 0.15, 12, 32);
+                const ring = new THREE.Mesh(ringGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                ring.rotation.x = Math.PI / 2;
+                ring.castShadow = true;
+                group.add(ring);
+                
+                // Charm (tag)
+                const charmGeom = new THREE.CylinderGeometry(0.6, 0.6, 0.1, 6);
+                const charm = new THREE.Mesh(charmGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                charm.position.set(0, -1.2, 0);
+                charm.rotation.x = Math.PI / 2;
+                charm.castShadow = true;
+                group.add(charm);
+                
+                // Connector
+                const connectorGeom = new THREE.CylinderGeometry(0.1, 0.1, 0.3, 8);
+                const connector = new THREE.Mesh(connectorGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                connector.position.set(0, -0.5, 0);
+                group.add(connector);
+                
+                return group;
+            },
+            
+            'controller-stand': () => {
+                const group = new THREE.Group();
+                
+                // Base
+                const baseGeom = new THREE.BoxGeometry(4, 0.3, 2);
+                const base = new THREE.Mesh(baseGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                base.position.y = 0.15;
+                base.castShadow = true;
+                base.receiveShadow = true;
+                group.add(base);
+                
+                // Controller holders
+                for (let x = -1; x <= 1; x += 2) {
+                    // Handle rest
+                    const restGeom = new THREE.BoxGeometry(0.4, 1, 0.4);
+                    const rest = new THREE.Mesh(restGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                    rest.position.set(x, 0.8, 0.5);
+                    rest.rotation.x = -0.3;
+                    rest.castShadow = true;
+                    group.add(rest);
+                    
+                    // Center support
+                    const centerGeom = new THREE.BoxGeometry(0.5, 1.2, 0.3);
+                    const center = new THREE.Mesh(centerGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                    center.position.set(x, 0.9, -0.2);
+                    center.castShadow = true;
+                    group.add(center);
+                }
+                
+                return group;
+            },
+            
+            'desk-organizer': () => {
+                const group = new THREE.Group();
+                
+                // Main base
+                const baseGeom = new THREE.BoxGeometry(5, 0.2, 3);
+                const base = new THREE.Mesh(baseGeom, new THREE.MeshStandardMaterial(currentMaterial));
+                base.position.y = 0.1;
+                base.receiveShadow = true;
+                group.add(base);
+                
+                // Compartments
+                const compSpecs = [
+                    { x: -1.5, w: 1.5, h: 1, d: 1.5 },
+                    { x: 0.5, w: 2, h: 0.8, d: 1.5 },
+                    { x: -1.5, z: -0.75, w: 1.5, h: 0.6, d: 1 },
+                    { x: 0.5, z: -0.75, w: 2, h: 0.6, d: 1 },
+                    { x: 2.25, z: 0, w: 0.4, h: 1.5, d: 2.8 }
+                ];
+                
+                compSpecs.forEach(spec => {
+                    const geom = new THREE.BoxGeometry(spec.w, spec.h, spec.d);
+                    const wall = new THREE.Mesh(geom, new THREE.MeshStandardMaterial(currentMaterial));
+                    wall.position.set(spec.x, spec.h / 2 + 0.2, spec.z || 0.5);
+                    wall.castShadow = true;
+                    wall.receiveShadow = true;
+                    group.add(wall);
+                });
+                
+                return group;
+            },
+            
+            'lithophane': () => {
+                const group = new THREE.Group();
+                
+                // Frame
+                const frameGeom = new THREE.BoxGeometry(0.3, 4, 3);
+                const frame1 = new THREE.Mesh(frameGeom, new THREE.MeshStandardMaterial(materials['pla-black']));
+                frame1.position.set(-1.6, 2, 0);
+                group.add(frame1);
+                
+                const frame2 = frame1.clone();
+                frame2.position.set(1.6, 2, 0);
+                group.add(frame2);
+                
+                const frameBottom = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.5, 0.3, 0.3),
+                    new THREE.MeshStandardMaterial(materials['pla-black'])
+                );
+                frameBottom.position.set(0, 0.15, 1.35);
+                group.add(frameBottom);
+                
+                const frameTop = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.5, 0.3, 0.3),
+                    new THREE.MeshStandardMaterial(materials['pla-black'])
+                );
+                frameTop.position.set(0, 3.85, 1.35);
+                group.add(frameTop);
+                
+                // Photo area (thin white plane)
+                const photoGeom = new THREE.BoxGeometry(3, 3.5, 0.05);
+                const photo = new THREE.Mesh(photoGeom, new THREE.MeshStandardMaterial({ 
+                    ...currentMaterial,
+                    transparent: true,
+                    opacity: 0.9
+                }));
+                photo.position.set(0, 2, 0);
+                group.add(photo);
+                
+                // Stand
+                const standGeom = new THREE.BoxGeometry(0.2, 3, 0.8);
+                const stand = new THREE.Mesh(standGeom, new THREE.MeshStandardMaterial(materials['pla-black']));
+                stand.position.set(0, 1.5, 1.5);
+                stand.rotation.x = -0.3;
+                group.add(stand);
+                
+                return group;
+            }
+        };
+
+        // Product data
+        const productData = {
+            'phone-stand': { weight: 50, time: '4h 30m', basePrice: 75 },
+            'planter': { weight: 70, time: '6h 15m', basePrice: 95 },
+            'cable-holder': { weight: 30, time: '2h 45m', basePrice: 25 },
+            'keychain': { weight: 8, time: '45m', basePrice: 15 },
+            'controller-stand': { weight: 85, time: '8h 00m', basePrice: 125 },
+            'desk-organizer': { weight: 110, time: '10h 30m', basePrice: 175 },
+            'lithophane': { weight: 40, time: '3h 30m', basePrice: 250 }
+        };
+
+        let currentProduct = 'phone-stand';
+
+        function loadProduct(productKey) {
+            if (currentModel) {
+                scene.remove(currentModel);
+            }
+            
+            currentProduct = productKey;
+            currentModel = productModels[productKey]();
+            
+            // Center and scale
+            const box = new THREE.Box3().setFromObject(currentModel);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 3 / maxDim;
+            
+            currentModel.scale.setScalar(scale);
+            currentModel.position.sub(center.multiplyScalar(scale));
+            currentModel.position.y += 1;
+            
+            scene.add(currentModel);
+            updateCalculator();
+        }
+
+        function updateMaterial(matKey) {
+            currentMaterial = materials[matKey];
+            loadProduct(currentProduct);
+        }
+
+        function updateCalculator() {
+            const data = productData[currentProduct];
+            const pricePerGram = parseFloat(document.querySelector('.filament-color.active')?.dataset.price || 2.5);
+            const materialCost = Math.round(data.weight * pricePerGram);
+            const total = materialCost + data.basePrice + 50; // + setup fee
+            
+            document.getElementById('calcMaterial').textContent = materialCost;
+            document.getElementById('calcTime').textContent = data.time;
+            document.getElementById('calcTotal').textContent = total;
+        }
+
+        // Initialize with first product
+        loadProduct('phone-stand');
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isAutoRotating && currentModel) {
+                currentModel.rotation.y += 0.01;
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Viewer controls
+        document.getElementById('btnRotate').addEventListener('click', function() {
+            isAutoRotating = !isAutoRotating;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('btnWireframe').addEventListener('click', function() {
+            isWireframe = !isWireframe;
+            this.classList.toggle('active');
+            
+            if (currentModel) {
+                currentModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.wireframe = isWireframe;
+                    }
+                });
+            }
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            camera.position.set(5, 5, 5);
+            controls.reset();
+            if (currentModel) {
+                currentModel.rotation.set(0, 0, 0);
+            }
+        });
+
+        document.getElementById('btnScreenshot').addEventListener('click', () => {
+            renderer.render(scene, camera);
+            const dataURL = renderer.domElement.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `magniprints-${currentProduct}.png`;
+            link.href = dataURL;
+            link.click();
+        });
+
+        // Filament color selector
+        const filamentColors = document.querySelectorAll('.filament-color');
+        filamentColors.forEach(color => {
+            color.addEventListener('click', () => {
+                filamentColors.forEach(c => c.classList.remove('active'));
+                color.classList.add('active');
+                
+                const material = color.dataset.material;
+                const price = color.dataset.price;
+                const matData = materials[material];
+                
+                document.getElementById('currentMaterial').textContent = matData.name;
+                document.getElementById('materialPrice').textContent = price;
+                
+                updateMaterial(material);
+            });
+        });
+
+        // Product card selection
+        const productCards = document.querySelectorAll('.product-card');
+        productCards.forEach(card => {
+            card.addEventListener('click', () => {
+                productCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                loadProduct(card.dataset.product);
+            });
+        });
+
+        // Order function
+        function orderProduct(product) {
+            const data = productData[product];
+            const material = document.getElementById('currentMaterial').textContent;
+            const total = document.getElementById('calcTotal').textContent;
+            
+            const message = `Hi MagniPrints! I'd like to order:\n\nProduct: ${product.replace(/-/g, ' ').toUpperCase()}\nMaterial: ${material}\nEst. Cost: ₹${total}\n\nPlease confirm availability.`;
+            
+            const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappURL, '_blank');
+        }
+    </script>
 </body>
 </html>

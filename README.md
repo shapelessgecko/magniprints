@@ -1,244 +1,145 @@
-# MagniPrints — Immersive 3D Printing Website
+# 🔹 MagniPrints — Premium 3D Printing Laboratory
 
-[![Three.js](https://img.shields.io/badge/Three.js-r128-black?style=flat&logo=three.js)](https://threejs.org/)
-[![GSAP](https://img.shields.io/badge/GSAP-3.12-green?style=flat)](https://greensock.com/gsap/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
+An immersive, interactive 3D printing e-commerce experience featuring WebGL visualizations, real-time 3D product viewers, drag-and-drop STL uploads, and live order tracking.
 
-A complete immersive 3D interactive website for MagniPrints, featuring full Three.js integration, procedural 3D models, STL upload support, live print tracking, and WhatsApp order integration.
-
-![MagniPrints Preview](preview.png)
-
-## 🚀 Live Demo
-
-Try "DEMO" in the order tracker to see live print simulation!
+![3D Preview](https://img.shields.io/badge/3D-Three.js-blue)
+![WebGL](https://img.shields.io/badge/WebGL-Enabled-green)
+![GSAP](https://img.shields.io/badge/Animations-GSAP-purple)
 
 ## ✨ Features
 
-### 1. Homepage (`index.html`)
-- **Full-screen WebGL Hero Background** — Morphing sphere/particle system with dynamic connections
-- **3D Responsive Text** — Title responds to mouse movement with 3D perspective transform
-- **Interactive Showcase** — Switch between products with live 3D preview
-- **Scroll-triggered Animations** — GSAP-powered reveal animations
-- **Dark/Light Mode** — Full theme toggle with CSS custom properties
-- **Mobile-first Design** — iOS Safari optimized with simplified rendering
+### 🏠 Homepage
+- Full-screen WebGL background with floating particles
+- Multiple animated 3D wireframe shapes (icosahedron, torus, octahedron, ring)
+- Mouse-responsive camera parallax movement
+- GSAP scroll-triggered animations
+- Counter animations with intersection observer
+- Dark/Light mode toggle
 
-### 2. Products Page (`products/`)
-- **Interactive 3D Product Viewer** — Sidebar with OrbitControls (rotate, zoom, pan)
-- **7 Procedural 3D Models**:
+### 🛍️ Products Page
+- Live 3D product viewer in sidebar
+- **7 procedural 3D product models**:
+  - 📱 Phone Stand (rounded box geometry)
+  - 🪴 Geometric Planter (lathe geometry)
+  - 🔌 Magnetic Cable Holder (curved tube)
+  - 🔑 Custom Keychain (torus ring)
+  - 🎮 Dual Controller Stand
+  - 📦 Modular Desk Organizer
+  - 🖼️ Custom Lithophane
+- OrbitControls (rotate, zoom, pan)
+- 8 filament material options with live material switching
+- Price calculator (real-time based on filament type)
+- Auto-rotate and wireframe mode toggles
+- Screenshot capture functionality
+
+### 📤 Custom Upload Page
+- Drag & drop STL file upload zone
+- Three.js STL loader for instant 3D preview
+- 3 built-in sample models to test:
   - Phone Stand
-  - Geometric Planter
-  - Cable Holder Set
-  - Custom Keychain
-  - Controller Stand
-  - Desk Organizer
-  - 3D Lithophane
-- **Filament Selector** — PLA, PETG, TPU with dynamic material properties
-- **Color Picker** — 10+ color options per filament type
-- **Price Calculator** — Real-time price updates based on filament + quantity
-- **WhatsApp Integration** — Direct order links with pre-filled details
+  - Decorative Vase (lathe geometry)
+  - Abstract Figurine
+- Complete print settings control:
+  - Layer height (0.1mm - 0.3mm)
+  - Infill percentage (10% - 100%)
+  - Wall thickness (0.8mm - 2.0mm)
+  - Material selector
+- Real-time cost calculation (material × weight)
+- Print statistics (dimensions, volume, estimated time)
+- WhatsApp integration for seamless ordering
 
-### 3. Custom Print Page (`custom/`)
-- **Drag & Drop STL Upload** — Full Three.js STL loader integration
-- **3D Preview** — Real-time preview of uploaded files
-- **Sample Models** — Phone Stand, Zen Vase, Robo Figurine for testing
-- **Print Settings**:
-  - Layer height (0.1mm - 0.4mm)
-  - Infill density (0% - 100%)
-  - Support options (None/Touching/Everywhere)
-- **Filament Cost Calculator** — Price per gram based on material
-- **Model Statistics** — Dimensions, volume, triangle count, estimated weight
+### 📊 Order Tracking Page
+- Order ID tracking with demo data
+- **3D layer visualization** — stacked layers showing real-time print progress
+- Animated progress bar
+- 5-step status tracker with 3D-style icons
+- Live G-code terminal simulation
+- Print statistics (nozzle/bed temp, fan speed)
+- ETA countdown timer
+- Real-time printer status indicators
 
-### 4. Track Order Page (`track/`)
-- **Order ID Search** — Search orders or use "DEMO" for live preview
-- **5-Step Progress Tracker**:
-  1. Confirmed
-  2. Preparing
-  3. Printing (with LIVE badge)
-  4. Quality Check
-  5. Shipped
-- **Live Print Visualization** — Real-time 3D layer growth simulation
-- **G-Code Stream** — Animated terminal showing real-time commands
-- **Print Stats** — Layer progress, nozzle/bed temperature, print speed
-- **ETA Countdown** — Real-time countdown to completion
+## 🎨 Theme Support
 
-## 🎨 Design System
+Automatically switches between:
+- **Dark Mode**: `#050505` background, white text, `#667eea` accent
+- **Light Mode**: `#ffffff` background, `#1a1a1a` text, `#22c55e` accent
 
-### Colors
+## 🛠️ Tech Stack
 
-**Dark Mode (Default):**
-- Background: `#050505`
-- Text: `#ffffff`
-- Accent: `#667eea` (purple) → `#764ba2` gradient
+| Technology | Purpose |
+|------------|---------|
+| Three.js r128 | All 3D rendering |
+| GSAP 3.12.2 | Scroll animations & transitions |
+| OrbitControls | 3D viewer navigation |
+| STLLoader | STL file preview |
+| Intersection Observer | Scroll reveal effects |
+| CSS Variables | Dynamic theming |
+| WhatsApp API | Order integration |
 
-**Light Mode:**
-- Background: `#ffffff`
-- Text: `#1a1a1a`
-- Accent: `#22c55e` (green)
-
-### Typography
-- **Headlines**: Space Grotesk (700)
-- **Body**: Inter (400, 600)
-
-## 🛠 Technical Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Three.js | r128 | 3D rendering & WebGL |
-| GSAP | 3.12.2 | Animations & scroll effects |
-| OrbitControls | r128 | Camera navigation |
-| STLLoader | r128 | STL file import |
-| No CSS frameworks | — | Pure custom CSS with CSS Grid/Flexbox |
-
-## 📱 Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+ (iOS Safari with simplified rendering)
-- Edge 90+
-
-## 🚀 Getting Started
-
-### Option 1: Direct Git Push (Recommended)
-
-```bash
-# Clone/navigate to the repository
-cd magniprints
-
-# Add your GitHub remote (if not already configured)
-git remote add origin https://github.com/shapelessgecko/magniprints.git
-
-# Push to GitHub (requires authentication)
-git push -u origin main
-```
-
-**Authentication options:**
-1. **Personal Access Token**: Use token as password when prompted
-2. **SSH**: Set up SSH keys and use SSH URL
-3. **GitHub CLI**: `gh auth login` then `gh repo create`
-
-### Option 2: GitHub Web Upload
-
-1. Go to https://github.com/shapelessgecko/magniprints
-2. Click "Add file" → "Upload files"
-3. Drag and drop all files from the `magniprints` folder
-4. Commit changes
-
-### Option 3: Local Preview
-
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js (npx)
-npx serve .
-
-# Using PHP
-php -S localhost:8000
-```
-
-Then open http://localhost:8000
-
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
 magniprints/
-├── index.html              # Homepage
-├── products/
-│   └── index.html          # Products with 3D viewer
-├── custom/
-│   └── index.html          # STL upload & custom prints
-├── track/
-│   └── index.html          # Order tracking
+├── index.html                 # Homepage with WebGL background
 ├── css/
-│   ├── main.css            # Global styles & themes
-│   ├── products.css        # Products page styles
-│   ├── custom.css          # Custom order styles
-│   └── track.css           # Tracking page styles
-├── js/
-│   ├── main.js             # Shared utilities & theme toggle
-│   ├── hero-3d.js          # Homepage 3D effects
-│   ├── products-3d.js      # Product viewer & calculator
-│   ├── custom-3d.js        # STL loader & price estimator
-│   └── track.js            # Live print tracking
+│   └── styles.css            # All styles with CSS variables
+├── products/
+│   └── index.html            # Product catalog with 3D viewer
+├── custom/
+│   └── index.html            # STL upload & custom print page
+├── track/
+│   └── index.html            # Order tracking with 3D visualization
 └── README.md
 ```
 
-## 🎮 Interactive Elements
+## 🚀 Quick Start
 
-### Mouse Interactions
-- **3D Text**: Rotates based on mouse position
-- **Particle System**: Responds to mouse proximity
-- **Product Cards**: 3D tilt effect on hover
+1. Clone/download the repository
+2. Open `index.html` in any modern browser
+3. No build step required — pure HTML/CSS/JS!
 
-### Scroll Animations
-- Hero fade-in
-- Feature cards stagger animation
-- Stats counter animation
-- Section reveals with GSAP ScrollTrigger
+Or host on any static site platform (GitHub Pages, Netlify, Vercel, etc.)
 
-### 3D Controls
-- **OrbitControls**: Left-click rotate, right-click pan, scroll zoom
-- **Auto-rotate**: Toggle with button
-- **Wireframe mode**: Toggle materials
-- **Reset view**: Return to default camera
+## 📱 Mobile Support
 
-## 💰 Pricing Model
+- Responsive layouts for all screen sizes
+- Simplified 3D on mobile for performance
+- Touch-friendly controls
+- Hamburger navigation on small screens
 
-The site includes a dynamic pricing calculator:
+## 🎮 Keyboard Shortcuts
 
-| Filament | Cost/g | Properties |
-|----------|--------|------------|
-| PLA | ₹2 | Standard, matte finish |
-| PETG | ₹3 | Strong, durable |
-| TPU | ₹5 | Flexible, rugged |
+| Key | Action |
+|-----|--------|
+| `Enter` | Submit order ID in tracking page |
+| Mouse | Rotate/Zoom 3D viewers |
+| Drag | OrbitControls navigation |
 
-Additional costs:
-- Setup fee: ₹50 per order
-- Print time: ₹50/hour
+## 📝 Demo Order IDs
 
-## 🔗 Order Integration
+Try these for the tracking page:
+- `MP-2024-001` — In progress
+- `MP-2024-002` — QC Check
+- `MP-2024-003` — Completed
+- `DEMO` — Live simulation
 
-WhatsApp integration pre-fills:
-- Product details
-- Selected filament & color
-- Quantity
-- Estimated price
+## 🎨 Customization
 
-Format: `https://wa.me/918800000000?text={message}`
+Edit these in `css/styles.css`:
 
-## 📊 Performance
+```css
+:root {
+    --bg-dark: #050505;
+    --bg-light: #ffffff;
+    --accent-dark: #667eea;
+    --accent-light: #22c55e;
+}
+```
 
-- **iOS Safari**: Simplified particle system (800 vs 2000 particles)
-- **Mobile**: 30fps target vs 60fps desktop
-- **Lazy loading**: 3D scenes load on demand
-- **Code splitting**: Page-specific JS files
+## 🔗 Live Demo
 
-## 🐛 Known Limitations
-
-1. **STL Upload**: Files up to 50MB only
-2. **Browser Storage**: No persistency (orders not actually stored)
-3. **WhatsApp**: Requires user's WhatsApp to be active
-4. **Print Simulation**: Demo mode only for preview
-
-## 🔮 Future Enhancements
-
-- [ ] Stripe/PayPal payment integration
-- [ ] User accounts with order history
-- [ ] Real print farm API integration
-- [ ] AR product preview
-- [ ] Image-to-lithophane conversion
-
-## 📝 License
-
-MIT License - feel free to use for your own 3D printing business!
-
-## 🙏 Credits
-
-- 3D rendering: [Three.js](https://threejs.org/)
-- Animations: [GSAP](https://greensock.com/)
-- Icons: Custom SVG
-- Fonts: Google Fonts (Inter, Space Grotesk)
+Hosted on GitHub Pages: [magniprints.github.io](https://yourusername.github.io/magniprints/)
 
 ---
 
-**Made with 💜 for MagniPrints** — Bring ideas into reality!
+Crafted with 💜 for makers, by MagniPrints

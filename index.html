@@ -1,233 +1,516 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MagniPrints — Premium 3D Printing</title>
+    <title>MagniPrints - 3D Printing Laboratory</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- WebGL Canvas -->
-    <canvas id="webgl-canvas"></canvas>
-
-    <!-- Mobile Navigation Overlay -->
-    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <!-- WebGL Background Canvas -->
+    <canvas id="webgl-bg"></canvas>
     
-    <!-- Mobile Navigation Sidebar -->
-    <div class="mobile-nav-sidebar" id="mobileNavSidebar">
-        <nav class="mobile-nav-links">
-            <a href="index.html" class="active">Home</a>
-            <a href="products/">Products</a>
-            <a href="custom/">Custom Print</a>
-            <a href="track/">Track</a>
-        </nav>
-        <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-theme">
-            <span>Dark Mode</span>
-            <button class="theme-toggle mobile-sidebar-toggle" aria-label="Toggle theme">
-                <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-                <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-            </button>
-        </div>
-    </div>
-
     <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-logo">
-            <svg viewBox="0 0 40 40" class="logo-icon">
-                <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
-                <circle cx="20" cy="22" r="4" fill="currentColor"/>
-            </svg>
-            <span class="logo-text">MagniPrints</span>
+    <nav class="navbar">
+        <div class="logo">MagniPrints</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products/">Products</a></li>
+            <li><a href="custom/">Custom Print</a></li>
+            <li><a href="track/">Track Order</a></li>
+        </ul>
+        <div class="nav-controls">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">☀️</span>
+            </button>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         </div>
-        <div class="nav-links">
-            <a href="index.html" class="active">Home</a>
-            <a href="products/">Products</a>
-            <a href="custom/">Custom Print</a>
-            <a href="track/">Track</a>
-        </div>
-        <button class="theme-toggle desktop-toggle" aria-label="Toggle theme">
-            <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
-            <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-        </button>
-        <button class="hamburger" id="hamburgerMenu" aria-label="Open menu">
-            <span class="hamburger-lines"></span>
-        </button>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
+        <div class="floating-shapes" id="floatingShapes"></div>
         <div class="hero-content">
+            <div class="hero-badge">
+                <span>🔥</span>
+                <span>Premium 3D Printing Services</span>
+            </div>
             <h1 class="hero-title">
-                <span class="title-line" data-3d-text>Bring Ideas</span>
-                <span class="title-line" data-3d-text>Into Reality</span>
+                Bring Your Ideas
+                <span class="highlight">To Life</span>
             </h1>
-            <p class="hero-subtitle">Premium 3D printed products crafted with precision and purpose</p>
-            <div class="hero-buttons">
+            <div class="hero-3d-text">
+                <span class="text-3d">3D</span>
+            </div>
+            <p class="hero-subtitle">
+                Transform your concepts into tangible reality with our state-of-the-art 3D printing 
+                technology. From prototypes to production, we deliver precision and excellence.
+            </p>
+            <div class="cta-group">
                 <a href="products/" class="btn btn-primary">
                     <span>Explore Products</span>
-                    <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+                    <span>→</span>
                 </a>
-                <a href="custom/" class="btn btn-secondary">Custom Order</a>
-            </div>
-        </div>
-        <div class="scroll-indicator">
-            <div class="mouse">
-                <div class="wheel"></div>
-            </div>
-            <span>Scroll to explore</span>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <h2 class="section-title">Why Choose MagniPrints</h2>
-            <div class="features-grid">
-                <div class="feature-card" data-tilt>
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 48 48"><path d="M24 4L4 14v20l20 10 20-10V14L24 4z" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <path d="M24 14L12 20v16l12 6 12-6V20L24 14z" fill="currentColor" opacity="0.2"/></svg>
-                    </div>
-                    <h3>Precision Engineering</h3>
-                    <p>0.1mm layer height accuracy for flawless prints every time</p>
-                </div>
-                <div class="feature-card" data-tilt>
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <path d="M24 12v12l8 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </div>
-                    <h3>Fast Turnaround</h3>
-                    <p>Most orders ship within 24-48 hours of confirmation</p>
-                </div>
-                <div class="feature-card" data-tilt>
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 48 48"><path d="M12 24c0-8 6-14 12-14s12 6 12 14-6 14-12 14" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="24" cy="24" r="6" fill="currentColor" opacity="0.3"/></svg>
-                    </div>
-                    <h3>Eco-Friendly</h3>
-                    <p>Sustainable materials and biodegradable packaging</p>
-                </div>
-                <div class="feature-card" data-tilt>
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <path d="M16 20h16M16 28h10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                    </div>
-                    <h3>Quality Guaranteed</h3>
-                    <p>100% satisfaction guarantee or your money back</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3D Showcase Section -->
-    <section class="showcase">
-        <div class="showcase-bg"></div>
-        <div class="container">
-            <div class="showcase-content">
-                <h2 class="section-title">Interactive 3D Showcase</h2>
-                <p class="section-subtitle">Experience our products in full 3D before you buy</p>
-            </div>
-            <div id="showcase-canvas" class="showcase-viewer"></div>
-            <div class="showcase-products">
-                <button class="showcase-btn active" data-product="stand">Phone Stand</button>
-                <button class="showcase-btn" data-product="planter">Planter</button>
-                <button class="showcase-btn" data-product="organizer">Organizer</button>
-                <button class="showcase-btn" data-product="controller">Controller Stand</button>
+                <a href="custom/" class="btn btn-secondary">
+                    <span>Upload Your Design</span>
+                </a>
             </div>
         </div>
     </section>
 
     <!-- Stats Section -->
     <section class="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-number" data-count="15000">0</span>
-                    <span class="stat-label">Prints Delivered</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" data-count="98">0</span>
-                    <span class="stat-suffix">%</span>
-                    <span class="stat-label">Happy Customers</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" data-count="24">0</span>
-                    <span class="stat-suffix">h</span>
-                    <span class="stat-label">Avg. Delivery</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" data-count="50">0</span>
-                    <span class="stat-suffix">+</span>
-                    <span class="stat-label">Product Designs</span>
-                </div>
+        <div class="stat-item reveal">
+            <div class="stat-number" data-count="50000">0</div>
+            <div class="stat-label">Prints Completed</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-number" data-count="99">0</div>
+            <div class="stat-label">% Success Rate</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-number" data-count="24">0</div>
+            <div class="stat-label">Hour Turnaround</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="stat-number" data-count="50">0</div>
+            <div class="stat-label">Material Options</div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <h2 class="section-title reveal">Why Choose MagniPrints?</h2>
+        <p class="section-subtitle reveal">Experience the future of manufacturing today</p>
+        
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Lightning Fast</h3>
+                <p class="feature-desc">
+                    Same-day printing for urgent projects. Our optimized workflow ensures 
+                    you get your prints when you need them.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Precision Guaranteed</h3>
+                <p class="feature-desc">
+                    ±0.1mm accuracy across all materials. Industrial-grade printers 
+                    deliver consistent, high-quality results.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🌈</div>
+                <h3 class="feature-title">50+ Materials</h3>
+                <p class="feature-desc">
+                    From PLA to carbon fiber reinforced nylon. Find the perfect material 
+                    for your specific application.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">Quality Assured</h3>
+                <p class="feature-desc">
+                    Every print undergoes rigorous inspection. Free reprints if 
+                    you're not 100% satisfied.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">Transparent Pricing</h3>
+                <p class="feature-desc">
+                    Real-time cost calculation based on weight and material. 
+                    No hidden fees, ever.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Live Tracking</h3>
+                <p class="feature-desc">
+                    Monitor your print progress in real-time. 3D visualization 
+                    shows each layer as it's printed.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="features">
+        <h2 class="section-title reveal">How It Works</h2>
+        <p class="section-subtitle reveal">From concept to physical in three simple steps</p>
+        
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon">1️⃣</div>
+                <h3 class="feature-title">Upload or Select</h3>
+                <p class="feature-desc">
+                    Upload your STL file or choose from our curated collection 
+                    of ready-to-print products.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">2️⃣</div>
+                <h3 class="feature-title">Customize & Quote</h3>
+                <p class="feature-desc">
+                    Select material, color, and settings. Get an instant 
+                    quote with real-time price updates.
+                </p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">3️⃣</div>
+                <h3 class="feature-title">Print & Track</h3>
+                <p class="feature-desc">
+                    Order via WhatsApp and track your print in real-time 
+                    with our 3D progress visualization.
+                </p>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2>Ready to bring your ideas to life?</h2>
-                <p>Start with a custom print or explore our curated collection</p>
-                <div class="cta-buttons">
-                    <a href="custom/" class="btn btn-primary">Upload Your Design</a>
-                    <a href="products/" class="btn btn-outline">Browse Products</a>
-                </div>
+    <section class="hero" style="min-height: 60vh;">
+        <div class="hero-content reveal">
+            <h2 class="section-title">Ready to Print?</h2>
+            <p class="hero-subtitle">
+                Join thousands of satisfied customers who trust MagniPrints 
+                for their 3D printing needs.
+            </p>
+            <div class="cta-group">
+                <a href="custom/" class="btn btn-primary">
+                    <span>Start Your Project</span>
+                    <span>→</span>
+                </a>
+                <a href="products/" class="btn btn-secondary">
+                    <span>Browse Products</span>
+                </a>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="nav-logo">
-                        <svg viewBox="0 0 40 40" class="logo-icon">
-                            <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
-                            <circle cx="20" cy="22" r="4" fill="currentColor"/>
-                        </svg>
-                        <span class="logo-text">MagniPrints</span>
-                    </div>
-                    <p>Premium 3D printing for everyone. Quality, speed, and precision in every print.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <a href="products/">Products</a>
-                    <a href="custom/">Custom Print</a>
-                    <a href="track/">Track Order</a>
-                </div>
-                <div class="footer-links">
-                    <h4>Support</h4>
-                    <a href="mailto:support@magniprints.com">Contact</a>
-                    <a href="#faq">FAQ</a>
-                    <a href="#shipping">Shipping Info</a>
-                </div>
-                <div class="footer-social">
-                    <h4>Follow Us</h4>
-                    <div class="social-icons">
-                        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/></svg></a>
-                        <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
-                        <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 016.5 11.4 8.5 8.5 0 0111.3 3.9 8.38 8.38 0 0115.2 3 8.5 8.5 0 0121 11.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
-                    </div>
-                </div>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">MagniPrints</div>
+                <p class="footer-desc">
+                    Premium 3D printing services for creators, makers, and innovators. 
+                    Turning digital dreams into physical reality.
+                </p>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 MagniPrints. All rights reserved.</p>
+            <div class="footer-links">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="products/">Products</a></li>
+                    <li><a href="custom/">Custom Prints</a></li>
+                    <li><a href="track/">Order Tracking</a></li>
+                    <li><a href="#">Bulk Orders</a></li>
+                </ul>
             </div>
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Material Guide</a></li>
+                    <li><a href="#">Print Tips</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Discord</a></li>
+                    <li><a href="#">WhatsApp</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 MagniPrints. All rights reserved.</p>
+            <p>Crafted with 💜 for makers</p>
         </div>
     </footer>
 
-    <script src="js/hero-3d.js"></script>
-    <script src="js/main.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Three.js WebGL Background
+        const canvas = document.getElementById('webgl-bg');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Particles
+        const particlesCount = 1000;
+        const positions = new Float32Array(particlesCount * 3);
+        const colors = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 50;
+            positions[i + 1] = (Math.random() - 0.5) * 50;
+            positions[i + 2] = (Math.random() - 0.5) * 50;
+            
+            colors[i] = Math.random() * 0.5 + 0.5;
+            colors[i + 1] = Math.random() * 0.3 + 0.2;
+            colors[i + 2] = 1;
+        }
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.1,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        // Floating Wireframe Shapes
+        const shapes = [];
+        
+        // Icosahedron
+        const icoGeometry = new THREE.IcosahedronGeometry(1, 0);
+        const wireframeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x667eea,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+        const icosahedron = new THREE.Mesh(icoGeometry, wireframeMaterial);
+        icosahedron.position.set(-8, 3, -10);
+        scene.add(icosahedron);
+        shapes.push({ mesh: icosahedron, speed: { x: 0.005, y: 0.008, z: 0.003 } });
+
+        // Torus
+        const torusGeometry = new THREE.TorusGeometry(1.5, 0.4, 16, 32);
+        const torusMaterial = new THREE.MeshBasicMaterial({
+            color: 0x9333ea,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+        const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+        torus.position.set(8, -2, -15);
+        scene.add(torus);
+        shapes.push({ mesh: torus, speed: { x: 0.004, y: 0.006, z: 0.002 } });
+
+        // Octahedron
+        const octaGeometry = new THREE.OctahedronGeometry(1.2, 0);
+        const octaMaterial = new THREE.MeshBasicMaterial({
+            color: 0xec4899,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+        const octahedron = new THREE.Mesh(octaGeometry, octaMaterial);
+        octahedron.position.set(5, 5, -8);
+        scene.add(octahedron);
+        shapes.push({ mesh: octahedron, speed: { x: 0.006, y: 0.004, z: 0.005 } });
+
+        // Ring
+        const ringGeometry = new THREE.RingGeometry(1, 1.5, 32);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            color: 0x22c55e,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25,
+            side: THREE.DoubleSide
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.position.set(-5, -5, -12);
+        scene.add(ring);
+        shapes.push({ mesh: ring, speed: { x: 0.003, y: 0.007, z: 0.004 } });
+
+        camera.position.z = 5;
+
+        // Mouse movement
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) / 100;
+            mouseY = (e.clientY - window.innerHeight / 2) / 100;
+        });
+
+        // Animation
+        let isActive = true;
+        
+        function animate() {
+            if (!isActive) return;
+            requestAnimationFrame(animate);
+
+            // Smooth camera movement
+            targetX = mouseX * 0.5;
+            targetY = mouseY * 0.5;
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            // Rotate particles
+            particles.rotation.y += 0.001;
+            particles.rotation.x += 0.0005;
+
+            // Animate shapes
+            shapes.forEach(shape => {
+                shape.mesh.rotation.x += shape.speed.x;
+                shape.mesh.rotation.y += shape.speed.y;
+                shape.mesh.rotation.z += shape.speed.z;
+                shape.mesh.position.y += Math.sin(Date.now() * 0.001 + shape.mesh.position.x) * 0.01;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            isActive = !document.hidden;
+            if (isActive) animate();
+        });
+
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero animations
+        gsap.from('.hero-badge', {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.hero-title', {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            delay: 0.3,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.hero-subtitle', {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            delay: 0.5,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.cta-group', {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            delay: 0.7,
+            ease: 'power3.out'
+        });
+
+        // Scroll reveal
+        const reveals = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(el => revealObserver.observe(el));
+
+        // Counter animation
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    const count = parseInt(target.getAttribute('data-count'));
+                    let current = 0;
+                    const increment = count / 50;
+                    const suffix = target.textContent.includes('%') ? '%' : 
+                                   target.textContent.includes('+') ? '+' : '';
+                    
+                    const updateCount = () => {
+                        current += increment;
+                        if (current < count) {
+                            target.textContent = Math.floor(current) + suffix;
+                            requestAnimationFrame(updateCount);
+                        } else {
+                            target.textContent = count + suffix + (target.textContent.includes('Hour') ? '' : '+');
+                        }
+                    };
+                    
+                    updateCount();
+                    countObserver.unobserve(target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statNumbers.forEach(stat => countObserver.observe(stat));
+
+        // Parallax on scroll for shapes
+        gsap.to(shapes.map(s => s.mesh.position), {
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1
+            },
+            y: '-=50',
+            stagger: 0.1
+        });
+    </script>
 </body>
 </html>
