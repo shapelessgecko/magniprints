@@ -13,6 +13,8 @@
   
   <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
@@ -339,16 +341,47 @@
     }
     
     /* Custom Section */
+    .custom-section {
+      min-height: 100vh;
+      height: auto;
+      padding: 4rem 0;
+    }
+    
+    .custom-content {
+      width: 100%;
+      max-width: 1200px;
+      padding: 0 2rem;
+    }
+    
+    .custom-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 3rem;
+      align-items: start;
+    }
+    
+    .custom-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .custom-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
     .upload-zone {
-      width: clamp(280px, 40vw, 500px);
-      height: clamp(200px, 30vh, 350px);
-      border: 1px dashed var(--border);
-      border-radius: 2px;
+      width: 100%;
+      height: clamp(200px, 35vh, 400px);
+      border: 2px dashed var(--border);
+      border-radius: 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 1rem;
       transition: all 0.4s ease;
       cursor: pointer;
       position: relative;
@@ -359,6 +392,22 @@
     .upload-zone.dragging {
       border-color: var(--text);
       background: rgba(var(--bg-rgb), 0.5);
+    }
+    
+    .upload-zone input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    .upload-zone label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      pointer-events: none;
     }
     
     .upload-zone .icon {
@@ -372,16 +421,247 @@
     }
     
     .upload-text {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 300;
       letter-spacing: 0.1em;
       color: var(--text-secondary);
     }
     
     .upload-sub {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       letter-spacing: 0.05em;
+    }
+    
+    #preview-3d {
+      width: 100%;
+      height: clamp(200px, 35vh, 400px);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: none;
+      overflow: hidden;
+    }
+    
+    #preview-3d canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .file-info.visible {
+      opacity: 1;
+    }
+    
+    /* Filament Selector */
+    .filament-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .selector-label {
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    
+    .material-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .material-tab {
+      flex: 1;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.6rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .material-tab:hover {
+      border-color: var(--text-secondary);
+    }
+    
+    .material-tab.active {
+      border-color: var(--text);
+      color: var(--text);
+    }
+    
+    .material-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      margin-top: -0.25rem;
+    }
+    
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    
+    .color-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .color-option:hover {
+      transform: scale(1.05);
+    }
+    
+    .color-option.active {
+      border-color: var(--text);
+    }
+    
+    .color-option.active::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.9rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    /* Print Settings */
+    .print-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    
+    .setting-label {
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+    
+    .print-settings select {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+    
+    .print-settings select:hover,
+    .print-settings select:focus {
+      border-color: var(--text);
+      outline: none;
+    }
+    
+    .print-settings option {
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    /* Cost Estimate */
+    .cost-estimate {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 300;
+    }
+    
+    .cost-row span:first-child {
+      color: var(--text-secondary);
+    }
+    
+    .cost-row span:last-child {
+      color: var(--text);
+      font-weight: 400;
+    }
+    
+    .cost-row.total {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .cost-row.total span:first-child {
+      color: var(--text);
+    }
+    
+    .cost-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.25rem 0;
+    }
+    
+    /* Order Button */
+    .order-btn {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    
+    .order-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .order-btn:active {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 900px) {
+      .custom-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      
+      .custom-right {
+        max-width: 400px;
+        margin: 0 auto;
+        width: 100%;
+      }
     }
     
     /* Track Section */
@@ -640,18 +920,90 @@
   </section>
   
   <!-- Section 2: Custom -->
-  <section class="section" id="section-2" data-section="2">
+  <section class="section custom-section" id="section-2" data-section="2">
     <canvas class="webgl-bg" id="canvas-custom"></canvas>
     <span class="section-label">02 / Custom</span>
-    <div class="section-content">
-      <div class="upload-zone" id="uploadZone">
-        <span class="icon">⬆️</span>
-        <span class="upload-text">Drop STL file here</span>
-        <span class="upload-sub">or click to browse</span>
-        <input type="file" id="fileInput" accept=".stl" style="display: none;">
+    <div class="section-content custom-content">
+      <div class="custom-container">
+        <!-- Left: Upload & Preview -->
+        <div class="custom-left">
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="stl-upload" accept=".stl">
+            <label for="stl-upload">
+              <span class="icon">⬆️</span>
+              <span class="upload-text">Drop STL file or click to upload</span>
+              <span class="upload-sub">.stl files only</span>
+            </label>
+          </div>
+          <div id="preview-3d"></div>
+          <div class="file-info" id="fileInfo">
+            <span id="fileName"></span>
+            <span id="fileVolume"></span>
+          </div>
+        </div>
+        
+        <!-- Right: Options & Cost -->
+        <div class="custom-right">
+          <!-- Filament Selector -->
+          <div class="filament-selector">
+            <label class="selector-label">Material Type</label>
+            <div class="material-tabs">
+              <button class="material-tab active" data-material="pla">PLA — ₹3/g</button>
+              <button class="material-tab" data-material="petg">PETG — ₹4/g</button>
+              <button class="material-tab" data-material="tpu">TPU — ₹5/g</button>
+            </div>
+            <p class="material-desc" id="materialDesc">Strong, matte finish</p>
+            
+            <label class="selector-label">Color</label>
+            <div class="color-grid" id="colorGrid">
+              <!-- Colors injected by JS -->
+            </div>
+          </div>
+          
+          <!-- Print Settings -->
+          <div class="print-settings">
+            <label class="setting-row">
+              <span class="setting-label">Layer Height</span>
+              <select id="layer-height">
+                <option value="0.1">0.1mm (High Quality)</option>
+                <option value="0.2" selected>0.2mm (Standard)</option>
+                <option value="0.3">0.3mm (Fast)</option>
+              </select>
+            </label>
+            <label class="setting-row">
+              <span class="setting-label">Infill</span>
+              <select id="infill">
+                <option value="20">20% (Light)</option>
+                <option value="50" selected>50% (Standard)</option>
+                <option value="100">100% (Solid)</option>
+              </select>
+            </label>
+          </div>
+          
+          <!-- Cost Estimate -->
+          <div class="cost-estimate">
+            <div class="cost-row">
+              <span>Material</span>
+              <span id="material-cost">₹0</span>
+            </div>
+            <div class="cost-row">
+              <span>Setup</span>
+              <span id="setup-cost">₹50</span>
+            </div>
+            <div class="cost-divider"></div>
+            <div class="cost-row total">
+              <span>Total</span>
+              <span id="total-cost">₹50</span>
+            </div>
+          </div>
+          
+          <!-- Order Button -->
+          <button class="order-btn" onclick="openWhatsApp()">
+            <span>Order via WhatsApp</span>
+          </button>
+        </div>
       </div>
     </div>
-    <canvas class="preview-canvas" id="preview-canvas"></canvas>
   </section>
   
   <!-- Section 3: Track -->
@@ -1142,14 +1494,21 @@
     });
     
     // ========================================
-    // FILE UPLOAD
+    // FILE UPLOAD & STL PREVIEW
     // ========================================
     const uploadZone = document.getElementById('uploadZone');
-    const fileInput = document.getElementById('fileInput');
-    const previewCanvas = document.getElementById('preview-canvas');
+    const stlUpload = document.getElementById('stl-upload');
+    const preview3d = document.getElementById('preview-3d');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileVolume = document.getElementById('fileVolume');
     
-    uploadZone.addEventListener('click', () => fileInput.click());
+    // STL Preview variables
+    let stlScene, stlCamera, stlRenderer, stlMesh, stlControls, stlMaterial;
+    let currentFile = null;
+    let estimatedGrams = 50; // Default estimate
     
+    // Drag and drop
     uploadZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       uploadZone.classList.add('dragging');
@@ -1163,83 +1522,332 @@
       e.preventDefault();
       uploadZone.classList.remove('dragging');
       const files = e.dataTransfer.files;
-      if (files.length > 0) handleFile(files[0]);
+      if (files.length > 0) loadSTL(files[0]);
     });
     
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    stlUpload.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) loadSTL(e.target.files[0]);
     });
     
-    let previewRenderer, previewScene, previewCamera, previewMesh;
+    // Material configuration
+    const materialConfig = {
+      pla: {
+        name: 'PLA',
+        price: 3,
+        desc: 'Strong, matte finish',
+        colors: [
+          { name: 'White', hex: '#ffffff' },
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'Gray', hex: '#6b7280' },
+          { name: 'Red', hex: '#dc2626' },
+          { name: 'Blue', hex: '#2563eb' },
+          { name: 'Green', hex: '#16a34a' }
+        ]
+      },
+      petg: {
+        name: 'PETG',
+        price: 4,
+        desc: 'Durable, glossy finish',
+        colors: [
+          { name: 'Clear', hex: 'transparent' },
+          { name: 'White', hex: '#ffffff' },
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'Orange', hex: '#ea580c' }
+        ]
+      },
+      tpu: {
+        name: 'TPU',
+        price: 5,
+        desc: 'Flexible, rubber-like',
+        colors: [
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'Red', hex: '#dc2626' },
+          { name: 'Blue', hex: '#2563eb' },
+          { name: 'Yellow', hex: '#ca8a04' }
+        ]
+      }
+    };
     
-    function handleFile(file) {
+    // State
+    let currentMaterial = 'pla';
+    let currentColor = '#ffffff';
+    
+    // Material tabs
+    document.querySelectorAll('.material-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.material-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentMaterial = tab.dataset.material;
+        document.getElementById('materialDesc').textContent = materialConfig[currentMaterial].desc;
+        renderColors();
+        updateCost();
+      });
+    });
+    
+    // Render color options
+    function renderColors() {
+      const colorGrid = document.getElementById('colorGrid');
+      const colors = materialConfig[currentMaterial].colors;
+      currentColor = colors[0].hex;
+      
+      colorGrid.innerHTML = colors.map((color, i) => `
+        <div class="color-option ${i === 0 ? 'active' : ''}" 
+             data-color="${color.hex}"
+             style="background: ${color.hex === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)' : color.hex}; background-size: ${color.hex === 'transparent' ? '10px 10px' : 'auto'}; background-position: ${color.hex === 'transparent' ? '0 0, 5px 5px' : 'auto'};"
+             title="${color.name}">
+        </div>
+      `).join('');
+      
+      document.querySelectorAll('.color-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          currentColor = opt.dataset.color;
+          updateModelColor();
+          updateCost();
+        });
+      });
+      
+      updateModelColor();
+    }
+    
+    // Initialize colors
+    renderColors();
+    
+    // Load STL file
+    function loadSTL(file) {
       if (!file.name.toLowerCase().endsWith('.stl')) {
         alert('Please upload an STL file');
         return;
       }
       
-      uploadZone.innerHTML = `
-        <span class="icon">✓</span>
-        <span class="upload-text">${file.name}</span>
-        <span class="upload-sub">Processing...</span>
-      `;
+      currentFile = file;
+      fileName.textContent = file.name;
       
-      // Show preview canvas animation
-      gsap.to('.upload-zone', { x: -100, duration: 0.5 });
-      gsap.to('#preview-canvas', { opacity: 1, duration: 0.5, delay: 0.3 });
-      
-      // Init preview WebGL
-      initPreviewWebGL();
-      
-      setTimeout(() => {
-        alert(`Quote for ${file.name}:\nEstimated: ₹${Math.floor(Math.random() * 500 + 200)}\nTime: ${Math.floor(Math.random() * 24 + 12)} hours\n\nProceed to checkout?`);
-        resetUpload();
-      }, 2000);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const loader = new THREE.STLLoader();
+          const geometry = loader.parse(e.target.result);
+          
+          // Calculate volume (approximate grams assuming 1.25g/cm³ density for PLA)
+          const volume = calculateVolume(geometry);
+          estimatedGrams = Math.ceil(volume * 1.25);
+          fileVolume.textContent = `~${estimatedGrams}g`;
+          fileInfo.classList.add('visible');
+          
+          // Switch UI
+          uploadZone.style.display = 'none';
+          preview3d.style.display = 'block';
+          
+          // Init 3D preview
+          initSTLPreview(geometry);
+          updateCost();
+        } catch (err) {
+          console.error('Error parsing STL:', err);
+          alert('Error loading STL file. Please check the file.');
+          resetUpload();
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
     
-    function initPreviewWebGL() {
-      if (previewRenderer) return;
+    // Calculate mesh volume using tetrahedron method
+    function calculateVolume(geometry) {
+      let volume = 0;
+      const positions = geometry.attributes.position.array;
       
-      previewScene = new THREE.Scene();
-      previewCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-      previewCamera.position.z = 5;
-      
-      previewRenderer = new THREE.WebGLRenderer({ 
-        canvas: previewCanvas,
-        antialias: true,
-        alpha: true
-      });
-      previewRenderer.setSize(200, 200);
-      
-      // Spinning cube as placeholder for STL preview
-      const geometry = new THREE.BoxGeometry(2, 2, 2);
-      const material = new THREE.MeshBasicMaterial({ 
-        color: html.getAttribute('data-theme') === 'dark' ? 0xffffff : 0x000000,
-        wireframe: true
-      });
-      previewMesh = new THREE.Mesh(geometry, material);
-      previewScene.add(previewMesh);
-      
-      function animatePreview() {
-        if (!previewRenderer) return;
-        requestAnimationFrame(animatePreview);
-        previewMesh.rotation.x += 0.01;
-        previewMesh.rotation.y += 0.01;
-        previewRenderer.render(previewScene, previewCamera);
+      for (let i = 0; i < positions.length; i += 9) {
+        const x1 = positions[i], y1 = positions[i+1], z1 = positions[i+2];
+        const x2 = positions[i+3], y2 = positions[i+4], z2 = positions[i+5];
+        const x3 = positions[i+6], y3 = positions[i+7], z3 = positions[i+8];
+        
+        // Calculate signed volume of tetrahedron formed by triangle and origin
+        volume += (x1 * (y2 * z3 - y3 * z2) +
+                   x2 * (y3 * z1 - y1 * z3) +
+                   x3 * (y1 * z2 - y2 * z1)) / 6;
       }
-      animatePreview();
+      
+      // Convert to cm³ (assuming units are in mm)
+      return Math.abs(volume) / 1000;
+    }
+    
+    // Initialize 3D preview
+    function initSTLPreview(geometry) {
+      // Clean up existing
+      if (stlRenderer) {
+        stlRenderer.dispose();
+        preview3d.innerHTML = '';
+      }
+      
+      stlScene = new THREE.Scene();
+      stlCamera = new THREE.PerspectiveCamera(45, preview3d.clientWidth / preview3d.clientHeight, 0.1, 1000);
+      stlCamera.position.set(0, 0, 30);
+      
+      stlRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      stlRenderer.setSize(preview3d.clientWidth, preview3d.clientHeight);
+      stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      preview3d.appendChild(stlRenderer.domElement);
+      
+      // Center geometry
+      geometry.computeBoundingBox();
+      const center = new THREE.Vector3();
+      geometry.boundingBox.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+      
+      // Scale to fit
+      const size = new THREE.Vector3();
+      geometry.boundingBox.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 15 / maxDim;
+      geometry.scale(scale, scale, scale);
+      
+      // Create material
+      stlMaterial = new THREE.MeshStandardMaterial({
+        color: currentColor === 'transparent' ? 0xffffff : new THREE.Color(currentColor),
+        metalness: 0.1,
+        roughness: 0.4,
+        transparent: currentColor === 'transparent',
+        opacity: currentColor === 'transparent' ? 0.3 : 1,
+        side: THREE.DoubleSide
+      });
+      
+      stlMesh = new THREE.Mesh(geometry, stlMaterial);
+      stlScene.add(stlMesh);
+      
+      // Wireframe overlay
+      const wireframe = new THREE.WireframeGeometry(geometry);
+      const wireframeMaterial = new THREE.LineBasicMaterial({ 
+        color: html.getAttribute('data-theme') === 'dark' ? 0x444444 : 0xcccccc,
+        transparent: true,
+        opacity: 0.3
+      });
+      const wireframeMesh = new THREE.LineSegments(wireframe, wireframeMaterial);
+      stlMesh.add(wireframeMesh);
+      
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      stlScene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(10, 10, 10);
+      stlScene.add(directionalLight);
+      
+      const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+      directionalLight2.position.set(-10, -10, -10);
+      stlScene.add(directionalLight2);
+      
+      // Controls
+      stlControls = new THREE.OrbitControls(stlCamera, stlRenderer.domElement);
+      stlControls.enableDamping = true;
+      stlControls.dampingFactor = 0.05;
+      stlControls.autoRotate = true;
+      stlControls.autoRotateSpeed = 2;
+      
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        if (stlControls) {
+          stlControls.update();
+          stlRenderer.render(stlScene, stlCamera);
+        }
+      }
+      animate();
+    }
+    
+    // Update model color
+    function updateModelColor() {
+      if (stlMaterial) {
+        stlMaterial.color.set(currentColor === 'transparent' ? 0xffffff : currentColor);
+        stlMaterial.transparent = currentColor === 'transparent';
+        stlMaterial.opacity = currentColor === 'transparent' ? 0.3 : 1;
+      }
+    }
+    
+    // Calculate cost
+    function calculateCost() {
+      const pricePerGram = materialConfig[currentMaterial].price;
+      const infill = parseInt(document.getElementById('infill').value) / 100;
+      
+      // Adjust grams based on infill (simplified: assume 20% shell, rest is infill)
+      const shellWeight = estimatedGrams * 0.2;
+      const infillWeight = estimatedGrams * 0.8 * infill;
+      const adjustedGrams = Math.ceil(shellWeight + infillWeight);
+      
+      const materialCost = adjustedGrams * pricePerGram;
+      const setupCost = 50;
+      const total = materialCost + setupCost;
+      
+      return { materialCost, setupCost, total, grams: adjustedGrams };
+    }
+    
+    function updateCost() {
+      const cost = calculateCost();
+      document.getElementById('material-cost').textContent = `₹${cost.materialCost}`;
+      document.getElementById('setup-cost').textContent = `₹${cost.setupCost}`;
+      document.getElementById('total-cost').textContent = `₹${cost.total}`;
+    }
+    
+    // Update cost on settings change
+    document.getElementById('layer-height').addEventListener('change', updateCost);
+    document.getElementById('infill').addEventListener('change', updateCost);
+    
+    // Open WhatsApp with order details
+    function openWhatsApp() {
+      const cost = calculateCost();
+      const layerHeight = document.getElementById('layer-height').value;
+      const infill = document.getElementById('infill').value;
+      
+      const colorName = materialConfig[currentMaterial].colors.find(c => c.hex === currentColor)?.name || 'Unknown';
+      
+      const message = `Hi MagniPrints! I'd like to order a 3D print:
+
+📁 File: ${currentFile ? currentFile.name : 'Sample file'}
+🔧 Material: ${materialConfig[currentMaterial].name} (${colorName})
+⚖️ Weight: ~${cost.grams}g
+📏 Layer Height: ${layerHeight}mm
+🧱 Infill: ${infill}%
+
+💰 Cost Breakdown:
+• Material: ₹${cost.materialCost}
+• Setup: ₹${cost.setupCost}
+• Total: ₹${cost.total}
+
+Please confirm the order details. Thank you!`;
+      
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     }
     
     function resetUpload() {
-      gsap.to('.upload-zone', { x: 0, duration: 0.5 });
-      gsap.to('#preview-canvas', { opacity: 0, duration: 0.3 });
-      uploadZone.innerHTML = `
-        <span class="icon">⬆️</span>
-        <span class="upload-text">Drop STL file here</span>
-        <span class="upload-sub">or click to browse</span>
-      `;
-      uploadZone.appendChild(fileInput);
+      currentFile = null;
+      estimatedGrams = 50;
+      uploadZone.style.display = 'flex';
+      preview3d.style.display = 'none';
+      preview3d.innerHTML = '';
+      fileInfo.classList.remove('visible');
+      stlUpload.value = '';
+      if (stlRenderer) stlRenderer.dispose();
+      stlScene = null;
+      stlCamera = null;
+      stlRenderer = null;
+      stlMesh = null;
+      stlControls = null;
+      stlMaterial = null;
+      updateCost();
     }
+    
+    // Handle window resize for preview
+    window.addEventListener('resize', () => {
+      if (stlRenderer && stlCamera && preview3d) {
+        stlCamera.aspect = preview3d.clientWidth / preview3d.clientHeight;
+        stlCamera.updateProjectionMatrix();
+        stlRenderer.setSize(preview3d.clientWidth, preview3d.clientHeight);
+      }
+    });
+    
+    // Initial cost update
+    updateCost();
     
     // ========================================
     // TRACK ORDER
