@@ -140,61 +140,68 @@
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     
     // ============================================
-    // Floating Wireframe Objects - VISIBLE 3D SHAPES
+    // Floating Wireframe Objects - VISIBLE 3D SHAPES ON ALL DEVICES
     // ============================================
     
     const wireframeObjects = [];
     
-    if (!isLowPower) {
-        // Icosahedron - Large floating wireframe
-        const icoGeo = new THREE.IcosahedronGeometry(2.5, 0);
-        const icoMat = new THREE.MeshBasicMaterial({
-            color: 0x667eea,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.6
-        });
-        const icosahedron = new THREE.Mesh(icoGeo, icoMat);
-        icosahedron.position.set(-4, 2, -8);
-        scene.add(icosahedron);
-        wireframeObjects.push({ mesh: icosahedron, rotSpeed: { x: 0.008, y: 0.012 }, floatSpeed: 0.001, floatAmp: 0.8 });
-        
-        // Torus - Medium floating wireframe
-        const torusGeo = new THREE.TorusGeometry(2, 0.5, 16, 100);
-        const torusMat = new THREE.MeshBasicMaterial({
-            color: 0x764ba2,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.5
-        });
-        const torus = new THREE.Mesh(torusGeo, torusMat);
-        torus.position.set(5, -1, -10);
-        scene.add(torus);
-        wireframeObjects.push({ mesh: torus, rotSpeed: { x: -0.01, y: 0.005 }, floatSpeed: 0.0015, floatAmp: 0.6 });
-        
-        // Octahedron - Small floating wireframe
-        const octGeo = new THREE.OctahedronGeometry(1.5, 0);
-        const octMat = new THREE.MeshBasicMaterial({
-            color: 0x22c55e,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.4
-        });
-        const octahedron = new THREE.Mesh(octGeo, octMat);
-        octahedron.position.set(2, 3, -6);
-        scene.add(octahedron);
-        wireframeObjects.push({ mesh: octahedron, rotSpeed: { x: 0.015, y: 0.008 }, floatSpeed: 0.002, floatAmp: 0.5 });
-        
-        // Cube wireframe
-        const cubeGeo = new THREE.BoxGeometry(2, 2, 2);
+    // Show wireframes on ALL devices (simpler on mobile)
+    const isMobileDevice = window.innerWidth < 768 || isIOS || isAndroid;
+    
+    // Icosahedron - Floating wireframe (smaller on mobile)
+    const icoSize = isMobileDevice ? 1.5 : 2.5;
+    const icoGeo = new THREE.IcosahedronGeometry(icoSize, 0);
+    const icoMat = new THREE.MeshBasicMaterial({
+        color: 0x667eea,
+        wireframe: true,
+        transparent: true,
+        opacity: isMobileDevice ? 0.4 : 0.6
+    });
+    const icosahedron = new THREE.Mesh(icoGeo, icoMat);
+    icosahedron.position.set(isMobileDevice ? -2 : -4, 2, -8);
+    scene.add(icosahedron);
+    wireframeObjects.push({ mesh: icosahedron, rotSpeed: { x: 0.008, y: 0.012 }, floatSpeed: 0.001, floatAmp: 0.8 });
+    
+    // Torus - Floating wireframe
+    const torusRadius = isMobileDevice ? 1.2 : 2;
+    const torusGeo = new THREE.TorusGeometry(torusRadius, isMobileDevice ? 0.3 : 0.5, 16, 100);
+    const torusMat = new THREE.MeshBasicMaterial({
+        color: 0x764ba2,
+        wireframe: true,
+        transparent: true,
+        opacity: isMobileDevice ? 0.35 : 0.5
+    });
+    const torus = new THREE.Mesh(torusGeo, torusMat);
+    torus.position.set(isMobileDevice ? 2.5 : 5, -1, -10);
+    scene.add(torus);
+    wireframeObjects.push({ mesh: torus, rotSpeed: { x: -0.01, y: 0.005 }, floatSpeed: 0.0015, floatAmp: 0.6 });
+    
+    // Octahedron - Floating wireframe
+    const octSize = isMobileDevice ? 0.9 : 1.5;
+    const octGeo = new THREE.OctahedronGeometry(octSize, 0);
+    const octMat = new THREE.MeshBasicMaterial({
+        color: 0x22c55e,
+        wireframe: true,
+        transparent: true,
+        opacity: isMobileDevice ? 0.3 : 0.4
+    });
+    const octahedron = new THREE.Mesh(octGeo, octMat);
+    octahedron.position.set(isMobileDevice ? 1 : 2, isMobileDevice ? 2 : 3, -6);
+    scene.add(octahedron);
+    wireframeObjects.push({ mesh: octahedron, rotSpeed: { x: 0.015, y: 0.008 }, floatSpeed: 0.002, floatAmp: 0.5 });
+    
+    // Cube wireframe (only on desktop, or smaller on mobile)
+    if (!isMobileDevice || isMobileDevice) {
+        const cubeSize = isMobileDevice ? 1.2 : 2;
+        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
         const cubeMat = new THREE.MeshBasicMaterial({
             color: 0xf59e0b,
             wireframe: true,
             transparent: true,
-            opacity: 0.35
+            opacity: isMobileDevice ? 0.25 : 0.35
         });
         const cube = new THREE.Mesh(cubeGeo, cubeMat);
-        cube.position.set(-3, -3, -7);
+        cube.position.set(isMobileDevice ? -1.5 : -3, isMobileDevice ? -2 : -3, -7);
         scene.add(cube);
         wireframeObjects.push({ mesh: cube, rotSpeed: { x: 0.006, y: -0.01 }, floatSpeed: 0.0012, floatAmp: 0.4 });
     }
