@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom — マグニプリンツ</title>
+    <meta name="description" content="Upload your 3D model and get instant quotes">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #050505;
+            --bg-alt: #0a0a0a;
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.4);
+            --accent-purple: #667eea;
+            --accent-green: #22c55e;
+            --border: rgba(255,255,255,0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            mix-blend-mode: difference;
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .nav-brand span { display: block; line-height: 1.8; }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link::before {
+            content: attr(data-num);
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+        
+        .nav-link:hover, .nav-link.active { opacity: 1; }
+        
+        /* WebGL Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Main Layout */
+        .main {
+            position: relative;
+            z-index: 1;
+            padding-top: 15vh;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            padding: 0 6vw 4rem;
+        }
+        
+        .page-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--accent-green);
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Noto+Sans JP', sans-serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        /* Custom Container */
+        .custom-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: calc(100vh - 40vh);
+        }
+        
+        .upload-panel {
+            padding: 4rem 6vw;
+            border-right: 1px solid var(--border);
+        }
+        
+        .preview-panel {
+            padding: 4rem 6vw;
+            background: var(--bg-alt);
+        }
+        
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 4px;
+            padding: 5rem 3rem;
+            text-align: center;
+            transition: all 0.4s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.6s;
+        }
+        
+        .upload-zone:hover::before {
+            left: 100%;
+        }
+        
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent-purple);
+            background: rgba(102, 126, 234, 0.03);
+        }
+        
+        .upload-zone.dragover {
+            border-color: var(--accent-green);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover .upload-icon {
+            border-color: var(--accent-purple);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .upload-text {
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-formats {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+        
+        #stl-input { display: none; }
+        
+        /* Material Selection */
+        .material-section {
+            margin-top: 3rem;
+        }
+        
+        .section-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        
+        .material-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .material-option {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .material-option:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        .material-option.selected {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.05);
+        }
+        
+        .material-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            color: var(--accent-green);
+            font-size: 0.8rem;
+        }
+        
+        .material-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .material-properties {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* 3D Preview */
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .preview-title {
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+        }
+        
+        .preview-status {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .preview-canvas {
+            width: 100%;
+            height: 400px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #three-preview {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .preview-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .preview-placeholder svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        /* Calculator */
+        .calculator {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .calc-row:last-of-type {
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .calc-label {
+            color: var(--text-muted);
+        }
+        
+        .calc-value {
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .calc-total {
+            padding-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .calc-total .calc-value {
+            color: var(--accent-green);
+        }
+        
+        /* Order Button */
+        .order-btn {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .order-btn:hover {
+            background: var(--accent-green);
+            color: var(--bg);
+        }
+        
+        .order-btn:disabled {
+            border-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 4rem 6vw;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover { color: var(--text); }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .custom-workspace { grid-template-columns: 1fr; }
+            .upload-panel { border-right: none; border-bottom: 1px solid var(--border); }
+            .material-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 640px) {
+            .nav { padding: 1.5rem; }
+            .upload-zone { padding: 3rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">
+            <span>M</span>
+            <span>a</span>
+            <span>g</span>
+            <span>n</span>
+            <span>i</span>
+            <span>P</span>
+            <span>r</span>
+            <span>i</span>
+            <span>n</span>
+            <span>t</span>
+            <span>s</span>
+        </a>
+        <div class="nav-links">
+            <a href="products.html" class="nav-link" data-num="1">Products</a>
+            <a href="custom.html" class="nav-link active" data-num="2">Custom</a>
+            <a href="track.html" class="nav-link" data-num="3">Track</a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main">
+        <header class="page-header">
+            <p class="page-number">02 / Custom</p>
+            <h1 class="page-title">カスタム</h1>
+            <p class="page-subtitle">Create Your Design</p>
+        </header>
+        
+        <section class="custom-workspace">
+            <div class="upload-panel">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">↑</div>
+                    <p class="upload-text">Drop your 3D model here</p>
+                    <p class="upload-formats">STL • OBJ • 3MF • up to 50MB</p>
+                </div>
+                <input type="file" id="stl-input" accept=".stl,.obj,.3mf">
+                
+                <div class="material-section">
+                    <p class="section-label">Select Material</p>
+                    <div class="material-grid">
+                        <div class="material-option selected" data-material="pla" data-price="0.05">
+                            <div class="material-name">PLA Pro</div>
+                            <div class="material-properties">Standard • $0.05/cm³</div>
+                        </div>
+                        <div class="material-option" data-material="petg" data-price="0.07">
+                            <div class="material-name">PETG</div>
+                            <div class="material-properties">Durable • $0.07/cm³</div>
+                        </div>
+                        <div class="material-option" data-material="abs" data-price="0.08">
+                            <div class="material-name">ABS</div>
+                            <div class="material-properties">Industrial • $0.08/cm³</div>
+                        </div>
+                        <div class="material-option" data-material="resin" data-price="0.15">
+                            <div class="material-name">Resin</div>
+                            <div class="material-properties">High Detail • $0.15/cm³</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <span class="preview-title">3D Preview</span>
+                    <span class="preview-status" id="preview-status">No model loaded</span>
+                </div>
+                <div class="preview-canvas">
+                    <canvas id="three-preview"></canvas>
+                    <div class="preview-placeholder" id="preview-placeholder">
+                        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1">
+                            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z"/>
+                            <path d="M50 10 L50 50 L90 30"/>
+                            <path d="M50 50 L10 30"/>
+                            <path d="M50 50 L50 90"/>
+                        </svg>
+                        <p>Upload to preview</p>
+                    </div>
+                </div>
+                
+                <div class="calculator">
+                    <div class="calc-row">
+                        <span class="calc-label">Volume</span>
+                        <span class="calc-value" id="calc-volume">— cm³</span>
+                    </div>
+                    <div class="calc-row">
+                        <span class="calc-label">Material</span>
+                        <span class="calc-value" id="calc-material">PLA Pro</span>
+                    </div>
+                    <div class="calc-row">
+                        <span class="calc-label">Print Time</span>
+                        <span class="calc-value" id="calc-time">— hours</span>
+                    </div>
+                    <div class="calc-row calc-total">
+                        <span class="calc-label">Total</span>
+                        <span class="calc-value" id="calc-total">$—</span>
+                    </div>
+                </div>
+                
+                <button class="order-btn" id="order-btn" disabled>Start Print Order</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <div>© 2025 MagniPrints. All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">GitHub</a>
+            <a href="#" class="footer-link">Twitter</a>
+            <a href="#" class="footer-link">Instagram</a>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // WebGL Background
+        const canvas = document.getElementById('webgl-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Floating grid effect
+        const gridHelper = new THREE.GridHelper(20, 20, 0x667eea, 0x0a0a0a);
+        gridHelper.position.y = -2;
+        scene.add(gridHelper);
+        
+        const gridHelper2 = new THREE.GridHelper(20, 20, 0x22c55e, 0x0a0a0a);
+        gridHelper2.position.y = 2;
+        gridHelper2.rotation.x = Math.PI;
+        scene.add(gridHelper2);
+        
+        camera.position.z = 8;
+        camera.position.y = 2;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            gridHelper.rotation.y += 0.001;
+            gridHelper2.rotation.y -= 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // File Upload
+        const uploadZone = document.getElementById('upload-zone');
+        const stlInput = document.getElementById('stl-input');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        const previewStatus = document.getElementById('preview-status');
+        const orderBtn = document.getElementById('order-btn');
+        
+        let currentMaterial = 'pla';
+        let materialPrice = 0.05;
+        let modelVolume = 0;
+        
+        uploadZone.addEventListener('click', () => stlInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        stlInput.addEventListener('change', (e) => {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        });
+        
+        function processFile(file) {
+            // Simulate processing
+            uploadZone.innerHTML = `
+                <div class="upload-icon" style="background: rgba(34, 197, 94, 0.1); border-color: var(--accent-green);">✓</div>
+                <p class="upload-text">${file.name}</p>
+                <p class="upload-formats">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            `;
+            
+            setTimeout(() => {
+                // Generate mock data
+                modelVolume = 30 + Math.random() * 100;
+                const printHours = Math.ceil(modelVolume / 10);
+                const totalCost = (modelVolume * materialPrice).toFixed(2);
+                
+                document.getElementById('calc-volume').textContent = modelVolume.toFixed(1) + ' cm³';
+                document.getElementById('calc-time').textContent = printHours + ' hours';
+                document.getElementById('calc-total').textContent = '$' + totalCost;
+                previewStatus.textContent = 'Ready';
+                previewStatus.style.color = 'var(--accent-green)';
+                orderBtn.disabled = false;
+                
+                previewPlaceholder.style.display = 'none';
+                initPreview();
+            }, 1000);
+        }
+        
+        // Material selection
+        document.querySelectorAll('.material-option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                document.querySelectorAll('.material-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                currentMaterial = this.dataset.material;
+                materialPrice = parseFloat(this.dataset.price);
+                document.getElementById('calc-material').textContent = this.querySelector('.material-name').textContent;
+                
+                if (modelVolume > 0) {
+                    const totalCost = (modelVolume * materialPrice).toFixed(2);
+                    document.getElementById('calc-total').textContent = '$' + totalCost;
+                }
+            });
+        });
+        
+        // 3D Preview
+        let previewScene, previewCamera, previewRenderer, previewMesh;
+        
+        function initPreview() {
+            const previewCanvas = document.getElementById('three-preview');
+            
+            previewScene = new THREE.Scene();
+            previewCamera = new THREE.PerspectiveCamera(75, previewCanvas.offsetWidth / previewCanvas.offsetHeight, 0.1, 1000);
+            previewRenderer = new THREE.WebGLRenderer({ canvas: previewCanvas, antialias: true });
+            previewRenderer.setSize(previewCanvas.offsetWidth, previewCanvas.offsetHeight);
+            
+            // Sample geometry (cube as placeholder for STL)
+            const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            const edges = new THREE.EdgesGeometry(geometry);
+            const material = new THREE.LineBasicMaterial({ color: 0x667eea });
+            previewMesh = new THREE.LineSegments(edges, material);
+            previewScene.add(previewMesh);
+            
+            // Inner wireframe
+            const wireframe = new THREE.WireframeGeometry(geometry);
+            const line = new THREE.LineSegments(wireframe, new THREE.LineBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.3 }));
+            previewMesh.add(line);
+            
+            previewCamera.position.z = 3;
+            
+            function animatePreview() {
+                requestAnimationFrame(animatePreview);
+                previewMesh.rotation.x += 0.01;
+                previewMesh.rotation.y += 0.01;
+                previewRenderer.render(previewScene, previewCamera);
+            }
+            animatePreview();
+        }
+        
+        orderBtn.addEventListener('click', () => {
+            alert('Order placed! Your print will begin shortly.');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track — マグニプリンツ</title>
+    <meta name="description" content="Track your 3D print order in real-time">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #050505;
+            --bg-alt: #0a0a0a;
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.4);
+            --accent-purple: #667eea;
+            --accent-green: #22c55e;
+            --border: rgba(255,255,255,0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            mix-blend-mode: difference;
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .nav-brand span { display: block; line-height: 1.8; }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link::before {
+            content: attr(data-num);
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+        
+        .nav-link:hover, .nav-link.active { opacity: 1; }
+        
+        /* WebGL Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Main */
+        .main {
+            position: relative;
+            z-index: 1;
+            padding-top: 15vh;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            padding: 0 6vw 4rem;
+        }
+        
+        .page-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--accent-purple);
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        /* Track Container */
+        .track-container {
+            padding: 0 6vw 6rem;
+            max-width: 1200px;
+        }
+        
+        /* Order Info */
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            margin-bottom: 4rem;
+        }
+        
+        .info-item {
+            background: var(--bg);
+            padding: 2rem;
+        }
+        
+        .info-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+        }
+        
+        /* 3D Visualization */
+        .visualization {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+        }
+        
+        .viz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .viz-title {
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+        }
+        
+        .layer-status {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+        
+        .layer-canvas-container {
+            height: 350px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #layer-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        /* Timeline */
+        .timeline-section {
+            margin-bottom: 4rem;
+        }
+        
+        .timeline-header {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+            transform: translateY(-50%);
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 65%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
+            transform: translateY(-50%);
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes progressPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-marker {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .step.completed .step-marker {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        .step.active .step-marker {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(102, 126, 234, 0.8); }
+        }
+        
+        .step-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-time {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        /* History Log */
+        .history-section {
+            border-top: 1px solid var(--border);
+            padding-top: 3rem;
+        }
+        
+        .history-header {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: var(--border);
+        }
+        
+        .history-item {
+            background: var(--bg);
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .history-time {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 100px;
+        }
+        
+        .history-event {
+            font-size: 0.9rem;
+        }
+        
+        .history-status {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+        }
+        
+        .history-status.complete {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 4rem 6vw;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover { color: var(--text); }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .order-info { grid-template-columns: repeat(2, 1fr); }
+            .timeline-steps { flex-direction: column; gap: 2rem; }
+            .timeline-line, .timeline-progress { display: none; }
+            .step { text-align: left; }
+            .step-marker { margin: 0 0 0.5rem 0; }
+            .progress-stats { gap: 1.5rem; }
+            .history-item { grid-template-columns: 1fr; gap: 0.5rem; }
+        }
+        
+        @media (max-width: 640px) {
+            .nav { padding: 1.5rem; }
+            .order-info { grid-template-columns: 1fr; }
+            .visualization { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">
+            <span>M</span>
+            <span>a</span>
+            <span>g</span>
+            <span>n</span>
+            <span>i</span>
+            <span>P</span>
+            <span>r</span>
+            <span>i</span>
+            <span>n</span>
+            <span>t</span>
+            <span>s</span>
+        </a>
+        <div class="nav-links">
+            <a href="products.html" class="nav-link" data-num="1">Products</a>
+            <a href="custom.html" class="nav-link" data-num="2">Custom</a>
+            <a href="track.html" class="nav-link active" data-num="3">Track</a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main">
+        <header class="page-header">
+            <p class="page-number">03 / Track</p>
+            <h1 class="page-title">追跡</h1>
+            <p class="page-subtitle">Track Your Order</p>
+        </header>
+        
+        <section class="track-container">
+            <!-- Order Info -->
+            <div class="order-info">
+                <div class="info-item">
+                    <p class="info-label">Order ID</p>
+                    <p class="info-value">MP-2025-0212</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Product</p>
+                    <p class="info-value">Custom Gear Set</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Material</p>
+                    <p class="info-value">PETG Carbon</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">ETA</p>
+                    <p class="info-value">Feb 13, 18:00</p>
+                </div>
+            </div>
+            
+            <!-- 3D Visualization -->
+            <div class="visualization">
+                <div class="viz-header">
+                    <span class="viz-title">LAYER VISUALIZATION</span>
+                    <span class="layer-status" id="layer-status">LAYER 47 / 128</span>
+                </div>
+                <div class="layer-canvas-container">
+                    <canvas id="layer-canvas"></canvas>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="progress-percent">37%</div>
+                        <div class="stat-label">Complete</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="time-remaining">3h 42m</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="temp-hotend">215°C</div>
+                        <div class="stat-label">Hotend</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="temp-bed">60°C</div>
+                        <div class="stat-label">Bed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <p class="timeline-header">Order Timeline</p>
+                <div class="timeline">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-progress"></div>
+                    <div class="timeline-steps">
+                        <div class="step completed">
+                            <div class="step-marker">✓</div>
+                            <p class="step-label">Order Placed</p>
+                            <p class="step-time">Feb 12, 09:23</p>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-marker">✓</div>
+                            <p class="step-label">Preparing</p>
+                            <p class="step-time">Feb 12, 09:30</p>
+                        </div>
+                        <div class="step active">
+                            <div class="step-marker">●</div>
+                            <p class="step-label">Printing</p>
+                            <p class="step-time">In Progress</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-marker">○</div>
+                            <p class="step-label">Finishing</p>
+                            <p class="step-time">Pending</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-marker">○</div>
+                            <p class="step-label">Shipping</p>
+                            <p class="step-time">Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Log -->
+            <div class="history-section">
+                <p class="history-header">Activity Log</p>
+                <div class="history-list">
+                    <div class="history-item">
+                        <span class="history-time">09:23:15</span>
+                        <span class="history-event">Order #MP-2025-0212 submitted</span>
+                        <span class="history-status complete">Complete</span>
+                    </div>
+                    <div class="history-item">
+                        <span class="history-time">09:24:03</span>
+                        <span class="history-event">Payment confirmed • $127.50</span>
+                        <span class="history-status complete">Complete</span>
+                    </div>
+                    <div class="history-item">
+                        <span class="history-time">09:28:45</span>
+                        <span class="history-event">File validated and sliced</span>
+                        <span class="history-status complete">Complete</span>
+                    </div>
+                    <div class="history-item">
+                        <span class="history-time">09:30:00</span>
+                        <span class="history-event">Print job started on Printer #03</span>
+                        <span class="history-status complete">Complete</span>
+                    </div>
+                    <div class="history-item">
+                        <span class="history-time">11:45:22</span>
+                        <span class="history-event">Layer 47/128 printed successfully</span>
+                        <span class="history-status">Active</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <div>© 2025 MagniPrints. All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">GitHub</a>
+            <a href="#" class="footer-link">Twitter</a>
+            <a href="#" class="footer-link">Instagram</a>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // WebGL Background
+        const canvas = document.getElementById('webgl-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Constellation effect
+        const particlesCount = 200;
+        const positions = new Float32Array(particlesCount * 3);
+        const lines = [];
+        
+        for (let i = 0; i < particlesCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 20;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+        }
+        
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.5
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        camera.position.z = 10;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.y += 0.0005;
+            particlesMesh.rotation.x += 0.0002;
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Layer Visualization
+        const layerCanvas = document.getElementById('layer-canvas');
+        const ctx = layerCanvas.getContext('2d');
+        
+        function resizeCanvas() {
+            layerCanvas.width = layerCanvas.offsetWidth;
+            layerCanvas.height = layerCanvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        let currentLayer = 0;
+        const totalLayers = 128;
+        let layerAnimationId;
+        
+        function drawLayerVisualization() {
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+            
+            const centerX = layerCanvas.width / 2;
+            const bottomY = layerCanvas.height - 60;
+            const maxWidth = Math.min(200, layerCanvas.width * 0.4);
+            const layerHeight = 1.5;
+            
+            // Draw base plate
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(centerX - maxWidth/2 - 10, bottomY, maxWidth + 20, 8);
+            
+            // Draw completed layers
+            maxVisibleLayers = Math.min(currentLayer, Math.floor((layerCanvas.height - 100) / layerHeight));
+            
+            for (let i = 0; i < maxVisibleLayers; i++) {
+                const layerY = bottomY - 8 - (i * layerHeight);
+                const progress = i / totalLayers;
+                const layerWidth = maxWidth * (1 - progress * 0.25);
+                
+                // Gradient from purple to green
+                const r = Math.floor(102 + (34 - 102) * progress);
+                const g = Math.floor(126 + (197 - 126) * progress);
+                const b = Math.floor(234 + (94 - 234) * progress);
+                const alpha = 0.4 + progress * 0.4;
+                
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                ctx.fillRect(centerX - layerWidth/2, layerY, layerWidth, layerHeight - 0.3);
+                
+                // Add subtle outline
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
+                ctx.lineWidth = 0.5;
+                ctx.strokeRect(centerX - layerWidth/2, layerY, layerWidth, layerHeight - 0.3);
+            }
+            
+            // Draw current printing layer with glow effect
+            if (currentLayer < totalLayers) {
+                const layerY = bottomY - 8 - (maxVisibleLayers * layerHeight);
+                const progress = currentLayer / totalLayers;
+                const layerWidth = maxWidth * (1 - progress * 0.25);
+                
+                // Glow effect
+                const gradient = ctx.createRadialGradient(centerX, layerY, 0, centerX, layerY, layerWidth/2);
+                gradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(102, 126, 234, 0.4)');
+                gradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(centerX - layerWidth/2 - 20, layerY - 20, layerWidth + 40, 40);
+                
+                // Solid layer
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(centerX - layerWidth/2, layerY, layerWidth, layerHeight * 2);
+            }
+            
+            // Draw progress indicator
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '12px "Space Mono", monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(`${currentLayer}/${totalLayers}`, layerCanvas.width - 20, 30);
+            
+            // Animate layer progress (simulated)
+            currentLayer = 47 + Math.floor(Math.sin(Date.now() / 2000) * 2);
+            document.getElementById('layer-status').textContent = `LAYER ${currentLayer} / ${totalLayers}`;
+            document.getElementById('progress-percent').textContent = Math.round((currentLayer / totalLayers) * 100) + '%';
+            
+            layerAnimationId = requestAnimationFrame(drawLayerVisualization);
+        }
+        
+        // Start animation
+        drawLayerVisualization();
+        
+        // Simulate live temperature updates
+        setInterval(() => {
+            const hotend = 214 + Math.floor(Math.random() * 3);
+            const bed = 59 + Math.floor(Math.random() * 2);
+            document.getElementById('temp-hotend').textContent = hotend + '°C';
+            document.getElementById('temp-bed').textContent = bed + '°C';
+        }, 5000);
+    </script>
+</body>
+</html>

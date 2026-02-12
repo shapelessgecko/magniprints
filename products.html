@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — マグニプリンツ</title>
+    <meta name="description" content="Explore our premium 3D printed collection">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #050505;
+            --bg-alt: #0a0a0a;
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.4);
+            --accent-purple: #667eea;
+            --accent-green: #22c55e;
+            --border: rgba(255,255,255,0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            mix-blend-mode: difference;
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .nav-brand span { display: block; line-height: 1.8; }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link::before {
+            content: attr(data-num);
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+        
+        .nav-link:hover, .nav-link.active { opacity: 1; }
+        
+        /* WebGL Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Main Content */
+        .main {
+            position: relative;
+            z-index: 1;
+            padding-top: 15vh;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            padding: 0 6vw 4rem;
+        }
+        
+        .page-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--accent-purple);
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        /* Product Grid */
+        .products-container {
+            padding: 0 6vw 6rem;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+        }
+        
+        .product-item {
+            background: var(--bg);
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background 0.5s;
+        }
+        
+        .product-item:hover { background: var(--bg-alt); }
+        
+        .product-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+            transform: scaleX(0);
+            transition: transform 0.5s;
+        }
+        
+        .product-item:hover::before { transform: scaleX(1); }
+        
+        .product-visual {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .product-3d {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, rgba(102, 126, 234, 0.3), transparent 60%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            transition: transform 0.5s;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        
+        .product-item:hover .product-3d {
+            transform: scale(1.1);
+            animation-play-state: paused;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+        }
+        
+        .product-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        
+        .product-price {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+        }
+        
+        .product-name {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-category {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        .product-desc {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s;
+        }
+        
+        .product-item:hover .product-desc {
+            opacity: 1;
+            max-height: 100px;
+        }
+        
+        /* Specs panel */
+        .specs-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            margin-top: 4rem;
+        }
+        
+        .spec-item {
+            background: var(--bg);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .spec-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .spec-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 4rem 6vw;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover { color: var(--text); }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .specs-panel { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 640px) {
+            .product-grid { grid-template-columns: 1fr; }
+            .specs-panel { grid-template-columns: 1fr; }
+            .nav { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">
+            <span>M</span>
+            <span>a</span>
+            <span>g</span>
+            <span>n</span>
+            <span>i</span>
+            <span>P</span>
+            <span>r</span>
+            <span>i</span>
+            <span>n</span>
+            <span>t</span>
+            <span>s</span>
+        </a>
+        <div class="nav-links">
+            <a href="products.html" class="nav-link active" data-num="1">Products</a>
+            <a href="custom.html" class="nav-link" data-num="2">Custom</a>
+            <a href="track.html" class="nav-link" data-num="3">Track</a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main">
+        <header class="page-header">
+            <p class="page-number">01 / Products</p>
+            <h1 class="page-title">製品群</h1>
+            <p class="page-subtitle">Explore Our Collection</p>
+        </header>
+        
+        <section class="products-container">
+            <div class="product-grid">
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">⚙️</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">01</span>
+                        <span class="product-price">$49</span>
+                    </div>
+                    <h2 class="product-name">Gear Assembly</h2>
+                    <p class="product-category">Mechanical</p>
+                    <p class="product-desc">Precision mechanical components for robotics and industrial applications. Interlocking gears with ±0.1mm tolerance.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🏛️</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">02</span>
+                        <span class="product-price">$89</span>
+                    </div>
+                    <h2 class="product-name">Architectural Model</h2>
+                    <p class="product-category">Visualization</p>
+                    <p class="product-desc">Detailed scale models for architectural visualization. Perfect for client presentations and design reviews.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🎨</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">03</span>
+                        <span class="product-price">$129</span>
+                    </div>
+                    <h2 class="product-name">Sculptural Art</h2>
+                    <p class="product-category">Artistic</p>
+                    <p class="product-desc">Gallery-quality artistic prints with intricate details. Premium finishes and museum-grade materials.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">📱</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">04</span>
+                        <span class="product-price">$19</span>
+                    </div>
+                    <h2 class="product-name">Phone Accessories</h2>
+                    <p class="product-category">Tech</p>
+                    <p class="product-desc">Custom phone stands, cable organizers, and protective cases. Ergonomic designs for daily use.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🧩</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">05</span>
+                        <span class="product-price">$35</span>
+                    </div>
+                    <h2 class="product-name">Puzzle & Games</h2>
+                    <p class="product-category">Recreation</p>
+                    <p class="product-desc">Interlocking puzzles, chess pieces, and educational toys. Brain-teasing designs for all ages.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🔧</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">06</span>
+                        <span class="product-price">$29</span>
+                    </div>
+                    <h2 class="product-name">Tool Holders</h2>
+                    <p class="product-category">Workshop</p>
+                    <p class="product-desc">Custom organizational solutions for workshops. Modular designs for maker spaces.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">💡</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">07</span>
+                        <span class="product-price">$59</span>
+                    </div>
+                    <h2 class="product-name">Lighting Fixtures</h2>
+                    <p class="product-category">Interior</p>
+                    <p class="product-desc">Modern lampshades and decorative lighting elements. Ambient-enhancing designs.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🤖</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">08</span>
+                        <span class="product-price">$75</span>
+                    </div>
+                    <h2 class="product-name">Robot Parts</h2>
+                    <p class="product-category">Robotics</p>
+                    <p class="product-desc">Custom servo mounts, sensor housings, and chassis components for robotics projects.</p>
+                </article>
+                
+                <article class="product-item">
+                    <div class="product-visual">
+                        <div class="product-3d">🌿</div>
+                    </div>
+                    <div class="product-meta">
+                        <span class="product-num">09</span>
+                        <span class="product-price">$42</span>
+                    </div>
+                    <h2 class="product-name">Planters</h2>
+                    <p class="product-category">Home</p>
+                    <p class="product-desc">Modern geometric planters with self-watering features. Minimalist designs for any space.</p>
+                </article>
+            </div>
+            
+            <div class="specs-panel">
+                <div class="spec-item">
+                    <div class="spec-value">50+</div>
+                    <div class="spec-label">Materials</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">0.1</div>
+                    <div class="spec-label">MM Tolerance</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">24h</div>
+                    <div class="spec-label">Fastest Delivery</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-value">∞</div>
+                    <div class="spec-label">Possibilities</div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <div>© 2025 MagniPrints. All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">GitHub</a>
+            <a href="#" class="footer-link">Twitter</a>
+            <a href="#" class="footer-link">Instagram</a>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // WebGL Background
+        const canvas = document.getElementById('webgl-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Floating particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 300;
+        const posArray = new Float32Array(particlesCount * 3);
+        
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 20;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0x667eea,
+            transparent: true,
+            opacity: 0.5
+        });
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+        
+        // Wireframe torus
+        const torusGeometry = new THREE.TorusGeometry(3, 0.5, 16, 100);
+        const torusMaterial = new THREE.MeshBasicMaterial({
+            color: 0x22c55e,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1
+        });
+        const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+        scene.add(torus);
+        
+        camera.position.z = 8;
+        
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particles.rotation.y += 0.001;
+            particles.rotation.x += 0.0005;
+            
+            torus.rotation.x += 0.005;
+            torus.rotation.y += 0.003;
+            
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
