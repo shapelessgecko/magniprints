@@ -12,8 +12,8 @@
         productBasePrice: 299,
         filament: 'pla',
         filamentPrice: 0,
-        color: 0x667eea,
-        colorHex: '0x667eea',
+        color: 0xc9b896,
+        colorHex: '0xc9b896',
         quantity: 1,
         autoRotate: true,
         wireframe: false
@@ -21,9 +21,9 @@
 
     // Color map for filament types
     const colorMap = {
-        'pla': [0x667eea, 0x22c55e, 0xef4444, 0x3b82f6, 0xf59e0b, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0xfbbf24],
-        'petg': [0x3b82f6, 0x22c55e, 0xef4444, 0x667eea, 0xf59e0b, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0x06b6d4],
-        'tpu': [0xf59e0b, 0x22c55e, 0xef4444, 0x3b82f6, 0x667eea, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0xf97316]
+        'pla': [0xc9b896, 0x22c55e, 0xef4444, 0x3b82f6, 0xf59e0b, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0xfbbf24],
+        'petg': [0x3b82f6, 0x22c55e, 0xef4444, 0xc9b896, 0xf59e0b, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0x06b6d4],
+        'tpu': [0xf59e0b, 0x22c55e, 0xef4444, 0x3b82f6, 0xc9b896, 0xec4899, 0x14b8a6, 0xffffff, 0x1a1a1a, 0xf97316]
     };
 
     // ============================================
@@ -87,7 +87,7 @@
     keyLight.shadow.bias = -0.001;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x667eea, 0.3);
+    const fillLight = new THREE.DirectionalLight(0xc9b896, 0.3);
     fillLight.position.set(-8, 4, -8);
     scene.add(fillLight);
 

@@ -110,7 +110,7 @@
     // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.3));
     
-    const spotLight = new THREE.SpotLight(0x667eea, 1);
+    const spotLight = new THREE.SpotLight(0xc9b896, 1);
     spotLight.position.set(5, 10, 5);
     spotLight.angle = 0.5;
     spotLight.penumbra = 0.5;
@@ -147,7 +147,7 @@
         }
 
         const material = new THREE.MeshStandardMaterial({ 
-            color: 0x667eea, 
+            color: 0xc9b896, 
             roughness: 0.3,
             metalness: 0.1
         });

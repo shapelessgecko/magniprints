@@ -17,7 +17,7 @@
         supports: 'none',
         material: 'pla',
         materialPrice: 2, // per gram
-        color: 0x667eea,
+        color: 0xc9b896,
         modelVolume: 0, // cubic mm
         modelWeight: 0, // grams
         printTime: 0, // hours
@@ -80,7 +80,7 @@
     keyLight.shadow.mapSize.height = 2048;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x667eea, 0.3);
+    const fillLight = new THREE.DirectionalLight(0xc9b896, 0.3);
     fillLight.position.set(-10, 5, -10);
     scene.add(fillLight);
 

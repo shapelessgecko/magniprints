@@ -98,8 +98,8 @@
     const originalPositions = new Float32Array(particleCount * 3);
     const velocities = new Float32Array(particleCount * 3);
     
-    const color1 = new THREE.Color(0x667eea);
-    const color2 = new THREE.Color(0x764ba2);
+    const color1 = new THREE.Color(0xc9b896);
+    const color2 = new THREE.Color(0x8b7355);
     const tempColor = new THREE.Color();
 
     for (let i = 0; i < particleCount; i++) {
@@ -166,7 +166,7 @@
     const torusRadius = isMobileDevice ? 1.2 : 2;
     const torusGeo = new THREE.TorusGeometry(torusRadius, isMobileDevice ? 0.3 : 0.5, 16, 100);
     const torusMat = new THREE.MeshBasicMaterial({
-        color: 0x764ba2,
+        color: 0x8b7355,
         wireframe: true,
         transparent: true,
         opacity: isMobileDevice ? 0.35 : 0.5
@@ -281,7 +281,7 @@
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
         
         const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x667eea,
+            color: 0xc9b896,
             transparent: true,
             opacity: 0.1,
             blending: THREE.AdditiveBlending
@@ -539,7 +539,7 @@
             
             // Add rim light only on higher-end devices
             if (!isLowPower) {
-                const rimLight = new THREE.PointLight(0x667eea, 0.5);
+                const rimLight = new THREE.PointLight(0xc9b896, 0.5);
                 rimLight.position.set(-5, 3, -5);
                 showcaseScene.add(rimLight);
             }
@@ -552,12 +552,12 @@
             // Pre-allocate materials
             const materials = {
                 primary: new THREE.MeshStandardMaterial({ 
-                    color: 0x667eea, 
+                    color: 0xc9b896, 
                     roughness: 0.3, 
                     metalness: 0.2 
                 }),
                 secondary: new THREE.MeshStandardMaterial({ 
-                    color: 0x764ba2, 
+                    color: 0x8b7355, 
                     roughness: 0.3, 
                     metalness: 0.2 
                 }),
