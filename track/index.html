@@ -1,712 +1,979 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Order - MagniPrints</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        /* Enhanced track page styles */
-        .eta-box {
-            background: linear-gradient(135deg, var(--accent) 0%, #9333ea 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-        
-        .eta-label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            opacity: 0.9;
-        }
-        
-        .eta-time {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-top: 0.5rem;
-        }
-        
-        .layer-info {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-        }
-        
-        .layer-info-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .layer-info-label {
-            opacity: 0.7;
-        }
-        
-        .layer-info-value {
-            color: var(--accent);
-            font-weight: 600;
-        }
-        
-        .printer-status {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: var(--bg);
-            border-radius: 12px;
-            margin-top: 1rem;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #22c55e;
-            animation: statusPulse 2s infinite;
-        }
-        
-        @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .nozzle-temp {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-        }
-        
-        .progress-detail {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .order-details {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .order-details h4 {
-            margin-bottom: 1rem;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            opacity: 0.7;
-        }
-        
-        .order-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .order-detail-row:last-child {
-            border-bottom: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Track Order | MAGNIPRINTS</title>
+  <meta name="description" content="Track your 3D print order status in real-time.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <style>
+    .track-page {
+      min-height: 100vh;
+      padding-top: 100px;
+      padding-bottom: 4rem;
+    }
+    
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 0 2rem;
+    }
+    
+    .page-header h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .back-link:hover {
+      color: var(--accent);
+    }
+    
+    /* Search Bar */
+    .search-section {
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      padding: 0 2rem;
+    }
+    
+    .search-box {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    
+    .search-btn {
+      padding: 1rem 1.5rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    
+    .demo-hint {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    .demo-hint span {
+      cursor: pointer;
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    
+    /* Order Status Display */
+    .order-display {
+      display: none;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .order-display.visible {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Order Header */
+    .order-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .order-id h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    
+    .order-id p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    
+    .order-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--accent);
+      border-radius: 50px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .order-status-badge.pending {
+      background: var(--warning);
+      color: black;
+    }
+    
+    .order-status-badge.ready {
+      background: var(--success);
+    }
+    
+    /* Main Grid */
+    .track-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
+    }
+    
+    /* 3D Layer Visualization */
+    .layer-viz {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+    }
+    
+    .layer-viz h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .viz-canvas {
+      width: 100%;
+      height: 350px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #layerCanvas {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .progress-overlay {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      color: white;
+    }
+    
+    .progress-pct {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .progress-text {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+    
+    /* Status Tracker */
+    .status-tracker {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .status-tracker h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .step {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+    
+    .step:last-child {
+      padding-bottom: 0;
+    }
+    
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 32px;
+      width: 2px;
+      height: calc(100% - 16px);
+      background: var(--border);
+    }
+    
+    .step.completed:not(:last-child)::after {
+      background: var(--accent);
+    }
+    
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      z-index: 1;
+    }
+    
+    .step.completed .step-dot {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    .step.active .step-dot {
+      background: var(--bg-card);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+      animation: pulse-dot 2s infinite;
+    }
+    
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .step-content {
+      flex: 1;
+    }
+    
+    .step-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+    
+    .step-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    
+    /* Side Panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    /* Print Stats */
+    .print-stats-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+    }
+    
+    .print-stats-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .temp-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: blink 2s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* ETA Card */
+    .eta-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+    }
+    
+    .eta-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .countdown {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+    }
+    
+    .countdown-main {
+      font-size: 2.5rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .countdown-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+    
+    /* G-Code Stream */
+    .gcode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+    }
+    
+    .gcode-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .gcode-terminal {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1rem;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.75rem;
+      height: 150px;
+      overflow: hidden;
+      color: var(--text-secondary);
+    }
+    
+    .gcode-line {
+      line-height: 1.6;
+    }
+    
+    .gcode-line.active {
+      color: var(--accent);
+    }
+    
+    .gcode-comment {
+      color: var(--text-muted);
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+      .track-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .viz-canvas {
+        height: 250px;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .order-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .search-box {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="logo">MagniPrints</div>
-        <ul class="nav-links">
-            <li><a href="../index.html">Home</a></li>
-            <li><a href="../products/">Products</a></li>
-            <li><a href="../custom/">Custom Print</a></li>
-            <li><a href="./">Track Order</a></li>
-        </ul>
-        <div class="nav-controls">
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <span id="themeIcon">☀️</span>
-            </button>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-        </div>
-    </nav>
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <a href="../index.html" class="logo">
+      <span>◉</span> MAGNIPRINTS
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../products/index.html">Products</a></li>
+      <li><a href="../custom/index.html">Custom</a></li>
+      <li><a href="index.html">Track</a></li>
+    </ul>
+  </nav>
 
-    <section class="track-section">
-        <div class="track-header reveal">
-            <h1 class="section-title">Track Your Print</h1>
-            <p class="section-subtitle">Monitor your order in real-time with 3D visualization</p>
+  <div class="track-page">
+    <div class="page-header">
+      <a href="../index.html" class="back-link">← Back to Home</a>
+      <h1>Track Your <span class="text-gradient">Order</span></h1>
+      <p>Enter your order ID to check real-time status</p>
+    </div>
+    
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-box">
+        <input type="text" class="search-input" id="orderInput" placeholder="MP-XXX" maxlength="10">
+        <button class="search-btn" id="trackBtn">Track</button>
+      </div>
+      <p class="demo-hint">
+        Try demo orders: <span onclick="fillOrder('MP-001')">MP-001</span>, 
+        <span onclick="fillOrder('MP-002')">MP-002</span>, 
+        <span onclick="fillOrder('MP-003')">MP-003</span>
+      </p>
+    </div>
+    
+    <!-- Order Display -->
+    <div class="order-display" id="orderDisplay">
+      <div class="order-header">
+        <div class="order-id">
+          <h2 id="displayOrderId">MP-001</h2>
+          <p>Placed on Jan 15, 2026 • Controller Stand x 2</p>
         </div>
-
-        <!-- Order Input -->
-        <div class="order-input-group reveal">
-            <input type="text" class="order-input" id="orderInput" placeholder="Enter Order ID (e.g., MP-2024-001)" maxlength="12">
-            <button class="track-btn" onclick="trackOrder()">Track</button>
+        <div class="order-status-badge" id="statusBadge">
+          <span class="temp-indicator"></span>
+          <span id="statusText">Printing</span>
         </div>
-
-        <!-- Tracking Display -->
-        <div class="tracking-display" id="trackingDisplay" style="display: none;">
-            <!-- 3D Layer Visualization -->
-            <div class="layer-visualization" style="position: relative;">
-                <canvas id="layerCanvas" style="width: 100%; height: 100%;"></canvas>
-                <div class="layer-info">
-                    <div class="layer-info-row">
-                        <span class="layer-info-label">Layer:</span>
-                        <span class="layer-info-value"><span id="currentLayer">0</span> / <span id="totalLayers">0</span></span>
-                    </div>
-                    <div class="layer-info-row">
-                        <span class="layer-info-label">Height:</span>
-                        <span class="layer-info-value"><span id="currentHeight">0</span> mm</span>
-                    </div>
-                    <div class="layer-info-row">
-                        <span class="layer-info-label">Speed:</span>
-                        <span class="layer-info-value"><span id="printSpeed">60</span> mm/s</span>
-                    </div>
-                </div>
+      </div>
+      
+      <div class="track-grid">
+        <div class="main-col">
+          <!-- 3D Layer Visualization -->
+          <div class="layer-viz">
+            <h3>🖨️ Live Print Visualization</h3>
+            <div class="viz-canvas">
+              <canvas id="layerCanvas"></canvas>
+              <div class="progress-overlay">
+                <div class="progress-pct" id="progressPct">67%</div>
+                <div class="progress-text" id="progressText">Layer 134/200</div>
+              </div>
             </div>
-
-            <!-- Progress Panel -->
-            <div class="progress-panel">
-                <div class="progress-bar-container">
-                    <div class="progress-detail">
-                        <span>Print Progress</span>
-                        <span><span id="progressPercent">0</span>%</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
-                    </div>
+          </div>
+          
+          <!-- Status Tracker -->
+          <div class="status-tracker">
+            <h3>📋 Order Progress</h3>
+            <div class="steps" id="stepsContainer">
+              <div class="step completed">
+                <div class="step-dot">✓</div>
+                <div class="step-content">
+                  <div class="step-title">Order Received</div>
+                  <div class="step-desc">Your order has been confirmed</div>
+                  <div class="step-time">Jan 15, 9:30 AM</div>
                 </div>
-
-                <!-- Status Steps -->
-                <div class="status-steps" id="statusSteps">
-                    <div class="status-step completed" data-step="1">
-                        <div class="status-icon">📋</div>
-                        <div class="status-label">Received</div>
-                    </div>
-                    <div class="status-step completed" data-step="2">
-                        <div class="status-icon">🖨️</div>
-                        <div class="status-label">Queued</div>
-                    </div>
-                    <div class="status-step active" data-step="3">
-                        <div class="status-icon">⚙️</div>
-                        <div class="status-label">Printing</div>
-                    </div>
-                    <div class="status-step" data-step="4">
-                        <div class="status-icon">🔍</div>
-                        <div class="status-label">QC Check</div>
-                    </div>
-                    <div class="status-step" data-step="5">
-                        <div class="status-icon">📦</div>
-                        <div class="status-label">Ready</div>
-                    </div>
+              </div>
+              <div class="step completed">
+                <div class="step-dot">✓</div>
+                <div class="step-content">
+                  <div class="step-title">Preparing</div>
+                  <div class="step-desc">File sliced and validated</div>
+                  <div class="step-time">Jan 15, 10:15 AM</div>
                 </div>
-
-                <!-- Print Stats -->
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-value" id="statTempHead">200°C</div>
-                        <div class="stat-label-small">Nozzle</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="statTempBed">60°C</div>
-                        <div class="stat-label-small">Bed</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="statFan">100%</div>
-                        <div class="stat-label-small">Fan</div>
-                    </div>
+              </div>
+              <div class="step active">
+                <div class="step-dot">●</div>
+                <div class="step-content">
+                  <div class="step-title">Printing</div>
+                  <div class="step-desc">Currently on layer 134</div>
+                  <div class="step-time">In Progress</div>
                 </div>
-
-                <!-- ETA Countdown -->
-                <div class="eta-box">
-                    <div class="eta-label">Estimated Completion</div>
-                    <div class="eta-time" id="etaTime">--:--:--</div>
+              </div>
+              <div class="step">
+                <div class="step-dot"></div>
+                <div class="step-content">
+                  <div class="step-title">Quality Check</div>
+                  <div class="step-desc">Post-print inspection</div>
+                  <div class="step-time">Pending</div>
                 </div>
-
-                <!-- Printer Status -->
-                <div class="printer-status">
-                    <div class="status-indicator"></div>
-                    <span style="font-weight: 600;">Printer Active</span>
-                    <span class="nozzle-temp" style="margin-left: auto; color: var(--accent);">
-                        🌡️ <span id="liveTemp">200</span>/<span id="targetTemp">200</span>°C
-                    </span>
+              </div>
+              <div class="step">
+                <div class="step-dot"></div>
+                <div class="step-content">
+                  <div class="step-title">Ready for Pickup</div>
+                  <div class="step-desc">Your order is ready!</div>
+                  <div class="step-time">Pending</div>
                 </div>
-
-                <!-- Order Details -->
-                <div class="order-details">
-                    <h4>Order Details</h4>
-                    <div class="order-detail-row">
-                        <span>Order ID</span>
-                        <span id="detailOrderId">--</span>
-                    </div>
-                    <div class="order-detail-row">
-                        <span>Product</span>
-                        <span id="detailProduct">--</span>
-                    </div>
-                    <div class="order-detail-row">
-                        <span>Material</span>
-                        <span id="detailMaterial">--</span>
-                    </div>
-                    <div class="order-detail-row">
-                        <span>Started</span>
-                        <span id="detailStarted">--</span>
-                    </div>
-                    <div class="order-detail-row">
-                        <span>Filament Used</span>
-                        <span id="detailFilament">--</span>
-                    </div>
-                </div>
+              </div>
             </div>
+          </div>
         </div>
-
-        <!-- G-code Terminal -->
-        <div class="terminal-window" id="terminalWindow" style="display: none;">
-            <div class="terminal-header">
-                <span class="terminal-dot red"></span>
-                <span class="terminal-dot yellow"></span>
-                <span class="terminal-dot green"></span>
-                <span class="terminal-title">GCODE Monitor — ~/printer.log</span>
+        
+        <div class="side-panel">
+          <!-- Print Stats -->
+          <div class="print-stats-card">
+            <h3>🔧 Print Stats</h3>
+            <div class="stat-row">
+              <span class="stat-label">Nozzle Temp</span>
+              <span class="stat-value">
+                <span class="temp-indicator"></span>
+                <span id="nozzleTemp">200°C</span>
+              </span>
             </div>
-            <div class="terminal-body" id="terminalBody">
-                <!-- Terminal lines will be added here -->
+            <div class="stat-row">
+              <span class="stat-label">Bed Temp</span>
+              <span class="stat-value">
+                <span class="temp-indicator"></span>
+                <span id="bedTemp">60°C</span>
+              </span>
             </div>
+            <div class="stat-row">
+              <span class="stat-label">Layer Height</span>
+              <span class="stat-value">0.2mm</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Print Speed</span>
+              <span class="stat-value" id="printSpeed">60mm/s</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Material Used</span>
+              <span class="stat-value" id="materialUsed">89g</span>
+            </div>
+          </div>
+          
+          <!-- ETA Countdown -->
+          <div class="eta-card">
+            <h3>⏱️ Estimated Completion</h3>
+            <div class="countdown">
+              <div class="countdown-main" id="countdown">02:34:12</div>
+              <div class="countdown-label">hours remaining</div>
+            </div>
+          </div>
+          
+          <!-- G-Code Stream -->
+          <div class="gcode-card">
+            <h3>📡 Live G-Code</h3>
+            <div class="gcode-terminal" id="gcodeTerminal">
+              <div class="gcode-line">; MagniPrints Printer v2.1</div>
+              <div class="gcode-line">M104 S200 <span class="gcode-comment">; Set nozzle temp</span></div>
+              <div class="gcode-line">M140 S60 <span class="gcode-comment">; Set bed temp</span></div>
+              <div class="gcode-line active">G1 X45.2 Y23.4 E0.24 <span class="gcode-comment">; Extrude</span></div>
+            </div>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        themeToggle.addEventListener('click', () => {
-            const current = html.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
-        });
-
-        // Mobile Menu
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.querySelector('.nav-links').classList.toggle('active');
-        });
-
-        // Simulated Order Database
-        const orders = {
-            'MP-2024-001': {
-                product: 'Phone Stand',
-                material: 'PLA White',
-                started: 'Feb 12, 14:30',
-                totalLayers: 147,
-                currentLayer: 89,
-                totalHeight: 29.4,
-                filamentUsed: 42.5,
-                filamentTotal: 65,
-                printTime: '4h 30m',
-                remaining: 98, // minutes
-                status: 3, // 1-5
-                tempHead: 200,
-                tempBed: 60,
-                speed: 60,
-                fan: 100
-            },
-            'MP-2024-002': {
-                product: 'Geometric Planter',
-                material: 'PETG Blue',
-                started: 'Feb 12, 10:15',
-                totalLayers: 203,
-                currentLayer: 203,
-                totalHeight: 50.75,
-                filamentUsed: 82,
-                filamentTotal: 82,
-                printTime: '6h 45m',
-                remaining: 0,
-                status: 4,
-                tempHead: 240,
-                tempBed: 80,
-                speed: 50,
-                fan: 80
-            },
-            'MP-2024-003': {
-                product: 'Custom Lithophane',
-                material: 'PLA White',
-                started: 'Feb 11, 09:00',
-                totalLayers: 98,
-                currentLayer: 98,
-                totalHeight: 19.6,
-                filamentUsed: 35,
-                filamentTotal: 35,
-                printTime: '3h 30m',
-                remaining: 0,
-                status: 5,
-                tempHead: 195,
-                tempBed: 60,
-                speed: 30,
-                fan: 100
-            },
-            'DEMO': {
-                product: 'Controller Stand',
-                material: 'TPU Green',
-                started: new Date().toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                totalLayers: 180,
-                currentLayer: 1,
-                totalHeight: 36.0,
-                filamentUsed: 0,
-                filamentTotal: 78,
-                printTime: '5h 15m',
-                remaining: 315,
-                status: 3,
-                tempHead: 220,
-                tempBed: 50,
-                speed: 45,
-                fan: 100
-            }
-        };
-
-        let currentOrder = null;
-        let updateInterval = null;
-        let terminalInterval = null;
-
-        // G-code commands
-        const gcodeCommands = [
-            'G1 X120.45 Y89.23 E2.456 ; extrude line',
-            'G1 F1800 X121.12 Y90.45 E2.512',
-            'G1 X122.34 Y91.67 E2.568',
-            'G1 X123.56 Y92.89 E2.624',
-            'M104 S200 ; hotend temp',
-            'M140 S60 ; bed temp',
-            'G1 F1500 E2.5 ; retract',
-            'G1 X150 Y150 F3000 ; move to next position',
-            'G1 X150.2 Y150.3 E2.55 ; resume extrusion',
-            'M105 ; report temps',
-            'G1 X151 Y151 E2.61',
-            'G1 X152 Y152 E2.67',
-            'M109 S200 ; wait for temp',
-            'G1 Z0.3 F1500 ; next layer',
-            'G1 X100 Y100 F3000 ; rapid move',
-            'G28 ; home axes',
-            'G29 ; auto bed level',
-            'M107 ; fan off',
-            'M106 S255 ; fan on',
-            '; Layer 89 of 180',
-            'M73 P49 ; progress update',
-            'G2 X120 Y80 I10 J10 F1800 ; arc move',
-            'G3 X100 Y100 I-10 J-10 F1800',
-            'M105 ; T:200.5 /200 B:60.2 /60',
-            'G1 F1200 X125.45 Y95.12 E3.1',
-            'G1 X126.34 Y96.23 E3.15',
-            'M104 S200.5 ; maintain temp',
-            'G1 Z0.4 E3.2 F1500 ; z-hop'
-        ];
-
-        function trackOrder() {
-            const orderId = document.getElementById('orderInput').value.toUpperCase().trim();
+  <script src="../js/theme.js"></script>
+  
+  <script>
+    // ========================================
+    // DEMO ORDER DATA
+    // ========================================
+    const demoOrders = {
+      'MP-001': {
+        id: 'MP-001',
+        product: 'Controller Stand x 2',
+        date: 'Jan 15, 2026',
+        progress: 67,
+        currentLayer: 134,
+        totalLayers: 200,
+        status: 'printing',
+        statusText: 'Printing',
+        stepActive: 2, // 0-indexed, printing is step 2
+        eta: '02:34:12',
+        nozzleTemp: '200°C',
+        bedTemp: '60°C',
+        speed: '60mm/s',
+        materialUsed: '89g',
+        steps: [
+          { title: 'Order Received', desc: 'Your order has been confirmed', time: 'Jan 15, 9:30 AM', completed: true },
+          { title: 'Preparing', desc: 'File sliced and validated', time: 'Jan 15, 10:15 AM', completed: true },
+          { title: 'Printing', desc: 'Currently on layer 134', time: 'In Progress', completed: false, active: true },
+          { title: 'Quality Check', desc: 'Post-print inspection', time: 'Pending', completed: false },
+          { title: 'Ready for Pickup', desc: 'Your order is ready!', time: 'Pending', completed: false }
+        ]
+      },
+      'MP-002': {
+        id: 'MP-002',
+        product: 'Lithophane Frame x 1',
+        date: 'Jan 14, 2026',
+        progress: 100,
+        currentLayer: 400,
+        totalLayers: 400,
+        status: 'ready',
+        statusText: 'Ready for Pickup',
+        stepActive: 4,
+        eta: '00:00:00',
+        nozzleTemp: '195°C',
+        bedTemp: '55°C',
+        speed: '40mm/s',
+        materialUsed: '62g',
+        steps: [
+          { title: 'Order Received', desc: 'Your order has been confirmed', time: 'Jan 14, 2:30 PM', completed: true },
+          { title: 'Preparing', desc: 'File sliced and validated', time: 'Jan 14, 3:00 PM', completed: true },
+          { title: 'Printing', desc: 'Completed', time: 'Jan 15, 8:00 AM', completed: true },
+          { title: 'Quality Check', desc: 'Passed inspection', time: 'Jan 15, 9:30 AM', completed: true },
+          { title: 'Ready for Pickup', desc: 'Your order is ready!', time: 'Jan 15, 10:00 AM', completed: true, active: true }
+        ]
+      },
+      'MP-003': {
+        id: 'MP-003',
+        product: 'Desk Organizer x 1',
+        date: 'Jan 15, 2026',
+        progress: 23,
+        currentLayer: 46,
+        totalLayers: 200,
+        status: 'queued',
+        statusText: 'Printing (Queued)',
+        stepActive: 2,
+        eta: '08:45:30',
+        nozzleTemp: '200°C',
+        bedTemp: '60°C',
+        speed: '60mm/s',
+        materialUsed: '41g',
+        steps: [
+          { title: 'Order Received', desc: 'Your order has been confirmed', time: 'Jan 15, 11:00 AM', completed: true },
+          { title: 'Preparing', desc: 'File sliced and validated', time: 'Jan 15, 11:15 AM', completed: true },
+          { title: 'Printing', desc: 'Starting print (layer 46)', time: 'In Progress', completed: false, active: true },
+          { title: 'Quality Check', desc: 'Post-print inspection', time: 'Pending', completed: false },
+          { title: 'Ready for Pickup', desc: 'Your order is ready!', time: 'Pending', completed: false }
+        ]
+      }
+    };
+    
+    let currentOrder = null;
+    let layerAnimationId = null;
+    let gcodeInterval = null;
+    
+    // ========================================
+    // ORDER TRACKING
+    // ========================================
+    document.getElementById('trackBtn').addEventListener('click', trackOrder);
+    document.getElementById('orderInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') trackOrder();
+    });
+    
+    function fillOrder(id) {
+      document.getElementById('orderInput').value = id;
+      trackOrder();
+    }
+    
+    window.fillOrder = fillOrder;
+    
+    function trackOrder() {
+      const input = document.getElementById('orderInput').value.toUpperCase();
+      const order = demoOrders[input] || demoOrders['MP-001']; // Default to demo
+      
+      currentOrder = order;
+      displayOrder(order);
+    }
+    
+    function displayOrder(order) {
+      document.getElementById('displayOrderId').textContent = order.id;
+      document.getElementById('statusBadge').className = `order-status-badge ${order.status}`;
+      document.getElementById('statusText').textContent = order.statusText;
+      
+      // Update stats
+      document.getElementById('nozzleTemp').textContent = order.nozzleTemp;
+      document.getElementById('bedTemp').textContent = order.bedTemp;
+      document.getElementById('printSpeed').textContent = order.speed;
+      document.getElementById('materialUsed').textContent = order.materialUsed;
+      document.getElementById('countdown').textContent = order.eta;
+      
+      // Build progress steps
+      const stepsHtml = order.steps.map((step, i) => `
+        <div class="step ${step.completed ? 'completed' : ''} ${step.active ? 'active' : ''}">
+          <div class="step-dot">${step.completed ? '✓' : step.active ? '●' : ''}</div>
+          <div class="step-content">
+            <div class="step-title">${step.title}</div>
+            <div class="step-desc">${step.desc}</div>
+            <div class="step-time">${step.time}</div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('stepsContainer').innerHTML = stepsHtml;
+      
+      // Show display
+      document.getElementById('orderDisplay').classList.add('visible');
+      
+      // Start visualization
+      startLayerVisualization(order);
+      startGCodeStream();
+    }
+    
+    // ========================================
+    // 3D LAYER VISUALIZATION (Canvas)
+    // ========================================
+    function startLayerVisualization(order) {
+      if (layerAnimationId) cancelAnimationFrame(layerAnimationId);
+      
+      const canvas = document.getElementById('layerCanvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      
+      // Set canvas size
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      
+      const width = rect.width;
+      const height = rect.height;
+      
+      // Layer parameters
+      const totalLayers = order.totalLayers;
+      let currentLayer = order.currentLayer;
+      const layerHeight = 3;
+      const perspective = 0.6;
+      
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        
+        const centerX = width / 2;
+        const centerY = height / 2 + 50;
+        
+        // Draw completed layers from bottom to top
+        const maxVisibleLayers = Math.min(totalLayers, Math.floor(height / (layerHeight * 0.6)));
+        const startLayer = Math.max(0, currentLayer - maxVisibleLayers);
+        
+        for (let i = startLayer; i < currentLayer; i++) {
+          const layerIndex = i - startLayer;
+          const y = centerY - layerIndex * layerHeight * perspective;
+          const xOffset = layerIndex * 2;
+          
+          // Layer color gradient - darker at bottom, lighter at top
+          const colorRatio = i / totalLayers;
+          const hue = 230;
+          const lightness = 30 + colorRatio * 30;
+          
+          // Draw layer (rounded rectangle with perspective)
+          ctx.beginPath();
+          const layerWidth = 140 + xOffset;
+          const layerDepth = 100 + xOffset * 0.6;
+          
+          ctx.fillStyle = `hsl(${hue}, 40%, ${lightness}%)`;
+          
+          // Draw as perspective trapezoid
+          ctx.moveTo(centerX - layerWidth/2 + xOffset, y);
+          ctx.lineTo(centerX + layerWidth/2 + xOffset, y);
+          ctx.lineTo(centerX + layerWidth/2 + xOffset - 10, y + layerHeight * perspective);
+          ctx.lineTo(centerX - layerWidth/2 + xOffset + 10, y + layerHeight * perspective);
+          ctx.closePath();
+          ctx.fill();
+          
+          // Add highlight to top layer
+          if (i === currentLayer - 1) {
+            ctx.strokeStyle = 'var(--accent)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
             
-            if (!orderId) {
-                alert('Please enter an Order ID');
-                return;
-            }
-
-            // Check for demo or real order
-            const order = orders[orderId] || orders['DEMO'];
-            currentOrder = order;
-            
-            // Show tracking display
-            document.getElementById('trackingDisplay').style.display = 'grid';
-            document.getElementById('terminalWindow').style.display = 'block';
-
-            // Update details
-            document.getElementById('detailOrderId').textContent = orderId;
-            document.getElementById('detailProduct').textContent = order.product;
-            document.getElementById('detailMaterial').textContent = order.material;
-            document.getElementById('detailStarted').textContent = order.started;
-            document.getElementById('detailFilament').textContent = `${order.filamentTotal}g`;
-            document.getElementById('totalLayers').textContent = order.totalLayers;
-
-            // Start visualization
-            initLayerVisualization();
-            startLiveUpdates();
-            startTerminal();
-
-            // Scroll to display
-            document.getElementById('trackingDisplay').scrollIntoView({ behavior: 'smooth' });
+            // Glow effect
+            ctx.shadowColor = 'var(--accent)';
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
         }
-
-        // Live updates
-        function startLiveUpdates() {
-            if (updateInterval) clearInterval(updateInterval);
-            
-            updateDisplay();
-            
-            updateInterval = setInterval(() => {
-                if (!currentOrder) return;
-                
-                // Simulate progress
-                if (currentOrder.currentLayer < currentOrder.totalLayers) {
-                    currentOrder.currentLayer += 1;
-                    currentOrder.filamentUsed += currentOrder.filamentTotal / currentOrder.totalLayers;
-                    
-                    if (currentOrder.remaining > 0) {
-                        currentOrder.remaining -= 1;
-                    }
-                    
-                    // Random temp fluctuation
-                    currentOrder.tempHead = 200 + (Math.random() - 0.5) * 2;
-                }
-                
-                // Update status if complete
-                if (currentOrder.currentLayer >= currentOrder.totalLayers) {
-                    currentOrder.status = 5;
-                    currentOrder.remaining = 0;
-                } else if (currentOrder.currentLayer > currentOrder.totalLayers * 0.95) {
-                    currentOrder.status = 4;
-                }
-                
-                updateDisplay();
-            }, 2000); // Update every 2 seconds for demo
+        
+        // Draw nozzle position
+        const topY = centerY - (currentLayer - startLayer - 1) * layerHeight * perspective - 5;
+        const topXOffset = (currentLayer - startLayer - 1) * 2;
+        
+        // Nozzle
+        ctx.fillStyle = '#ff6b6b';
+        ctx.beginPath();
+        ctx.moveTo(centerX - 8 + topXOffset, topY - 15);
+        ctx.lineTo(centerX + 8 + topXOffset, topY - 15);
+        ctx.lineTo(centerX + topXOffset, topY);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Hot end glow
+        ctx.beginPath();
+        ctx.arc(centerX + topXOffset, topY + 5, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffd93d';
+        ctx.fill();
+        
+        // Animate if not complete
+        if (currentOrder.status !== 'ready' && Math.random() > 0.95) {
+          currentLayer = Math.min(totalLayers, currentLayer + 1);
         }
-
-        function updateDisplay() {
-            if (!currentOrder) return;
-            
-            const progress = Math.round((currentOrder.currentLayer / currentOrder.totalLayers) * 100);
-            const currentHeight = (currentOrder.currentLayer / currentOrder.totalLayers * currentOrder.totalHeight).toFixed(1);
-            
-            // Update layer info
-            document.getElementById('currentLayer').textContent = currentOrder.currentLayer;
-            document.getElementById('currentHeight').textContent = currentHeight;
-            document.getElementById('printSpeed').textContent = currentOrder.speed;
-            
-            // Update progress
-            document.getElementById('progressPercent').textContent = progress;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            
-            // Update stats
-            document.getElementById('statTempHead').textContent = `${currentOrder.tempHead.toFixed(1)}°C`;
-            document.getElementById('statTempBed').textContent = `${currentOrder.tempBed}°C`;
-            document.getElementById('statFan').textContent = `${currentOrder.fan}%`;
-            document.getElementById('liveTemp').textContent = currentOrder.tempHead.toFixed(1);
-            document.getElementById('targetTemp').textContent = currentOrder.tempHead.toFixed(0);
-            
-            // Update filament
-            document.getElementById('detailFilament').textContent = 
-                `${currentOrder.filamentUsed.toFixed(1)}/${currentOrder.filamentTotal}g`;
-            
-            // Update ETA
-            if (currentOrder.remaining > 0) {
-                const hours = Math.floor(currentOrder.remaining / 60);
-                const mins = currentOrder.remaining % 60;
-                const secs = Math.floor(Math.random() * 59);
-                document.getElementById('etaTime').textContent = 
-                    `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            } else {
-                document.getElementById('etaTime').textContent = 'COMPLETE';
-            }
-            
-            // Update status steps
-            const steps = document.querySelectorAll('.status-step');
-            steps.forEach((step, index) => {
-                const stepNum = index + 1;
-                step.classList.remove('completed', 'active');
-                
-                if (stepNum < currentOrder.status) {
-                    step.classList.add('completed');
-                } else if (stepNum === currentOrder.status) {
-                    step.classList.add('active');
-                }
-            });
-            
-            // Update 3D visualization
-            updateLayerVisualization(progress / 100);
+        
+        // Update display
+        const progress = Math.round((currentLayer / totalLayers) * 100);
+        document.getElementById('progressPct').textContent = `${progress}%`;
+        document.getElementById('progressText').textContent = `Layer ${currentLayer}/${totalLayers}`;
+        
+        layerAnimationId = requestAnimationFrame(draw);
+      }
+      
+      draw();
+    }
+    
+    // ========================================
+    // G-CODE STREAM SIMULATION
+    // ========================================
+    const gcodeCommands = [
+      { cmd: 'G1 X{:.1f} Y{:.1f} E{:.2f}', comment: 'Extrude' },
+      { cmd: 'G1 X{:.1f} Y{:.1f} F1500', comment: 'Move' },
+      { cmd: 'G1 E-0.2', comment: 'Retract' },
+      { cmd: 'G1 Z{:.2f}', comment: 'Lift Z' },
+      { cmd: 'M104 S{:.0f}', comment: 'Adjust temp' }
+    ];
+    
+    function startGCodeStream() {
+      if (gcodeInterval) clearInterval(gcodeInterval);
+      
+      const terminal = document.getElementById('gcodeTerminal');
+      let lines = [];
+      
+      gcodeInterval = setInterval(() => {
+        // Generate random G-code line
+        const template = gcodeCommands[Math.floor(Math.random() * gcodeCommands.length)];
+        const x = (Math.random() * 100).toFixed(1);
+        const y = (Math.random() * 100).toFixed(1);
+        const e = (Math.random() * 2).toFixed(2);
+        const z = (currentOrder?.currentLayer * 0.2).toFixed(2);
+        const t = (195 + Math.random() * 10).toFixed(0);
+        
+        let cmd = template.cmd
+          .replace('{:.1f}', x).replace('{:.1f}', y).replace('{:.2f}', e)
+          .replace('{:.2f}', z).replace('{:.0f}', t);
+        
+        lines.push({ cmd, comment: template.comment });
+        if (lines.length > 5) lines.shift();
+        
+        terminal.innerHTML = lines.map((line, i) => 
+          `<div class="gcode-line ${i === lines.length - 1 ? 'active' : ''}">
+            ${line.cmd} <span class="gcode-comment">; ${line.comment}</span>
+          </div>`
+        ).join('');
+        
+        // Randomly update temps
+        if (Math.random() > 0.7) {
+          const variation = Math.floor(Math.random() * 3) - 1;
+          const currentTemp = parseInt(document.getElementById('nozzleTemp').textContent);
+          document.getElementById('nozzleTemp').textContent = `${currentTemp + variation}°C`;
         }
-
-        // Terminal
-        function startTerminal() {
-            const terminal = document.getElementById('terminalBody');
-            terminal.innerHTML = '';
-            
-            if (terminalInterval) clearInterval(terminalInterval);
-            
-            // Add initial lines
-            addTerminalLine('Connecting to printer...', 'info');
-            addTerminalLine('Connection established', 'success');
-            addTerminalLine('Marlin 2.1.2 ready', 'info');
-            
-            terminalInterval = setInterval(() => {
-                const cmd = gcodeCommands[Math.floor(Math.random() * gcodeCommands.length)];
-                const type = cmd.includes('error') ? 'error' : 
-                            cmd.includes('warn') ? 'warning' : '';
-                addTerminalLine(`> ${cmd}`, type);
-            }, 800);
+        
+        // Update material used
+        if (currentOrder && currentOrder.status !== 'ready') {
+          const currentMat = parseInt(document.getElementById('materialUsed').textContent);
+          if (Math.random() > 0.8) {
+            document.getElementById('materialUsed').textContent = `${currentMat + 1}g`;
+          }
         }
-
-        function addTerminalLine(text, type = '') {
-            const terminal = document.getElementById('terminalBody');
-            const line = document.createElement('div');
-            const time = new Date().toLocaleTimeString('en-GB');
-            line.className = `terminal-line ${type}`;
-            line.textContent = `[${time}] ${text}`;
-            terminal.appendChild(line);
-            
-            // Keep only last 50 lines
-            while (terminal.children.length > 50) {
-                terminal.removeChild(terminal.firstChild);
-            }
-            
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        // Three.js Layer Visualization
-        let layerScene, layerCamera, layerRenderer, layerModel;
-
-        function initLayerVisualization() {
-            const canvas = document.getElementById('layerCanvas');
-            const container = canvas.parentElement;
-            
-            layerScene = new THREE.Scene();
-            layerScene.background = new THREE.Color(getComputedStyle(document.body).getPropertyValue('--card').trim() || 0x0a0a0a);
-            
-            layerCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-            layerCamera.position.set(4, 3, 4);
-            layerCamera.lookAt(0, 0, 0);
-            
-            layerRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-            layerRenderer.setSize(container.clientWidth, container.clientHeight);
-            
-            // Lighting
-            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-            layerScene.add(ambient);
-            
-            const dir = new THREE.DirectionalLight(0x667eea, 0.8);
-            dir.position.set(3, 5, 2);
-            layerScene.add(dir);
-            
-            const back = new THREE.DirectionalLight(0x9333ea, 0.3);
-            back.position.set(-3, -2, -2);
-            layerScene.add(back);
-            
-            // Create stacked layers visualization
-            createLayerStack();
-            
-            animateLayers();
-        }
-
-        function createLayerStack() {
-            layerModel = new THREE.Group();
-            
-            const totalLayers = 20;
-            const baseSize = 1.5;
-            const heightStep = 0.15;
-            
-            for (let i = 0; i < totalLayers; i++) {
-                // Create a pattern that represents a simple object
-                const progress = i / totalLayers;
-                const size = baseSize * (0.8 + 0.4 * Math.sin(progress * Math.PI));
-                
-                // Layer geometry
-                const geometry = new THREE.BoxGeometry(size, heightStep * 0.8, size * 0.8);
-                
-                // Gradient color based on layer
-                const hue = 0.65 + (progress * 0.15); // Blue to purple
-                const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
-                
-                const material = new THREE.MeshStandardMaterial({
-                    color: color,
-                    transparent: true,
-                    opacity: 0.9,
-                    roughness: 0.5,
-                    metalness: 0.2
-                });
-                
-                const layer = new THREE.Mesh(geometry, material);
-                layer.position.y = i * heightStep;
-                layer.userData.layerIndex = i;
-                layer.userData.originalOpacity = 0.9;
-                
-                layerModel.add(layer);
-            }
-            
-            // Grid
-            const grid = new THREE.GridHelper(6, 20, 0x667eea, 0x334155);
-            grid.position.y = -0.5;
-            layerScene.add(grid);
-            
-            layerScene.add(layerModel);
-        }
-
-        function updateLayerVisualization(progress) {
-            if (!layerModel) return;
-            
-            const layers = layerModel.children.filter(c => c.userData.layerIndex !== undefined);
-            const completedCount = Math.floor(progress * layers.length);
-            
-            layers.forEach((layer, index) => {
-                if (index < completedCount) {
-                    // Completed layers
-                    layer.material.opacity = 1;
-                    layer.material.emissive.setHex(0x222244);
-                    layer.position.z = 0;
-                } else if (index === completedCount) {
-                    // Current layer - highlight
-                    layer.material.opacity = 1;
-                    layer.material.emissive.setHex(0x4444ff);
-                    layer.position.z = 0.1;
-                } else {
-                    // Future layers - fade
-                    layer.material.opacity = 0.3;
-                    layer.material.emissive.setHex(0x000000);
-                    layer.position.z = 0;
-                }
-            });
-        }
-
-        function animateLayers() {
-            if (!layerRenderer) return;
-            requestAnimationFrame(animateLayers);
-            
-            // Gentle rotation
-            if (layerModel) {
-                layerModel.rotation.y += 0.005;
-            }
-            
-            layerRenderer.render(layerScene, layerCamera);
-        }
-
-        // Resize handler
-        window.addEventListener('resize', () => {
-            if (layerRenderer && layerCamera) {
-                const container = document.querySelector('.layer-visualization');
-                const size = Math.min(container.clientWidth, container.clientHeight);
-                layerRenderer.setSize(size, size);
-                layerCamera.aspect = 1;
-                layerCamera.updateProjectionMatrix();
-            }
-        });
-
-        // Scroll reveal
-        const reveals = document.querySelectorAll('.reveal');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        });
-        reveals.forEach(el => observer.observe(el));
-
-        // Enter key triggers search
-        document.getElementById('orderInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') trackOrder();
-        });
-
-        // Add initial terminal log
-        addTerminalLine('System initialized. Waiting for input...', 'info');
-    </script>
+      }, 800);
+    }
+    
+    // ========================================
+    // RESIZE HANDLER
+    // ========================================
+    window.addEventListener('resize', () => {
+      if (currentOrder) {
+        setTimeout(() => startLayerVisualization(currentOrder), 100);
+      }
+    });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (layerAnimationId) cancelAnimationFrame(layerAnimationId);
+      if (gcodeInterval) clearInterval(gcodeInterval);
+    });
+  </script>
 </body>
 </html>
