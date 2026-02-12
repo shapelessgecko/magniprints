@@ -1,0 +1,639 @@
+<!--
+  ========================================
+  MagniPrints - Order Tracking Page
+  /root/.openclaw/workspace/magniprints/track.html
+  WordPress Template: Track Order (page-track.php)
+  ========================================
+-->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your 3D printing order status in real-time. Enter your order ID to view progress and estimated delivery.">
+  
+  <title>Track Order | MagniPrints</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdmirror.com/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+</head>
+<body>
+  <!-- Skip to content -->
+  <a href="#main-content" class="mp-visually-hidden">Skip to main content</a>
+  
+  <!-- ========================================
+       HEADER / NAVIGATION
+       ======================================== -->
+  <header class="mp-header" role="banner">
+    <div class="mp-container mp-header__container">
+      <a href="index.html" class="mp-logo" aria-label="MagniPrints Home">
+        <span class="mp-logo__icon">🖨️</span>
+        <span class="mp-logo__text">Magni<span class="mp-logo__text--bold">Prints</span></span>
+      </a>
+      
+      <nav class="mp-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="mp-nav__link">Home</a>
+        <a href="products.html" class="mp-nav__link">Products</a>
+        <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+        <a href="track.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Track Order</a>
+      </nav>
+      
+      <div class="mp-header__actions">
+        <button class="mp-theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">
+          <span class="mp-theme-toggle__icon">☀️</span>
+        </button>
+        <button class="mp-menu-toggle" id="menuToggle" aria-expanded="false" aria-label="Toggle mobile menu">
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+        </button>
+      </div>
+    </div>
+    
+    <nav class="mp-nav mp-nav--mobile" id="mobileNav" aria-expanded="false" aria-label="Mobile navigation">
+      <a href="index.html" class="mp-nav__link">Home</a>
+      <a href="products.html" class="mp-nav__link">Products</a>
+      <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+      <a href="track.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Track Order</a>
+    </nav>
+  </header>
+  
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <main id="main-content" class="mp-section" style="padding-top: 120px;">
+    <div class="mp-container">
+      
+      <!-- Page Header -->
+      <header class="mp-featured__header" data-animate>
+        <p class="mp-featured__subtitle">Order Status</p>
+        <h1 class="mp-heading mp-heading--1">Track Your Order</h1>
+        <p class="mp-text mp-text--large">Enter your order ID to check the status of your 3D printing order.</p>
+      </header>
+      
+      <!-- Track Search -->
+      <div class="mp-card" data-animate>
+        <div class="mp-card__content">
+          <div class="mp-track-search">
+            <div class="mp-track-search__group">
+              <input type="text" 
+                     id="orderIdInput"
+                     class="mp-input mp-track-search__input"
+                     placeholder="Enter Order ID (e.g., MP-12345)"
+                     maxlength="10"
+                     aria-label="Order ID input">
+              <button type="button" 
+                      class="mp-btn mp-btn--primary mp-btn--lg"
+                      id="trackBtn"
+                      aria-label="Track order">
+                <span>Track</span>
+              </button>
+            </div>
+            
+            <p class="mp-form-hint mp-text-center" style="margin-top: var(--space-2);">
+              Order ID format: MP-XXXXX (found in your confirmation email)
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Order Result -->
+      <div class="mp-card" id="orderResult" style="display: none;" data-animate>
+        <div class="mp-card__content">
+          
+          <!-- Order Info Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border);">
+            <div>
+              <h2 class="mp-card__title" id="orderTitle">Order #MP-12345</h2>
+              <p class="mp-text mp-text--muted" id="orderDate">Placed on: Jan 15, 2024</p>
+            </div>
+            <div class="mp-print-viz" style="aspect-ratio: 16/9; max-width: 300px;">
+              <canvas id="printPreviewCanvas"></canvas>
+              <div class="mp-print-viz__stats">
+                <div class="mp-print-stat">
+                  <span class="mp-print-stat__label">Temp:</span>
+                  <span class="mp-print-stat__value">210°C</span>
+                </div>
+                <div class="mp-print-stat">
+                  <span class="mp-print-stat__label">Time:</span>
+                  <span class="mp-print-stat__value">4h 23m</span>
+                </div>
+                <div class="mp-print-stat">
+                  <span class="mp-print-stat__label">Material:</span>
+                  <span class="mp-print-stat__value">PLA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Timeline -->
+          <div class="mp-timeline" id="timeline">
+            <!-- Timeline items will be added dynamically -->
+          </div>
+          
+          <!-- Print Progress Visualization -->
+          <div style="margin-top: var(--space-6);">
+            <h3 class="mp-card__title" style="margin-bottom: var(--space-2);">3D Printing Progress</h3>
+            
+            <div style="background: var(--color-bg-elevated); border-radius: var(--radius-md); padding: var(--space-3);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2); font-size: var(--font-small);">
+                <span>Layer 342 / 1200</span>
+                <span>28%</span>
+              </div>
+              <div style="height: 12px; background: var(--color-bg-secondary); border-radius: var(--radius-sm); overflow: hidden;">
+                <div style="height: 100%; width: 28%; background: var(--color-accent); border-radius: var(--radius-sm); transition: width 0.5s ease;"></div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-top: var(--space-3); font-size: var(--font-small);">
+                <div style="text-align: center;">
+                  <div style="font-weight: var(--font-medium); color: var(--color-text);">Estimated Completion</div>
+                  <div style="color: var(--color-text-muted);">Today, 4:30 PM</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-weight: var(--font-medium); color: var(--color-text);">Current Layer</div>
+                  <div style="color: var(--color-text-muted);">342 / 1200</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-weight: var(--font-medium); color: var(--color-text);">Print Time</div>
+                  <div style="color: var(--color-text-muted);">4h 23m / 15h</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Order Details -->
+          <div style="margin-top: var(--space-6);">
+            <h3 class="mp-card__title" style="margin-bottom: var(--space-2);">Order Details</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-3);">
+              <div class="mp-card" style="background: transparent; border: none;">
+                <div class="mp-card__content">
+                  <h4 class="mp-card__title" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-1);">Product</h4>
+                  <p class="mp-card__description">Geometric Planter - Custom Size</p>
+                </div>
+              </div>
+              <div class="mp-card" style="background: transparent; border: none;">
+                <div class="mp-card__content">
+                  <h4 class="mp-card__title" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-1);">Material</h4>
+                  <p class="mp-card__description">PLA - White</p>
+                </div>
+              </div>
+              <div class="mp-card" style="background: transparent; border: none;">
+                <div class="mp-card__content">
+                  <h4 class="mp-card__title" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-1);">Quantity</h4>
+                  <p class="mp-card__description">1</p>
+                </div>
+              </div>
+              <div class="mp-card" style="background: transparent; border: none;">
+                <div class="mp-card__content">
+                  <h4 class="mp-card__title" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-1);">Total</h4>
+                  <p class="mp-card__description">₹299</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div style="margin-top: var(--space-6); display: flex; gap: var(--space-3); flex-wrap: wrap;">
+            <a href="#" class="mp-btn mp-btn--outline" aria-label="Contact support">
+              <span>Contact Support</span>
+            </a>
+            <a href="#" class="mp-btn mp-btn--secondary" aria-label="Download invoice">
+              <span>Download Invoice</span>
+            </a>
+            <a href="https://wa.me/?text=Hi%20MagniPrints!%20I%20have%20a%20question%20about%20my%20order%20MP-12345." target="_blank" class="mp-btn mp-btn--primary" aria-label="Chat with support">
+              <span>Ask a Question</span>
+              <span>💬</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Order History -->
+      <section class="mp-section mp-section--compact" aria-labelledby="order-history">
+        <div class="mp-container">
+          <h2 id="order-history" class="mp-heading mp-heading--2 mp-text-center mp-mb-4">Recent Orders</h2>
+          
+          <div class="mp-products-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <!-- Order 1 -->
+            <article class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+                  <h3 class="mp-card__title">Phone Stand</h3>
+                  <span class="mp-text--accent" style="font-weight: var(--font-semibold);">₹149</span>
+                </div>
+                <p class="mp-card__description" style="margin-bottom: var(--space-2);">Order #MP-12344 • Delivered</p>
+                <div style="display: flex; justify-content: space-between; font-size: var(--font-xs); color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                  <span>Jan 10, 2024</span>
+                  <span>PLA - Black</span>
+                </div>
+                <button class="mp-btn mp-btn--ghost mp-btn--sm" onclick="showOrderDetails('MP-12344')">
+                  View Details
+                </button>
+              </div>
+            </article>
+            
+            <!-- Order 2 -->
+            <article class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+                  <h3 class="mp-card__title">Cable Organizer</h3>
+                  <span class="mp-text--accent" style="font-weight: var(--font-semibold);">₹199</span>
+                </div>
+                <p class="mp-card__description" style="margin-bottom: var(--space-2);">Order #MP-12343 • Processing</p>
+                <div style="display: flex; justify-content: space-between; font-size: var(--font-xs); color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                  <span>Jan 8, 2024</span>
+                  <span>PETG - Blue</span>
+                </div>
+                <button class="mp-btn mp-btn--ghost mp-btn--sm" onclick="showOrderDetails('MP-12343')">
+                  View Details
+                </button>
+              </div>
+            </article>
+            
+            <!-- Order 3 -->
+            <article class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+                  <h3 class="mp-card__title">Lithophane</h3>
+                  <span class="mp-text--accent" style="font-weight: var(--font-semibold);">₹349</span>
+                </div>
+                <p class="mp-card__description" style="margin-bottom: var(--space-2);">Order #MP-12342 • Shipped</p>
+                <div style="display: flex; justify-content: space-between; font-size: var(--font-xs); color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                  <span>Jan 5, 2024</span>
+                  <span>PLA - White</span>
+                </div>
+                <button class="mp-btn mp-btn--ghost mp-btn--sm" onclick="showOrderDetails('MP-12342')">
+                  View Details
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      
+      <!-- FAQ Section -->
+      <section class="mp-section mp-section--compact" aria-labelledby="faq">
+        <div class="mp-container">
+          <h2 id="faq" class="mp-heading mp-heading--2">Frequently Asked Questions</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4);">
+            <div class="mp-card">
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">How long does shipping take?</h3>
+                <p class="mp-card__description">Standard shipping takes 2-3 business days after printing is complete. Express shipping available for next-day delivery.</p>
+              </div>
+            </div>
+            <div class="mp-card">
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">Can I cancel my order?</h3>
+                <p class="mp-card__description">Orders can be cancelled within 2 hours of placement. After that, cancellation is only possible before printing begins.</p>
+              </div>
+            </div>
+            <div class="mp-card">
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">What if my print arrives damaged?</h3>
+                <p class="mp-card__description">We offer free replacements for any damaged items. Contact us within 7 days of delivery with photos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+  </main>
+  
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+  <footer class="mp-footer" role="contentinfo">
+    <div class="mp-container mp-footer__container">
+      <div class="mp-footer__brand">
+        <div class="mp-footer__logo">MagniPrints</div>
+        <p class="mp-footer__tagline">Premium 3D printing services. Precision, quality, and creativity in every print.</p>
+        <div class="mp-footer__socials">
+          <a href="#" class="mp-footer__social" aria-label="Instagram">📷</a>
+          <a href="#" class="mp-footer__social" aria-label="Twitter">🐦</a>
+          <a href="#" class="mp-footer__social" aria-label="WhatsApp">💬</a>
+        </div>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Quick Links</h4>
+        <a href="index.html" class="mp-footer__link">Home</a>
+        <a href="products.html" class="mp-footer__link">Products</a>
+        <a href="custom.html" class="mp-footer__link">Custom Upload</a>
+        <a href="track.html" class="mp-footer__link">Track Order</a>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Materials</h4>
+        <span class="mp-footer__link">PLA</span>
+        <span class="mp-footer__link">PETG</span>
+        <span class="mp-footer__link">TPU / Flexible</span>
+        <span class="mp-footer__link">ABS</span>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Support</h4>
+        <a href="#" class="mp-footer__link">FAQ</a>
+        <a href="#" class="mp-footer__link">Contact Us</a>
+        <a href="#" class="mp-footer__link">Shipping Info</a>
+        <a href="#" class="mp-footer__link">Terms of Service</a>
+      </div>
+    </div>
+    <div class="mp-container mp-footer__bottom">
+      <p class="mp-footer__copyright">© 2024 MagniPrints. All rights reserved. Made with precision in India.</p>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+  <script>
+    // ========================================
+    // ORDER TRACKING SIMULATION
+    // ========================================
+    const orderIdInput = document.getElementById('orderIdInput');
+    const trackBtn = document.getElementById('trackBtn');
+    const orderResult = document.getElementById('orderResult');
+    const timeline = document.getElementById('timeline');
+    const orderTitle = document.getElementById('orderTitle');
+    const orderDate = document.getElementById('orderDate');
+    const printPreviewCanvas = document.getElementById('printPreviewCanvas');
+    
+    // Sample orders database
+    const sampleOrders = {
+      'MP-12345': {
+        id: 'MP-12345',
+        date: 'Jan 15, 2024',
+        product: 'Geometric Planter - Custom Size',
+        material: 'PLA - White',
+        quantity: 1,
+        total: '₹299',
+        status: 'printing',
+        currentLayer: 342,
+        totalLayers: 1200,
+        printTime: '4h 23m',
+        totalTime: '15h',
+        estimatedCompletion: 'Today, 4:30 PM',
+        temperature: '210°C'
+      },
+      'MP-12344': {
+        id: 'MP-12344',
+        date: 'Jan 10, 2024',
+        product: 'Phone Stand',
+        material: 'PLA - Black',
+        quantity: 1,
+        total: '₹149',
+        status: 'delivered',
+        currentLayer: 1200,
+        totalLayers: 1200,
+        printTime: '15h',
+        totalTime: '15h',
+        estimatedCompletion: 'Jan 12, 2024',
+        temperature: '200°C'
+      },
+      'MP-12343': {
+        id: 'MP-12343',
+        date: 'Jan 8, 2024',
+        product: 'Cable Organizer',
+        material: 'PETG - Blue',
+        quantity: 1,
+        total: '₹199',
+        status: 'processing',
+        currentLayer: 0,
+        totalLayers: 1200,
+        printTime: '0h 0m',
+        totalTime: '12h',
+        estimatedCompletion: 'Jan 9, 2024',
+        temperature: '240°C'
+      },
+      'MP-12342': {
+        id: 'MP-12342',
+        date: 'Jan 5, 2024',
+        product: 'Lithophane',
+        material: 'PLA - White',
+        quantity: 1,
+        total: '₹349',
+        status: 'shipped',
+        currentLayer: 1200,
+        totalLayers: 1200,
+        printTime: '15h',
+        totalTime: '15h',
+        estimatedCompletion: 'Jan 7, 2024',
+        temperature: '190°C'
+      }
+    };
+    
+    // Timeline statuses
+    const timelineStatuses = [
+      { step: 'ordered', label: 'Order Received', detail: 'Payment confirmed', completed: true },
+      { step: 'processing', label: 'Processing', detail: 'Files processed & queued', completed: true },
+      { step: 'printing', label: 'Printing', detail: 'Layer 342/1200', completed: true },
+      { step: 'finishing', label: 'Finishing', detail: 'Post-processing', completed: false },
+      { step: 'shipped', label: 'Shipped', detail: 'Out for delivery', completed: false },
+      { step: 'delivered', label: 'Delivered', detail: 'Package delivered', completed: false }
+    ];
+    
+    // Initialize WebGL preview for printing visualization
+    function initPrintPreview() {
+      if (!printPreviewCanvas || typeof THREE === 'undefined') return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, printPreviewCanvas.parentElement.clientWidth / printPreviewCanvas.parentElement.clientHeight, 0.1, 1000);
+      camera.position.z = 20;
+      
+      const renderer = new THREE.WebGLRenderer({ 
+        canvas: printPreviewCanvas, 
+        antialias: true, 
+        alpha: true 
+      });
+      renderer.setSize(printPreviewCanvas.parentElement.clientWidth, printPreviewCanvas.parentElement.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      // Create printer bed
+      const bedGeometry = new THREE.BoxGeometry(15, 0.5, 15);
+      const bedMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x444444,
+        metalness: 0.2,
+        roughness: 0.8
+      });
+      const bed = new THREE.Mesh(bedGeometry, bedMaterial);
+      bed.position.y = -1;
+      scene.add(bed);
+      
+      // Create printed object (simple cylinder for demo)
+      const objectGeometry = new THREE.CylinderGeometry(2, 2, 8, 32);
+      const objectMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xdc2626,
+        metalness: 0.1,
+        roughness: 0.4
+      });
+      const object = new THREE.Mesh(objectGeometry, objectMaterial);
+      object.position.y = 3;
+      scene.add(object);
+      
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(10, 10, 10);
+      scene.add(directionalLight);
+      
+      // Animation loop
+      let rotation = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        object.rotation.y += 0.005;
+        renderer.render(scene, camera);
+      }
+      animate();
+      
+      // Handle resize
+      window.addEventListener('resize', () => {
+        camera.aspect = printPreviewCanvas.parentElement.clientWidth / printPreviewCanvas.parentElement.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(printPreviewCanvas.parentElement.clientWidth, printPreviewCanvas.parentElement.clientHeight);
+      });
+    }
+    
+    // Render timeline based on order status
+    function renderTimeline(order) {
+      timeline.innerHTML = '';
+      
+      timelineStatuses.forEach((status, index) => {
+        const item = document.createElement('div');
+        item.className = `mp-timeline__item ${status.step === order.status ? 'mp-timeline__item--active' : ''} ${index < 3 ? 'mp-timeline__item--completed' : ''}`;
+        
+        const dot = document.createElement('div');
+        dot.className = 'mp-timeline__dot';
+        
+        const content = document.createElement('div');
+        content.className = 'mp-timeline__content';
+        
+        const title = document.createElement('h4');
+        title.className = 'mp-timeline__title';
+        title.textContent = status.label;
+        
+        const time = document.createElement('p');
+        time.className = 'mp-timeline__time';
+        time.textContent = status.detail;
+        
+        content.appendChild(title);
+        content.appendChild(time);
+        item.appendChild(dot);
+        item.appendChild(content);
+        
+        timeline.appendChild(item);
+      });
+    }
+    
+    // Track order function
+    function trackOrder() {
+      const orderId = orderIdInput.value.trim().toUpperCase();
+      
+      if (!orderId) {
+        showError('Please enter an order ID.');
+        return;
+      }
+      
+      if (!orderId.startsWith('MP-')) {
+        showError('Order ID must start with "MP-"');
+        return;
+      }
+      
+      const order = sampleOrders[orderId];
+      
+      if (!order) {
+        showError(`Order "${orderId}" not found. Please check your order ID.`);
+        return;
+      }
+      
+      // Show result
+      orderResult.style.display = 'block';
+      
+      // Update order info
+      orderTitle.textContent = `Order #${order.id}`;
+      orderDate.textContent = `Placed on: ${order.date}`;
+      
+      // Render timeline
+      renderTimeline(order);
+      
+      // Update progress bar
+      const progressBar = document.querySelector('.mp-print-viz > div > div');
+      if (progressBar) {
+        const percentage = (order.currentLayer / order.totalLayers) * 100;
+        progressBar.style.width = `${percentage}%`;
+      }
+      
+      // Update stats
+      document.querySelector('[data-id="temp"]').textContent = order.temperature;
+      document.querySelector('[data-id="time"]').textContent = order.printTime;
+      document.querySelector('[data-id="material"]').textContent = order.material.split(' - ')[0];
+      
+      // Simulate animation for active status
+      setTimeout(() => {
+        const activeItem = document.querySelector('.mp-timeline__item--active');
+        if (activeItem) {
+          activeItem.classList.add('mp-timeline__item--active');
+        }
+      }, 100);
+    }
+    
+    function showError(message) {
+      // In a real implementation, this would show an alert or error message
+      console.error(message);
+      alert(message);
+    }
+    
+    // Event listeners
+    trackBtn.addEventListener('click', trackOrder);
+    
+    orderIdInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        trackOrder();
+      }
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initPrintPreview();
+      
+      // Page animations
+      if (typeof gsap !== 'undefined') {
+        gsap.utils.toArray('[data-animate]').forEach(el => {
+          gsap.from(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 30,
+            duration: 0.6,
+            ease: 'power2.out'
+          });
+        });
+      }
+    });
+    
+    // Helper function for showing order details
+    function showOrderDetails(orderId) {
+      const order = sampleOrders[orderId];
+      if (order) {
+        alert(`Order Details:\n\nID: ${order.id}\nProduct: ${order.product}\nStatus: ${order.status}\nTotal: ${order.total}`);
+      }
+    }
+  </script>
+</body>
+</html>

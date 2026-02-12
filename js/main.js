@@ -1,602 +1,592 @@
-/* ============================================
-   MagniPrints - Main JavaScript
-   ============================================ */
+/**
+ * MagniPrints - Main JavaScript
+ * WordPress-Ready Interactive Components
+ */
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // ============================================
-    // Theme Toggle - Universal for Desktop & Mobile
-    // ============================================
-    
-    const themeToggles = document.querySelectorAll('.theme-toggle');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    // Check saved theme or system preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    } else if (prefersDark.matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-    
-    // Initialize theme for all toggles
-    themeToggles.forEach(toggle => {
-        // Add visual feedback on touch
-        toggle.addEventListener('mousedown', () => {
-            toggle.style.transform = 'scale(0.9)';
-        });
-        toggle.addEventListener('mouseup', () => {
-            toggle.style.transform = '';
-        });
-        toggle.addEventListener('mouseleave', () => {
-            toggle.style.transform = '';
-        });
-        
-        // iOS-specific touch handling
-        toggle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            toggle.style.transform = 'scale(0.9)';
-        }, { passive: false });
-        
-        toggle.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            toggle.style.transform = '';
-            
-            // Perform theme toggle
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            // Haptic feedback if available
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
-        });
-    });
-    
-    // Desktop click handling (separate from touch)
-    themeToggles.forEach(toggle => {
-        toggle.addEventListener('click', (e) => {
-            // Prevent double-firing on iOS
-            if (e.pointerType === 'touch') return;
-            
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-    });
-    
-    // ============================================
-    // Mobile Hamburger Menu
-    // ============================================
-    
-    const hamburger = document.getElementById('hamburgerMenu');
-    const mobileNavSidebar = document.getElementById('mobileNavSidebar');
-    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
-    
-    if (hamburger && mobileNavSidebar && mobileNavOverlay) {
-        function openMobileNav() {
-            hamburger.classList.add('active');
-            mobileNavSidebar.classList.add('active');
-            mobileNavOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            if (navigator.vibrate) {
-                navigator.vibrate(30);
-            }
-        }
-        
-        function closeMobileNav() {
-            hamburger.classList.remove('active');
-            mobileNavSidebar.classList.remove('active');
-            mobileNavOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        // Toggle on hamburger click
-        hamburger.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (mobileNavSidebar.classList.contains('active')) {
-                closeMobileNav();
-            } else {
-                openMobileNav();
-            }
-        });
-        
-        // Close on overlay click
-        mobileNavOverlay.addEventListener('click', closeMobileNav);
-        
-        // Close on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && mobileNavSidebar.classList.contains('active')) {
-                closeMobileNav();
-            }
-        });
-        
-        // Close nav when clicking on a link
-        const mobileNavLinks = mobileNavSidebar.querySelectorAll('a');
-        mobileNavLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                closeMobileNav();
-            });
-        });
-        
-        // Touch swipe to close
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        mobileNavSidebar.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        mobileNavSidebar.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-        
-        function handleSwipe() {
-            const swipeThreshold = 100;
-            if (touchStartX - touchEndX > swipeThreshold) {
-                // Swiped left - close menu
-                closeMobileNav();
-            }
-        }
-    }
-    
-    // ============================================
-    // Navigation Scroll Effect
-    // ============================================
-    
-    const nav = document.querySelector('.nav');
-    let lastScroll = 0;
-    let scrollRAF = null;
-    
-    function updateNavBackground() {
-        const currentScroll = window.scrollY;
-        
-        if (currentScroll > 100) {
-            nav.style.background = window.matchMedia('(prefers-color-scheme: dark)').matches || 
-                document.documentElement.getAttribute('data-theme') === 'dark'
-                    ? 'rgba(5, 5, 5, 0.95)'
-                    : 'rgba(255, 255, 255, 0.95)';
-            nav.style.backdropFilter = 'blur(20px)';
-            nav.style.webkitBackdropFilter = 'blur(20px)';
-        } else {
-            nav.style.background = document.documentElement.getAttribute('data-theme') === 'light'
-                ? 'rgba(255, 255, 255, 0.8)'
-                : 'rgba(5, 5, 5, 0.8)';
-        }
-        
-        lastScroll = currentScroll;
-    }
-    
-    window.addEventListener('scroll', () => {
-        if (scrollRAF) cancelAnimationFrame(scrollRAF);
-        scrollRAF = requestAnimationFrame(updateNavBackground);
-    }, { passive: true });
-    
-    // ============================================
-    // GSAP Animations & ScrollTrigger
-    // ============================================
-    
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // Hero entrance animation
-        gsap.from('.hero-content', {
-            opacity: 0,
-            y: 60,
-            duration: 1.2,
-            ease: 'power3.out',
-            delay: 0.3
-        });
-        
-        gsap.from('.title-line', {
-            opacity: 0,
-            rotateX: 90,
-            duration: 1,
-            stagger: 0.2,
-            ease: 'power3.out',
-            delay: 0.5
-        });
-        
-        // Features animation with enhanced stagger
-        gsap.from('.feature-card', {
-            scrollTrigger: {
-                trigger: '.features',
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            },
-            opacity: 0,
-            y: 50,
-            rotateX: 10,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: 'back.out(1.7)'
-        });
-        
-        // Stats counter animation
-        const statNumbers = document.querySelectorAll('.stat-number');
-        statNumbers.forEach(num => {
-            const target = parseInt(num.getAttribute('data-count'));
-            
-            ScrollTrigger.create({
-                trigger: num,
-                start: 'top 85%',
-                onEnter: () => {
-                    gsap.to(num, {
-                        textContent: target,
-                        duration: 2,
-                        ease: 'power1.out',
-                        snap: { textContent: 1 },
-                        onUpdate: function() {
-                            num.textContent = Math.round(this.targets()[0].textContent).toLocaleString();
-                        }
-                    });
-                },
-                once: true
-            });
-        });
-        
-        // Section titles animation
-        gsap.from('.section-title', {
-            scrollTrigger: {
-                trigger: '.section-title',
-                start: 'top 85%',
-                toggleActions: 'play none none reverse'
-            },
-            opacity: 0,
-            y: 30,
-            duration: 0.8,
-            ease: 'power3.out'
-        });
-        
-        // CTA animation
-        gsap.from('.cta-content', {
-            scrollTrigger: {
-                trigger: '.cta',
-                start: 'top 70%',
-                toggleActions: 'play none none reverse'
-            },
-            opacity: 0,
-            y: 40,
-            duration: 0.8,
-            ease: 'power3.out'
-        });
-        
-        // Product cards stagger animation
-        if (document.querySelector('.product-card')) {
-            gsap.from('.product-card', {
-                scrollTrigger: {
-                    trigger: '.products-grid',
-                    start: 'top 80%',
-                },
-                opacity: 0,
-                y: 40,
-                duration: 0.6,
-                stagger: 0.1,
-                ease: 'power3.out'
-            });
-        }
-    }
-    
-    // ============================================
-    // Smooth Scroll for Anchor Links
-    // ============================================
-    
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // ============================================
-    // Button Ripple Effect with iOS optimization
-    // ============================================
-    
-    document.querySelectorAll('.btn, .showcase-btn, .control-btn, .filament-btn, .qty-btn').forEach(btn => {
-        function createRipple(e) {
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            
-            // Handle both mouse and touch events
-            const x = (e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - rect.left - size / 2;
-            const y = (e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0)) - rect.top - size / 2;
-            
-            if (isNaN(x) || isNaN(y)) return;
-            
-            const ripple = document.createElement('span');
-            
-            ripple.style.cssText = `
-                position: absolute;
-                width: ${size}px;
-                height: ${size}px;
-                left: ${x}px;
-                top: ${y}px;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                transform: scale(0);
-                animation: ripple 0.6s ease-out;
-                pointer-events: none;
-            `;
-            
-            this.style.position = 'relative';
-            this.style.overflow = 'hidden';
-            this.appendChild(ripple);
-            
-            setTimeout(() => ripple.remove(), 600);
-        }
-        
-        btn.addEventListener('click', createRipple);
-        btn.addEventListener('touchend', function(e) {
-            // Delay slightly to allow click to fire first
-            setTimeout(() => createRipple.call(this, e), 10);
-        });
-    });
-    
-    // Add ripple animation to styles
-    if (!document.getElementById('ripple-style')) {
-        const rippleStyle = document.createElement('style');
-        rippleStyle.id = 'ripple-style';
-        rippleStyle.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(2);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(rippleStyle);
-    }
-    
-    // ============================================
-    // Intersection Observer for Fade-in Elements
-    // ============================================
-    
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                fadeObserver.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    document.querySelectorAll('.fade-in').forEach(el => {
-        fadeObserver.observe(el);
-    });
-    
-    // ============================================
-    // Page Loader
-    // ============================================
-    
-    const loader = document.querySelector('.loader');
-    if (loader) {
-        window.addEventListener('load', () => {
-            loader.classList.add('hidden');
-        });
-    }
-    
-    // ============================================
-    // Performance: Pause animations when tab is hidden
-    // ============================================
-    
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            document.documentElement.classList.add('animations-paused');
-        } else {
-            document.documentElement.classList.remove('animations-paused');
-        }
-    });
-    
-    // ============================================
-    // WebGL Performance Enhancement
-    // ============================================
-    
-    // Detect low-power devices and reduce WebGL complexity
-    const isLowPowerDevice = () => {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) return true;
-        
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-            // Check for software renderers or low-power GPUs
-            if (renderer && (renderer.includes('Software') || renderer.includes('SwiftShader'))) {
-                return true;
-            }
-        }
-        
-        // Check for touch device (often mobile with limited GPU)
-        if (window.matchMedia('(pointer: coarse)').matches) {
-            return true;
-        }
-        
-        return false;
-    };
-    
-    // Store device capability in data attribute
-    if (isLowPowerDevice()) {
-        document.documentElement.setAttribute('data-low-power', 'true');
-        console.log('📱 Low-power device detected - WebGL optimizations enabled');
-    }
-    
-    // ============================================
-    // 3D Viewer Loading Skeleton
-    // ============================================
-    
-    function showViewerSkeleton(viewerId) {
-        const viewer = document.getElementById(viewerId);
-        if (viewer) {
-            viewer.classList.add('skeleton');
-        }
-    }
-    
-    function hideViewerSkeleton(viewerId) {
-        const viewer = document.getElementById(viewerId);
-        if (viewer) {
-            viewer.classList.remove('skeleton');
-        }
-    }
-    
-    // Auto-show skeleton for showcase canvas
-    if (document.getElementById('showcase-canvas')) {
-        showViewerSkeleton('showcase-canvas');
-        
-        // Hide when WebGL initializes (handled in hero-3d.js)
-        window.addEventListener('hero3d-loaded', () => {
-            hideViewerSkeleton('showcase-canvas');
-        });
-        
-        // Fallback: remove skeleton after 5 seconds if not loaded
-        setTimeout(() => {
-            hideViewerSkeleton('showcase-canvas');
-        }, 5000);
-    }
-    
-    // ============================================
-    // Product Showcase Animations
-    // ============================================
-    
-    const showcaseBtns = document.querySelectorAll('.showcase-btn');
-    showcaseBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            showcaseBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Dispatch product change event for 3D viewer
-            const product = this.dataset.product;
-            if (product) {
-                window.dispatchEvent(new CustomEvent('product-change', { 
-                    detail: { product: product }
-                }));
-            }
-            
-            if (navigator.vibrate) {
-                navigator.vibrate(20);
-            }
-        });
-    });
-    
-    // ============================================
-    // Feature Cards 3D Tilt Effect (Desktop only)
-    // ============================================
-    
-    const tiltCards = document.querySelectorAll('[data-tilt]');
-    
-    if (!window.matchMedia('(pointer: coarse)').matches) {
-        tiltCards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = (y - centerY) / 10;
-                const rotateY = (centerX - x) / 10;
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = '';
-            });
-        });
-    }
-    
-    // ============================================
-    // iOS Safari Viewport Fix
-    // ============================================
-    
-    // Fix for iOS Safari bottom bar causing viewport issues
-    const setVH = () => {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--real-vh', `${vh}px`);
-    };
-    
-    setVH();
-    window.addEventListener('resize', setVH);
-    
-    console.log('🚀 MagniPrints loaded successfully!');
-    
-    // ============================================
-    // Quantity Selector Enhancement
-    // ============================================
-    
-    const qtyInput = document.getElementById('qty-input');
-    const qtyMinus = document.getElementById('qty-minus');
-    const qtyPlus = document.getElementById('qty-plus');
-    
-    if (qtyInput && qtyMinus && qtyPlus) {
-        qtyMinus.addEventListener('click', () => {
-            let val = parseInt(qtyInput.value) || 1;
-            if (val > 1) {
-                qtyInput.value = val - 1;
-                qtyInput.dispatchEvent(new Event('change'));
-            }
-        });
-        
-        qtyPlus.addEventListener('click', () => {
-            let val = parseInt(qtyInput.value) || 1;
-            if (val < 100) {
-                qtyInput.value = val + 1;
-                qtyInput.dispatchEvent(new Event('change'));
-            }
-        });
-        
-        // Prevent invalid input
-        qtyInput.addEventListener('input', () => {
-            let val = parseInt(qtyInput.value) || 1;
-            if (val < 1) qtyInput.value = 1;
-            if (val > 100) qtyInput.value = 100;
-        });
-    }
-});
+// ========================================
+// 1. LENIS SMOOTH SCROLL
+// ========================================
+let lenis;
 
-// ============================================
-// Utility: Debounce function
-// ============================================
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+function initLenis() {
+  if (typeof Lenis === 'undefined') return;
+  
+  lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    direction: 'vertical',
+    gestureDirection: 'vertical',
+    smooth: true,
+    smoothTouch: false,
+    touchMultiplier: 2
+  });
+  
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+  
+  // GSAP ScrollTrigger integration
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+  }
 }
 
-// ============================================
-// Utility: Throttle function
-// ============================================
-function throttle(func, limit) {
+// ========================================
+// 2. THEME TOGGLE
+// ========================================
+function initTheme() {
+  const themeToggle = document.getElementById('themeToggle');
+  if (!themeToggle) return;
+  
+  const html = document.documentElement;
+  const icon = themeToggle.querySelector('.mp-theme-toggle__icon') || themeToggle;
+  
+  // Check saved theme
+  const savedTheme = localStorage.getItem('magniprints-theme') || 'dark';
+  html.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+  
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('magniprints-theme', newTheme);
+    updateThemeIcon(newTheme);
+    
+    // Update WebGL if exists
+    if (window.updateWebGLColors) {
+      window.updateWebGLColors(newTheme);
+    }
+  });
+  
+  function updateThemeIcon(theme) {
+    if (icon === themeToggle) {
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    } else {
+      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+  }
+}
+
+// ========================================
+// 3. MOBILE NAVIGATION
+// ========================================
+function initMobileNav() {
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  
+  if (!menuToggle || !mobileNav) return;
+  
+  menuToggle.addEventListener('click', () => {
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', !expanded);
+    mobileNav.setAttribute('aria-expanded', !expanded);
+    document.body.style.overflow = !expanded ? 'hidden' : '';
+  });
+  
+  // Close mobile nav on link click
+  mobileNav.querySelectorAll('.mp-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      menuToggle.setAttribute('aria-expanded', 'false');
+      mobileNav.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  });
+}
+
+// ========================================
+// 4. HEADER SCROLL EFFECT
+// ========================================
+function initHeaderScroll() {
+  const header = document.querySelector('.mp-header');
+  if (!header) return;
+  
+  let lastScroll = 0;
+  
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.scrollY;
+    
+    if (currentScroll > 50) {
+      header.classList.add('mp-header--scrolled');
+    } else {
+      header.classList.remove('mp-header--scrolled');
+    }
+    
+    lastScroll = currentScroll;
+  }, { passive: true });
+}
+
+// ========================================
+// 5. ANIMATION OBSERVER
+// ========================================
+function initAnimations() {
+  const animatedElements = document.querySelectorAll('[data-animate]');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  });
+  
+  animatedElements.forEach(el => observer.observe(el));
+}
+
+// ========================================
+// 6. WEBGL BACKGROUND UTILITIES
+// ========================================
+const WebGLBackgrounds = {
+  scenes: [],
+  renderers: [],
+  cameras: [],
+  objects: [],
+  
+  create(type, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof THREE === 'undefined') return null;
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.parentElement.clientWidth / canvas.parentElement.clientHeight, 0.1, 1000);
+    camera.position.z = 30;
+    
+    const renderer = new THREE.WebGLRenderer({ 
+      canvas, 
+      antialias: true,
+      alpha: true 
+    });
+    renderer.setSize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const sceneObjects = [];
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const color = isDark ? 0xffffff : 0x000000;
+    const opacity = isDark ? 0.15 : 0.08;
+    
+    if (type === 'hero') {
+      // Floating geometric shapes
+      const geometryTypes = [
+        new THREE.IcosahedronGeometry(3, 0),
+        new THREE.OctahedronGeometry(2.5, 0),
+        new THREE.TetrahedronGeometry(2.5, 0),
+        new THREE.BoxGeometry(2.5, 2.5, 2.5),
+        new THREE.DodecahedronGeometry(2.5, 0)
+      ];
+      
+      for (let i = 0; i < 12; i++) {
+        const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
+        const material = new THREE.MeshBasicMaterial({
+          color: color,
+          wireframe: true,
+          transparent: true,
+          opacity: opacity
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        mesh.position.x = (Math.random() - 0.5) * 60;
+        mesh.position.y = (Math.random() - 0.5) * 40;
+        mesh.position.z = (Math.random() - 0.5) * 20;
+        mesh.rotation.x = Math.random() * Math.PI;
+        mesh.rotation.y = Math.random() * Math.PI;
+        
+        mesh.userData = {
+          rotSpeedX: (Math.random() - 0.5) * 0.01,
+          rotSpeedY: (Math.random() - 0.5) * 0.01,
+          floatSpeed: Math.random() * 0.5 + 0.5,
+          floatOffset: Math.random() * Math.PI * 2,
+          baseY: mesh.position.y
+        };
+        
+        scene.add(mesh);
+        sceneObjects.push(mesh);
+      }
+    } else if (type === 'particles') {
+      // Floating particles
+      const particleCount = 200;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 60;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      }
+      
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      
+      const material = new THREE.PointsMaterial({
+        color: color,
+        size: 0.3,
+        transparent: true,
+        opacity: opacity * 2
+      });
+      
+      const points = new THREE.Points(geometry, material);
+      scene.add(points);
+      sceneObjects.push(points);
+      
+      // Wireframe grid
+      const gridHelper = new THREE.GridHelper(50, 20, color, color);
+      gridHelper.material.transparent = true;
+      gridHelper.material.opacity = opacity * 0.5;
+      gridHelper.position.y = -15;
+      scene.add(gridHelper);
+      sceneObjects.push(gridHelper);
+    } else if (type === 'rings') {
+      // Rotating 3D print layers
+      const ringCount = 8;
+      for (let i = 0; i < ringCount; i++) {
+        const radius = 3 + i * 1.5;
+        const geometry = new THREE.RingGeometry(radius - 0.3, radius, 64);
+        const material = new THREE.MeshBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: opacity * (1 - i / ringCount * 0.5)
+        });
+        const ring = new THREE.Mesh(geometry, material);
+        ring.position.z = i * 1 - ringCount / 2;
+        ring.userData = { 
+          rotSpeed: (ringCount - i) * 0.002,
+          baseZ: i * 1 - ringCount / 2
+        };
+        scene.add(ring);
+        sceneObjects.push(ring);
+      }
+    } else if (type === 'network') {
+      // Connected nodes
+      const nodeCount = 8;
+      const nodes = [];
+      
+      for (let i = 0; i < nodeCount; i++) {
+        const geometry = new THREE.SphereGeometry(0.3, 16, 16);
+        const material = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: opacity * 4
+        });
+        const node = new THREE.Mesh(geometry, material);
+        
+        const angle = (i / nodeCount) * Math.PI * 2;
+        const radius = 15;
+        node.position.x = Math.cos(angle) * radius;
+        node.position.y = Math.sin(angle) * radius;
+        node.position.z = (Math.random() - 0.5) * 10;
+        
+        node.userData = { 
+          angle: angle,
+          radius: radius,
+          speed: 0.002 + Math.random() * 0.001,
+          phase: i / nodeCount
+        };
+        
+        scene.add(node);
+        nodes.push(node);
+        sceneObjects.push(node);
+      }
+      
+      // Connecting lines
+      const lineGeometry = new THREE.BufferGeometry();
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: opacity * 2
+      });
+      const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+      lines.userData = { nodes: nodes };
+      scene.add(lines);
+      sceneObjects.push(lines);
+    }
+    
+    this.scenes.push(scene);
+    this.renderers.push(renderer);
+    this.cameras.push(camera);
+    this.objects.push(sceneObjects);
+    
+    return {
+      scene,
+      renderer,
+      camera,
+      objects: sceneObjects
+    };
+  },
+  
+  animate() {
+    const animate = () => {
+      requestAnimationFrame(animate);
+      const time = Date.now() * 0.001;
+      
+      this.scenes.forEach((scene, sceneIndex) => {
+        const sceneObjs = this.objects[sceneIndex];
+        
+        sceneObjs.forEach(obj => {
+          if (obj.userData.rotSpeedX !== undefined) {
+            obj.rotation.x += obj.userData.rotSpeedX;
+            obj.rotation.y += obj.userData.rotSpeedY;
+            obj.position.y = obj.userData.baseY + Math.sin(time * obj.userData.floatSpeed + obj.userData.floatOffset) * 2;
+          }
+          if (obj.userData.rotSpeed !== undefined) {
+            obj.rotation.z += obj.userData.rotSpeed;
+            obj.position.z = obj.userData.baseZ + Math.sin(time + obj.userData.rotSpeed * 100) * 1;
+          }
+          if (obj.userData.angle !== undefined) {
+            obj.userData.angle += obj.userData.speed;
+            obj.position.x = Math.cos(obj.userData.angle) * obj.userData.radius;
+            obj.position.y = Math.sin(obj.userData.angle) * obj.userData.radius;
+          }
+          if (obj.userData.nodes) {
+            // Update connecting lines
+            const nodes = obj.userData.nodes;
+            const positions = [];
+            for (let i = 0; i < nodes.length; i++) {
+              for (let j = i + 1; j < nodes.length; j++) {
+                const dist = nodes[i].position.distanceTo(nodes[j].position);
+                if (dist < 25) {
+                  positions.push(
+                    nodes[i].position.x, nodes[i].position.y, nodes[i].position.z,
+                    nodes[j].position.x, nodes[j].position.y, nodes[j].position.z
+                  );
+                }
+              }
+            }
+            obj.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+          }
+        });
+        
+        if (this.renderers[sceneIndex]) {
+          this.renderers[sceneIndex].render(scene, this.cameras[sceneIndex]);
+        }
+      });
+    };
+    animate();
+  },
+  
+  updateColors(theme) {
+    const color = theme === 'dark' ? 0xffffff : 0x000000;
+    const opacity = theme === 'dark' ? 0.15 : 0.08;
+    
+    this.scenes.forEach((scene, i) => {
+      this.objects[i].forEach(obj => {
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach(m => {
+              m.color.setHex(color);
+            });
+          } else {
+            obj.material.color.setHex(color);
+          }
+        }
+      });
+      if (this.renderers[i]) {
+        this.renderers[i].render(scene, this.cameras[i]);
+      }
+    });
+  },
+  
+  handleResize() {
+    window.addEventListener('resize', () => {
+      this.scenes.forEach((scene, i) => {
+        if (this.cameras[i]) {
+          const canvas = this.renderers[i]?.domElement?.parentElement;
+          if (canvas) {
+            this.cameras[i].aspect = canvas.clientWidth / canvas.clientHeight;
+            this.cameras[i].updateProjectionMatrix();
+            this.renderers[i].setSize(canvas.clientWidth, canvas.clientHeight);
+          }
+        }
+      });
+    });
+  }
+};
+
+// ========================================
+// 7. FORM VALIDATION
+// ========================================
+const FormValidator = {
+  validate(input, rules) {
+    const errors = [];
+    const value = input.value.trim();
+    
+    if (rules.required && !value) {
+      errors.push('This field is required');
+    }
+    
+    if (rules.minLength && value.length < rules.minLength) {
+      errors.push(`Minimum ${rules.minLength} characters required`);
+    }
+    
+    if (rules.maxLength && value.length > rules.maxLength) {
+      errors.push(`Maximum ${rules.maxLength} characters allowed`);
+    }
+    
+    if (rules.pattern && !rules.pattern.test(value)) {
+      errors.push(rules.patternMessage || 'Invalid format');
+    }
+    
+    if (rules.email) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(value)) {
+        errors.push('Please enter a valid email');
+      }
+    }
+    
+    return errors;
+  },
+  
+  showError(input, message) {
+    input.classList.add('mp-input--error');
+    const existingError = input.parentElement.querySelector('.mp-form-error');
+    if (existingError) existingError.remove();
+    
+    const errorEl = document.createElement('p');
+    errorEl.className = 'mp-form-error';
+    errorEl.textContent = message;
+    input.parentElement.appendChild(errorEl);
+  },
+  
+  clearError(input) {
+    input.classList.remove('mp-input--error');
+    const errorEl = input.parentElement.querySelector('.mp-form-error');
+    if (errorEl) errorEl.remove();
+  },
+  
+  showSuccess(input) {
+    input.classList.add('mp-input--success');
+    this.clearError(input);
+  }
+};
+
+// ========================================
+// 8. UTILITY FUNCTIONS
+// ========================================
+const Utils = {
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+  
+  throttle(func, limit) {
     let inThrottle;
     return function(...args) {
-        if (!inThrottle) {
-            func.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
     };
+  },
+  
+  formatCurrency(amount, currency = '₹') {
+    return `${currency}${amount.toLocaleString('en-IN')}`;
+  },
+  
+  formatDate(date) {
+    return new Intl.DateTimeFormat('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(date));
+  },
+  
+  generateOrderId() {
+    return 'MP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  },
+  
+  copyToClipboard(text) {
+    if (navigator.clipboard) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  },
+  
+  sanitizeHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  }
+};
+
+// ========================================
+// 9. LAZY LOADING IMAGES
+// ========================================
+function initLazyLoading() {
+  const lazyImages = document.querySelectorAll('img[data-src]');
+  
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          img.onload = () => {
+            if (img.classList.contains('mp-skeleton')) {
+              img.classList.remove('mp-skeleton');
+            }
+          };
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+    
+    lazyImages.forEach(img => imageObserver.observe(img));
+  } else {
+    // Fallback
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  }
+}
+
+// ========================================
+// 10. INITIALIZATION
+// ========================================
+document.addEventListener('DOMContentLoaded', () => {
+  initLenis();
+  initTheme();
+  initMobileNav();
+  initHeaderScroll();
+  initAnimations();
+  initLazyLoading();
+  
+  // Expose WebGL Backgrounds globally
+  window.WebGLBackgrounds = WebGLBackgrounds;
+  window.updateWebGLColors = (theme) => WebGLBackgrounds.updateColors(theme);
+  
+  // Start WebGL animation loop
+  WebGLBackgrounds.animate();
+  WebGLBackgrounds.handleResize();
+});
+
+// Export for modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Utils, FormValidator, WebGLBackgrounds };
 }

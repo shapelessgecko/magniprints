@@ -1,1918 +1,376 @@
+<!--
+  ========================================
+  MagniPrints - Homepage
+  /root/.openclaw/workspace/magniprints/index.html
+  WordPress Template: Home (home.php)
+  ========================================
+-->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>マグニプリンツ | MagniPrints</title>
-  <meta name="description" content="Premium 3D printing services - precision meets creativity.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Premium 3D printing services - precision meets creativity. Upload your STL files and get high-quality prints delivered.">
+  
+  <title>MagniPrints | Premium 3D Printing Services</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Noto+Sans+JP:wght@100;200;300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
   
   <!-- Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
-  
-  <style>
-    :root {
-      --bg: #050505;
-      --bg-rgb: 5, 5, 5;
-      --text: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.6);
-      --text-muted: rgba(255, 255, 255, 0.3);
-      --border: rgba(255, 255, 255, 0.1);
-    }
-    
-    [data-theme="light"] {
-      --bg: #fafafa;
-      --bg-rgb: 250, 250, 250;
-      --text: #000000;
-      --text-secondary: rgba(0, 0, 0, 0.6);
-      --text-muted: rgba(0, 0, 0, 0.3);
-      --border: rgba(0, 0, 0, 0.1);
-    }
-    
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    html {
-      scroll-behavior: auto;
-    }
-    
-    body {
-      font-family: 'Inter', 'Noto Sans JP', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      transition: background 0.5s ease, color 0.5s ease;
-    }
-    
-    /* Lenis smooth scroll */
-    html.lenis, html.lenis body {
-      height: auto;
-    }
-    
-    .lenis.lenis-smooth {
-      scroll-behavior: auto !important;
-    }
-    
-    .lenis.lenis-smooth [data-lenis-prevent] {
-      overscroll-behavior: contain;
-    }
-    
-    .lenis.lenis-stopped {
-      overflow: hidden;
-    }
-    
-    .lenis.lenis-scrolling iframe {
-      pointer-events: none;
-    }
-    
-    /* Split Letter Navigation */
-    .split-nav {
-      position: fixed;
-      left: 2rem;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.15rem;
-    }
-    
-    .split-nav span {
-      font-size: 0.7rem;
-      font-weight: 300;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transition: color 0.3s ease, opacity 0.3s ease;
-      cursor: pointer;
-      line-height: 1.2;
-    }
-    
-    .split-nav span:hover {
-      color: var(--text);
-    }
-    
-    .split-nav span.active {
-      color: var(--text);
-      font-weight: 400;
-    }
-    
-    /* Section Numbers */
-    .section-num {
-      position: fixed;
-      right: 2rem;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    
-    .section-num a {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      text-decoration: none;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 300;
-      letter-spacing: 0.1em;
-      transition: color 0.3s ease;
-    }
-    
-    .section-num a.active {
-      color: var(--text);
-    }
-    
-    .section-num .num {
-      font-size: 0.9rem;
-      font-weight: 200;
-      min-width: 1.5rem;
-    }
-    
-    .section-num a.active .num {
-      font-weight: 400;
-    }
-    
-    .section-num .label {
-      opacity: 0;
-      transform: translateX(-10px);
-      transition: all 0.3s ease;
-    }
-    
-    .section-num a:hover .label,
-    .section-num a.active .label {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    
-    /* Theme Toggle */
-    .theme-toggle {
-      position: fixed;
-      top: 2rem;
-      right: 2rem;
-      z-index: 100;
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.2rem;
-      cursor: pointer;
-      width: 2.5rem;
-      height: 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s ease;
-      opacity: 0.7;
-    }
-    
-    .theme-toggle:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-    
-    /* Navigation Buttons */
-    .nav-btn {
-      position: fixed;
-      bottom: 2rem;
-      z-index: 100;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.75rem 1.5rem;
-      font-size: 0.75rem;
-      font-weight: 300;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .nav-btn:hover {
-      border-color: var(--text);
-      color: var(--text);
-    }
-    
-    .nav-btn.skip {
-      left: 2rem;
-    }
-    
-    .nav-btn.next {
-      right: 2rem;
-    }
-    
-    .nav-btn.top {
-      left: 50%;
-      transform: translateX(-50%);
-      border: none;
-      opacity: 0.5;
-    }
-    
-    /* Sections */
-    .section {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      min-height: 600px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    
-    .section-content {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    
-    /* WebGL Canvas */
-    .webgl-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      opacity: 0.6;
-    }
-    
-    /* Hero */
-    .hero .jp-title {
-      font-family: 'Noto Sans JP', sans-serif;
-      font-size: clamp(3rem, 10vw, 8rem);
-      font-weight: 100;
-      letter-spacing: 0.3em;
-      writing-mode: vertical-rl;
-      text-orientation: upright;
-      margin-bottom: 2rem;
-      opacity: 0;
-    }
-    
-    .hero .en-title {
-      font-size: 0.75rem;
-      font-weight: 300;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      opacity: 0;
-      margin-top: 2rem;
-    }
-    
-    /* Products Section */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1rem;
-      max-width: 90vw;
-      perspective: 1000px;
-    }
-    
-    .product-cell {
-      width: clamp(80px, 10vw, 120px);
-      height: clamp(120px, 16vw, 180px);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      cursor: pointer;
-      overflow: hidden;
-    }
-    
-    .product-cell:hover {
-      transform: translateZ(30px) scale(1.1);
-      border-color: var(--text);
-      z-index: 10;
-    }
-    
-    .product-cell .icon {
-      font-size: 2rem;
-      transition: transform 0.5s ease;
-      filter: grayscale(100%);
-    }
-    
-    .product-cell:hover .icon {
-      transform: scale(1.2);
-      filter: grayscale(0%);
-    }
-    
-    .product-cell .name {
-      position: absolute;
-      bottom: 0.5rem;
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .product-cell:hover .name {
-      opacity: 1;
-    }
-    
-    .section-label {
-      position: absolute;
-      top: 2rem;
-      font-size: 0.75rem;
-      font-weight: 300;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
-      opacity: 0;
-    }
-    
-    /* Custom Section */
-    .custom-section {
-      min-height: 100vh;
-      height: auto;
-      padding: 4rem 0;
-    }
-    
-    .custom-content {
-      width: 100%;
-      max-width: 1200px;
-      padding: 0 2rem;
-    }
-    
-    .custom-container {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 3rem;
-      align-items: start;
-    }
-    
-    .custom-left {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .custom-right {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    
-    .upload-zone {
-      width: 100%;
-      height: clamp(200px, 35vh, 400px);
-      border: 2px dashed var(--border);
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      transition: all 0.4s ease;
-      cursor: pointer;
-      position: relative;
-      opacity: 0;
-    }
-    
-    .upload-zone:hover,
-    .upload-zone.dragging {
-      border-color: var(--text);
-      background: rgba(var(--bg-rgb), 0.5);
-    }
-    
-    .upload-zone input[type="file"] {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
-    
-    .upload-zone label {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      pointer-events: none;
-    }
-    
-    .upload-zone .icon {
-      font-size: 3rem;
-      opacity: 0.5;
-      transition: transform 0.3s ease;
-    }
-    
-    .upload-zone:hover .icon {
-      transform: translateY(-5px);
-    }
-    
-    .upload-text {
-      font-size: 0.9rem;
-      font-weight: 300;
-      letter-spacing: 0.1em;
-      color: var(--text-secondary);
-    }
-    
-    .upload-sub {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
-    
-    #preview-3d {
-      width: 100%;
-      height: clamp(200px, 35vh, 400px);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      display: none;
-      overflow: hidden;
-    }
-    
-    #preview-3d canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-    
-    .file-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      letter-spacing: 0.05em;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .file-info.visible {
-      opacity: 1;
-    }
-    
-    /* Filament Selector */
-    .filament-selector {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .selector-label {
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-    
-    .material-tabs {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .material-tab {
-      flex: 1;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.6rem 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 300;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .material-tab:hover {
-      border-color: var(--text-secondary);
-    }
-    
-    .material-tab.active {
-      border-color: var(--text);
-      color: var(--text);
-    }
-    
-    .material-desc {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      font-weight: 300;
-      margin-top: -0.25rem;
-    }
-    
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-    }
-    
-    .color-option {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 4px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    
-    .color-option:hover {
-      transform: scale(1.05);
-    }
-    
-    .color-option.active {
-      border-color: var(--text);
-    }
-    
-    .color-option.active::after {
-      content: '✓';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 0.9rem;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    }
-    
-    /* Print Settings */
-    .print-settings {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .setting-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-    
-    .setting-label {
-      color: var(--text-secondary);
-      font-weight: 300;
-    }
-    
-    .print-settings select {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.4rem 0.6rem;
-      font-size: 0.75rem;
-      font-family: inherit;
-      cursor: pointer;
-      transition: border-color 0.3s ease;
-    }
-    
-    .print-settings select:hover,
-    .print-settings select:focus {
-      border-color: var(--text);
-      outline: none;
-    }
-    
-    .print-settings option {
-      background: var(--bg);
-      color: var(--text);
-    }
-    
-    /* Cost Estimate */
-    .cost-estimate {
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .cost-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      font-weight: 300;
-    }
-    
-    .cost-row span:first-child {
-      color: var(--text-secondary);
-    }
-    
-    .cost-row span:last-child {
-      color: var(--text);
-      font-weight: 400;
-    }
-    
-    .cost-row.total {
-      font-size: 1rem;
-      font-weight: 500;
-    }
-    
-    .cost-row.total span:first-child {
-      color: var(--text);
-    }
-    
-    .cost-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0.25rem 0;
-    }
-    
-    /* Order Button */
-    .order-btn {
-      background: var(--text);
-      color: var(--bg);
-      border: none;
-      border-radius: 4px;
-      padding: 1rem 1.5rem;
-      font-size: 0.8rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-    }
-    
-    .order-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-    
-    .order-btn:active {
-      transform: translateY(0);
-    }
-    
-    @media (max-width: 900px) {
-      .custom-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
-      
-      .custom-right {
-        max-width: 400px;
-        margin: 0 auto;
-        width: 100%;
-      }
-    }
-    
-    /* Track Section */
-    .track-input-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      opacity: 0;
-    }
-    
-    .track-input {
-      background: none;
-      border: none;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      font-size: 1.5rem;
-      font-weight: 200;
-      letter-spacing: 0.2em;
-      text-align: center;
-      padding: 1rem;
-      width: clamp(250px, 40vw, 400px);
-      outline: none;
-      transition: border-color 0.3s ease;
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .track-input:focus {
-      border-color: var(--text);
-    }
-    
-    .track-input::placeholder {
-      color: var(--text-muted);
-    }
-    
-    .track-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 1rem 3rem;
-      font-size: 0.75rem;
-      font-weight: 300;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .track-btn:hover {
-      border-color: var(--text);
-      color: var(--text);
-    }
-    
-    /* Track Result */
-    .track-result {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.5s ease;
-    }
-    
-    .track-result.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    
-    .track-status {
-      font-family: 'Noto Sans JP', sans-serif;
-      font-size: clamp(2rem, 5vw, 4rem);
-      font-weight: 100;
-      margin-bottom: 1rem;
-    }
-    
-    .track-details {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      letter-spacing: 0.1em;
-    }
-    
-    /* Preview canvas */
-    .preview-canvas {
-      position: absolute;
-      top: 50%;
-      right: 10%;
-      transform: translateY(-50%);
-      width: 200px;
-      height: 200px;
-      pointer-events: none;
-      opacity: 0;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      .split-nav {
-        left: 1rem;
-        top: auto;
-        bottom: 6rem;
-        transform: none;
-        flex-direction: row;
-        gap: 0.5rem;
-      }
-      
-      .split-nav span {
-        writing-mode: horizontal-tb;
-        font-size: 0.65rem;
-      }
-      
-      .section-num {
-        display: none;
-      }
-      
-      .nav-btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.65rem;
-      }
-      
-      .products-grid {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-        gap: 0.5rem;
-      }
-      
-      .product-cell:nth-child(7) {
-        grid-column: 2;
-      }
-      
-      .product-cell {
-        width: auto;
-        height: 100px;
-      }
-      
-      .theme-toggle {
-        top: 1rem;
-        right: 1rem;
-      }
-    }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 0px;
-      background: transparent;
-    }
-    
-    /* Animations */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    
-    /* Canvas visibility */
-    canvas.webgl-bg {
-      display: block !important;
-      visibility: visible !important;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
 </head>
 <body>
-  <!-- Split Letter Navigation -->
-  <nav class="split-nav">
-    <span onclick="scrollToSection(0)" class="nav-letter">M</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">a</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">g</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">n</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">i</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">P</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">r</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">i</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">n</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">t</span>
-    <span onclick="scrollToSection(0)" class="nav-letter">s</span>
-  </nav>
+  <!-- Skip to content for accessibility -->
+  <a href="#main-content" class="mp-visually-hidden">Skip to main content</a>
   
-  <!-- Section Numbers -->
-  <div class="section-num">
-    <a href="#section-0" class="num-link active" data-section="0">
-      <span class="num">00</span>
-      <span class="label">Top</span>
-    </a>
-    <a href="#section-1" class="num-link" data-section="1">
-      <span class="num">01</span>
-      <span class="label">Products</span>
-    </a>
-    <a href="#section-2" class="num-link" data-section="2">
-      <span class="num">02</span>
-      <span class="label">Custom</span>
-    </a>
-    <a href="#section-3" class="num-link" data-section="3">
-      <span class="num">03</span>
-      <span class="label">Track</span>
-    </a>
-  </div>
-  
-  <!-- Theme Toggle -->
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-    <span class="theme-icon">☀️</span>
-  </button>
-  
-  <!-- Navigation Buttons -->
-  <button class="nav-btn skip" id="skipBtn">Skip</button>
-  <button class="nav-btn next" id="nextBtn">Next</button>
-  
-  <!-- Section 0: Hero -->
-  <section class="section hero" id="section-0" data-section="0">
-    <canvas class="webgl-bg" id="canvas-hero"></canvas>
-    <div class="section-content">
-      <h1 class="jp-title">マグニプリンツ</h1>
-      <p class="en-title">MagniPrints</p>
-    </div>
-  </section>
-  
-  <!-- Section 1: Products -->
-  <section class="section" id="section-1" data-section="1">
-    <canvas class="webgl-bg" id="canvas-products"></canvas>
-    <span class="section-label">01 / Products</span>
-    <div class="section-content">
-      <div class="products-grid">
-        <div class="product-cell" data-product="phone-stand">
-          <span class="icon">📱</span>
-          <span class="name">Phone Stand</span>
-        </div>
-        <div class="product-cell" data-product="planter">
-          <span class="icon">🪴</span>
-          <span class="name">Planter</span>
-        </div>
-        <div class="product-cell" data-product="cable">
-          <span class="icon">🔌</span>
-          <span class="name">Cable Organizer</span>
-        </div>
-        <div class="product-cell" data-product="keychain">
-          <span class="icon">🔑</span>
-          <span class="name">Keychain</span>
-        </div>
-        <div class="product-cell" data-product="controller">
-          <span class="icon">🎮</span>
-          <span class="name">Controller Stand</span>
-        </div>
-        <div class="product-cell" data-product="desk">
-          <span class="icon">📦</span>
-          <span class="name">Desk Organizer</span>
-        </div>
-        <div class="product-cell" data-product="lithophane">
-          <span class="icon">🖼️</span>
-          <span class="name">Lithophane</span>
-        </div>
+  <!-- ========================================
+       HEADER / NAVIGATION
+       ======================================== -->
+  <header class="mp-header" role="banner">
+    <div class="mp-container mp-header__container">
+      <!-- Logo -->
+      <a href="index.html" class="mp-logo" aria-label="MagniPrints Home">
+        <span class="mp-logo__icon">🖨️</span>
+        <span class="mp-logo__text">Magni<span class="mp-logo__text--bold">Prints</span></span>
+      </a>
+      
+      <!-- Main Navigation -->
+      <nav class="mp-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Home</a>
+        <a href="products.html" class="mp-nav__link">Products</a>
+        <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+        <a href="track.html" class="mp-nav__link">Track Order</a>
+      </nav>
+      
+      <!-- Header Actions -->
+      <div class="mp-header__actions">
+        <button class="mp-theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">
+          <span class="mp-theme-toggle__icon">☀️</span>
+        </button>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mp-menu-toggle" id="menuToggle" aria-expanded="false" aria-label="Toggle mobile menu">
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+        </button>
       </div>
     </div>
-  </section>
+    
+    <!-- Mobile Navigation Drawer -->
+    <nav class="mp-nav mp-nav--mobile" id="mobileNav" aria-expanded="false" aria-label="Mobile navigation">
+      <a href="index.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Home</a>
+      <a href="products.html" class="mp-nav__link">Products</a>
+      <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+      <a href="track.html" class="mp-nav__link">Track Order</a>
+    </nav>
+  </header>
   
-  <!-- Section 2: Custom -->
-  <section class="section custom-section" id="section-2" data-section="2">
-    <canvas class="webgl-bg" id="canvas-custom"></canvas>
-    <span class="section-label">02 / Custom</span>
-    <div class="section-content custom-content">
-      <div class="custom-container">
-        <!-- Left: Upload & Preview -->
-        <div class="custom-left">
-          <div class="upload-zone" id="uploadZone">
-            <input type="file" id="stl-upload" accept=".stl">
-            <label for="stl-upload">
-              <span class="icon">⬆️</span>
-              <span class="upload-text">Drop STL file or click to upload</span>
-              <span class="upload-sub">.stl files only</span>
-            </label>
-          </div>
-          <div id="preview-3d"></div>
-          <div class="file-info" id="fileInfo">
-            <span id="fileName"></span>
-            <span id="fileVolume"></span>
-          </div>
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <main id="main-content">
+    
+    <!-- ========================================
+         HERO SECTION
+         ======================================== -->
+    <section class="mp-hero" aria-label="Hero section">
+      <div class="mp-hero__bg">
+        <canvas id="heroCanvas"></canvas>
+      </div>
+      
+      <div class="mp-hero__content">
+        <h1 class="mp-hero__jp-title" data-animate>マグニプリンツ</h1>
+        <p class="mp-hero__en-title" data-animate>MagniPrints</p>
+        <p class="mp-hero__tagline" data-animate>Premium 3D printing services where precision meets creativity. Upload your ideas, we bring them to life.</p>
+        
+        <div class="mp-hero__cta" data-animate>
+          <a href="custom.html" class="mp-btn mp-btn--primary mp-btn--lg">
+            <span>Upload Your Design</span>
+            <span>→</span>
+          </a>
+          <a href="products.html" class="mp-btn mp-btn--secondary mp-btn--lg">
+            <span>Browse Products</span>
+          </a>
         </div>
         
-        <!-- Right: Options & Cost -->
-        <div class="custom-right">
-          <!-- Filament Selector -->
-          <div class="filament-selector">
-            <label class="selector-label">Material Type</label>
-            <div class="material-tabs">
-              <button class="material-tab active" data-material="pla">PLA — ₹3/g</button>
-              <button class="material-tab" data-material="petg">PETG — ₹4/g</button>
-              <button class="material-tab" data-material="tpu">TPU — ₹5/g</button>
-            </div>
-            <p class="material-desc" id="materialDesc">Strong, matte finish</p>
-            
-            <label class="selector-label">Color</label>
-            <div class="color-grid" id="colorGrid">
-              <!-- Colors injected by JS -->
-            </div>
+        <!-- Stats -->
+        <div class="mp-hero__stats" data-animate>
+          <div class="mp-stat">
+            <div class="mp-stat__value">1000+</div>
+            <div class="mp-stat__label">Prints Delivered</div>
           </div>
-          
-          <!-- Print Settings -->
-          <div class="print-settings">
-            <label class="setting-row">
-              <span class="setting-label">Layer Height</span>
-              <select id="layer-height">
-                <option value="0.1">0.1mm (High Quality)</option>
-                <option value="0.2" selected>0.2mm (Standard)</option>
-                <option value="0.3">0.3mm (Fast)</option>
-              </select>
-            </label>
-            <label class="setting-row">
-              <span class="setting-label">Infill</span>
-              <select id="infill">
-                <option value="20">20% (Light)</option>
-                <option value="50" selected>50% (Standard)</option>
-                <option value="100">100% (Solid)</option>
-              </select>
-            </label>
+          <div class="mp-stat">
+            <div class="mp-stat__value">50+</div>
+            <div class="mp-stat__label">Material Options</div>
           </div>
-          
-          <!-- Cost Estimate -->
-          <div class="cost-estimate">
-            <div class="cost-row">
-              <span>Material</span>
-              <span id="material-cost">₹0</span>
-            </div>
-            <div class="cost-row">
-              <span>Setup</span>
-              <span id="setup-cost">₹50</span>
-            </div>
-            <div class="cost-divider"></div>
-            <div class="cost-row total">
-              <span>Total</span>
-              <span id="total-cost">₹50</span>
-            </div>
+          <div class="mp-stat">
+            <div class="mp-stat__value">24h</div>
+            <div class="mp-stat__label">Fastest Delivery</div>
           </div>
-          
-          <!-- Order Button -->
-          <button class="order-btn" onclick="openWhatsApp()">
-            <span>Order via WhatsApp</span>
-          </button>
         </div>
       </div>
-    </div>
-  </section>
-  
-  <!-- Section 3: Track -->
-  <section class="section" id="section-3" data-section="3">
-    <canvas class="webgl-bg" id="canvas-track"></canvas>
-    <span class="section-label">03 / Track</span>
-    <div class="section-content">
-      <div class="track-input-container" id="trackInput">
-        <input type="text" class="track-input" id="orderInput" placeholder="ORDER ID" maxlength="10">
-        <button class="track-btn" id="trackBtn">Track</button>
+    </section>
+    
+    <!-- ========================================
+         FEATURED PRODUCTS SECTION
+         ======================================== -->
+    <section class="mp-featured mp-section" aria-labelledby="featured-heading">
+      <div class="mp-container">
+        <header class="mp-featured__header">
+          <p class="mp-featured__subtitle">Featured Collection</p>
+          <h2 id="featured-heading" class="mp-heading mp-heading--2">Popular Prints</h2>
+          <p class="mp-text mp-text--large">Discover our most loved 3D printed products, crafted with precision and care.</p>
+        </header>
+        
+        <div class="mp-products-grid">
+          <!-- Product 1 -->
+          <article class="mp-card mp-product-card" data-animate>
+            <div class="mp-product-card__preview">
+              <span class="mp-product-card__icon">📱</span>
+            </div>
+            <div class="mp-card__content">
+              <h3 class="mp-card__title">Phone Stand</h3>
+              <p class="mp-card__description">Adjustable multi-angle stand for all smartphone sizes. Compact and portable.</p>
+              <div class="mp-card__footer">
+                <span class="mp-card__price">
+                  ₹149
+                  <span class="mp-card__price-note">/each</span>
+                </span>
+                <a href="products.html" class="mp-btn mp-btn--sm mp-btn--primary">View</a>
+              </div>
+            </div>
+          </article>
+          
+          <!-- Product 2 -->
+          <article class="mp-card mp-product-card" data-animate>
+            <div class="mp-product-card__preview">
+              <span class="mp-product-card__icon">🪴</span>
+            </div>
+            <div class="mp-card__content">
+              <h3 class="mp-card__title">Geometric Planter</h3>
+              <p class="mp-card__description">Modern geometric design perfect for succulents and small plants.</p>
+              <div class="mp-card__footer">
+                <span class="mp-card__price">
+                  ₹299
+                  <span class="mp-card__price-note">/each</span>
+                </span>
+                <a href="products.html" class="mp-btn mp-btn--sm mp-btn--primary">View</a>
+              </div>
+            </div>
+          </article>
+          
+          <!-- Product 3 -->
+          <article class="mp-card mp-product-card" data-animate>
+            <div class="mp-product-card__preview">
+              <span class="mp-product-card__icon">🔌</span>
+            </div>
+            <div class="mp-card__content">
+              <h3 class="mp-card__title">Cable Organizer</h3>
+              <p class="mp-card__description">Keep your desk tidy with this modular cable management system.</p>
+              <div class="mp-card__footer">
+                <span class="mp-card__price">
+                  ₹199
+                  <span class="mp-card__price-note">/set</span>
+                </span>
+                <a href="products.html" class="mp-btn mp-btn--sm mp-btn--primary">View</a>
+              </div>
+            </div>
+          </article>
+        </div>
+        
+        <div class="mp-text-center mp-mt-4">
+          <a href="products.html" class="mp-btn mp-btn--outline mp-btn--lg">
+            <span>View All Products</span>
+            <span>→</span>
+          </a>
+        </div>
       </div>
-      <div class="track-result" id="trackResult">
-        <div class="track-status" id="statusText">処理中</div>
-        <div class="track-details" id="trackDetails">Processing</div>
+    </section>
+    
+    <!-- ========================================
+         FEATURES SECTION
+         ======================================== -->
+    <section class="mp-section mp-section--compact" aria-labelledby="features-heading">
+      <div class="mp-container">
+        <header class="mp-featured__header">
+          <p class="mp-featured__subtitle">Why Choose Us</p>
+          <h2 id="features-heading" class="mp-heading mp-heading--2">Quality You Can Trust</h2>
+        </header>
+        
+        <div class="mp-products-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+          <!-- Feature 1 -->
+          <article class="mp-card" data-animate>
+            <div class="mp-card__content mp-text-center">
+              <div style="font-size: 3rem; margin-bottom: var(--space-3);">⚡</div>
+              <h3 class="mp-card__title">Fast Turnaround</h3>
+              <p class="mp-card__description">Most orders ready within 24-48 hours. Express delivery available.</p>
+            </div>
+          </article>
+          
+          <!-- Feature 2 -->
+          <article class="mp-card" data-animate>
+            <div class="mp-card__content mp-text-center">
+              <div style="font-size: 3rem; margin-bottom: var(--space-3);">🎯</div>
+              <h3 class="mp-card__title">Precise Quality</h3>
+              <p class="mp-card__description">0.1mm layer height options for detailed, professional-grade prints.</p>
+            </div>
+          </article>
+          
+          <!-- Feature 3 -->
+          <article class="mp-card" data-animate>
+            <div class="mp-card__content mp-text-center">
+              <div style="font-size: 3rem; margin-bottom: var(--space-3);">🎨</div>
+              <h3 class="mp-card__title">Multi-Material</h3>
+              <p class="mp-card__description">PLA, PETG, TPU and more. Choose the perfect material for your project.</p>
+            </div>
+          </article>
+          
+          <!-- Feature 4 -->
+          <article class="mp-card" data-animate>
+            <div class="mp-card__content mp-text-center">
+              <div style="font-size: 3rem; margin-bottom: var(--space-3);">🤝</div>
+              <h3 class="mp-card__title">Easy Ordering</h3>
+              <p class="mp-card__description">Simple upload process with instant quotes via WhatsApp.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    
+    <!-- ========================================
+         CTA SECTION
+         ======================================== -->
+    <section class="mp-section mp-section--compact" aria-labelledby="cta-heading">
+      <div class="mp-container">
+        <div class="mp-card" style="background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.1) 0%, transparent 100%);">
+          <div class="mp-card__content mp-text-center" style="padding: var(--space-8);">
+            <h2 id="cta-heading" class="mp-heading mp-heading--2 mp-mb-4">Ready to Print?</h2>
+            <p class="mp-text mp-text--large mp-mb-4">Upload your STL file and get an instant quote. We accept custom orders of any size.</p>
+            <a href="custom.html" class="mp-btn mp-btn--primary mp-btn--lg">
+              <span>Start Your Order</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+  
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+  <footer class="mp-footer" role="contentinfo">
+    <div class="mp-container mp-footer__container">
+      <!-- Brand -->
+      <div class="mp-footer__brand">
+        <div class="mp-footer__logo">MagniPrints</div>
+        <p class="mp-footer__tagline">Premium 3D printing services. Precision, quality, and creativity in every print.</p>
+        <div class="mp-footer__socials">
+          <a href="#" class="mp-footer__social" aria-label="Instagram">📷</a>
+          <a href="#" class="mp-footer__social" aria-label="Twitter">🐦</a>
+          <a href="#" class="mp-footer__social" aria-label="WhatsApp">💬</a>
+        </div>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Quick Links</h4>
+        <a href="index.html" class="mp-footer__link">Home</a>
+        <a href="products.html" class="mp-footer__link">Products</a>
+        <a href="custom.html" class="mp-footer__link">Custom Upload</a>
+        <a href="track.html" class="mp-footer__link">Track Order</a>
+      </div>
+      
+      <!-- Materials -->
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Materials</h4>
+        <span class="mp-footer__link">PLA</span>
+        <span class="mp-footer__link">PETG</span>
+        <span class="mp-footer__link">TPU / Flexible</span>
+        <span class="mp-footer__link">ABS</span>
+      </div>
+      
+      <!-- Support -->
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Support</h4>
+        <a href="#" class="mp-footer__link">FAQ</a>
+        <a href="#" class="mp-footer__link">Contact Us</a>
+        <a href="#" class="mp-footer__link">Shipping Info</a>
+        <a href="#" class="mp-footer__link">Terms of Service</a>
       </div>
     </div>
-  </section>
+    
+    <div class="mp-container mp-footer__bottom">
+      <p class="mp-footer__copyright">© 2024 MagniPrints. All rights reserved. Made with precision in India.</p>
+    </div>
+  </footer>
   
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
   <script>
-    // ========================================
-    // LENIS SMOOTH SCROLL
-    // ========================================
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      smoothTouch: false,
-      touchMultiplier: 2
-    });
-    
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-    
-    // GSAP ScrollTrigger integration
-    gsap.registerPlugin(ScrollTrigger);
-    
-    lenis.on('scroll', ScrollTrigger.update);
-    
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    
-    gsap.ticker.lagSmoothing(0);
-    
-    // ========================================
-    // SECTION NAVIGATION
-    // ========================================
-    let currentSection = 0;
-    const totalSections = 4;
-    const sections = document.querySelectorAll('.section');
-    
-    function scrollToSection(index) {
-      if (index >= 0 && index < totalSections) {
-        lenis.scrollTo(sections[index]);
-      }
-    }
-    
-    function updateActiveSection(index) {
-      currentSection = index;
-      
-      // Update section numbers
-      document.querySelectorAll('.num-link').forEach((link, i) => {
-        link.classList.toggle('active', i === index);
-      });
-      
-      // Update split nav
-      document.querySelectorAll('.nav-letter').forEach(letter => {
-        letter.classList.toggle('active', index > 0);
-      });
-      
-      // Update nav buttons
-      const skipBtn = document.getElementById('skipBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      
-      if (index === 0) {
-        skipBtn.textContent = 'Skip';
-        skipBtn.onclick = () => scrollToSection(1);
-        nextBtn.textContent = 'Next';
-        nextBtn.onclick = () => scrollToSection(1);
-      } else if (index === totalSections - 1) {
-        skipBtn.textContent = 'Back';
-        skipBtn.onclick = () => scrollToSection(index - 1);
-        nextBtn.textContent = 'Top';
-        nextBtn.onclick = () => scrollToSection(0);
-      } else {
-        skipBtn.textContent = 'Skip';
-        skipBtn.onclick = () => scrollToSection(index + 1);
-        nextBtn.textContent = 'Next';
-        nextBtn.onclick = () => scrollToSection(index + 1);
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize hero WebGL background
+      if (window.WebGLBackgrounds) {
+        window.WebGLBackgrounds.create('hero', 'heroCanvas');
       }
       
-      // Trigger section animations
-      animateSection(index);
-    }
-    
-    // Intersection Observer for sections
-    const observerOptions = {
-      root: null,
-      rootMargin: '-50% 0px -50% 0px',
-      threshold: 0
-    };
-    
-    const sectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const index = parseInt(entry.target.dataset.section);
-          updateActiveSection(index);
-        }
-      });
-    }, observerOptions);
-    
-    sections.forEach(section => sectionObserver.observe(section));
-    
-    // Section click handlers
-    document.querySelectorAll('.num-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const index = parseInt(link.dataset.section);
-        scrollToSection(index);
-      });
-    });
-    
-    // Initialize
-    updateActiveSection(0);
-    
-    // ========================================
-    // THEME TOGGLE
-    // ========================================
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
-    const html = document.documentElement;
-    
-    // Check saved theme
-    const savedTheme = localStorage.getItem('magniprints-theme') || 'dark';
-    html.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-    
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = html.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', newTheme);
-      localStorage.setItem('magniprints-theme', newTheme);
-      updateThemeIcon(newTheme);
-      updateWebGLColors(newTheme);
-    });
-    
-    function updateThemeIcon(theme) {
-      themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
-    }
-    
-    // ========================================
-    // WEBGL BACKGROUNDS
-    // ========================================
-    const scenes = [];
-    const renderers = [];
-    const cameras = [];
-    const objects = [];
-    
-    function initWebGL(canvasId, type) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return;
-      
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 30;
-      
-      const renderer = new THREE.WebGLRenderer({ 
-        canvas, 
-        antialias: true,
-        alpha: true 
-      });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      
-      const sceneObjects = [];
-      const isDark = html.getAttribute('data-theme') === 'dark';
-      const color = isDark ? 0xffffff : 0x000000;
-      const opacity = isDark ? 0.15 : 0.08;
-      
-      if (type === 'hero') {
-        // Floating geometric shapes
-        const geometryTypes = [
-          new THREE.IcosahedronGeometry(4, 0),
-          new THREE.OctahedronGeometry(3, 0),
-          new THREE.TetrahedronGeometry(3, 0),
-          new THREE.BoxGeometry(3, 3, 3),
-          new THREE.DodecahedronGeometry(3, 0)
-        ];
+      // Hero animations with GSAP
+      if (typeof gsap !== 'undefined') {
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
         
-        for (let i = 0; i < 12; i++) {
-          const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
-          const material = new THREE.MeshBasicMaterial({
-            color: color,
-            wireframe: true,
-            transparent: true,
-            opacity: opacity
+        tl.from('.mp-hero__jp-title', { 
+          opacity: 0, 
+          y: 50, 
+          duration: 1.2 
+        })
+        .from('.mp-hero__en-title', { 
+          opacity: 0, 
+          duration: 0.8 
+        }, '-=0.6')
+        .from('.mp-hero__tagline', { 
+          opacity: 0, 
+          y: 20, 
+          duration: 0.8 
+        }, '-=0.4')
+        .from('.mp-hero__cta', { 
+          opacity: 0, 
+          y: 20, 
+          duration: 0.6 
+        }, '-=0.4')
+        .from('.mp-stat', { 
+          opacity: 0, 
+          y: 20, 
+          duration: 0.6,
+          stagger: 0.1 
+        }, '-=0.2');
+        
+        // Scroll animations
+        gsap.utils.toArray('[data-animate]').forEach(el => {
+          gsap.from(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 80%',
+              toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            ease: 'power2.out'
           });
-          const mesh = new THREE.Mesh(geometry, material);
-          
-          mesh.position.x = (Math.random() - 0.5) * 50;
-          mesh.position.y = (Math.random() - 0.5) * 40;
-          mesh.position.z = (Math.random() - 0.5) * 20;
-          mesh.rotation.x = Math.random() * Math.PI;
-          mesh.rotation.y = Math.random() * Math.PI;
-          
-          mesh.userData = {
-            rotSpeedX: (Math.random() - 0.5) * 0.01,
-            rotSpeedY: (Math.random() - 0.5) * 0.01,
-            floatSpeed: Math.random() * 0.5 + 0.5,
-            floatOffset: Math.random() * Math.PI * 2,
-            baseY: mesh.position.y
-          };
-          
-          scene.add(mesh);
-          sceneObjects.push(mesh);
-        }
-      } else if (type === 'products') {
-        // Product particles
-        const particleCount = 300;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        
-        for (let i = 0; i < particleCount; i++) {
-          positions[i * 3] = (Math.random() - 0.5) * 60;
-          positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
-        }
-        
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        
-        const material = new THREE.PointsMaterial({
-          color: color,
-          size: 0.3,
-          transparent: true,
-          opacity: opacity * 2
         });
-        
-        const points = new THREE.Points(geometry, material);
-        points.userData = { speed: 0.1 };
-        scene.add(points);
-        sceneObjects.push(points);
-        
-        // Wireframe grid
-        const gridHelper = new THREE.GridHelper(50, 20, color, color);
-        gridHelper.material.transparent = true;
-        gridHelper.material.opacity = opacity * 0.5;
-        gridHelper.position.y = -15;
-        scene.add(gridHelper);
-        sceneObjects.push(gridHelper);
-      } else if (type === 'custom') {
-        // Rotating 3D print layers
-        const ringCount = 8;
-        for (let i = 0; i < ringCount; i++) {
-          const radius = 3 + i * 1.5;
-          const geometry = new THREE.RingGeometry(radius - 0.3, radius, 64);
-          const material = new THREE.MeshBasicMaterial({
-            color: color,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: opacity * (1 - i / ringCount * 0.5)
-          });
-          const ring = new THREE.Mesh(geometry, material);
-          ring.position.z = i * 1 - ringCount / 2;
-          ring.userData = { 
-            rotSpeed: (ringCount - i) * 0.002,
-            baseZ: i * 1 - ringCount / 2
-          };
-          scene.add(ring);
-          sceneObjects.push(ring);
-        }
-      } else if (type === 'track') {
-        // Connected nodes (tracking network)
-        const nodeCount = 8;
-        const nodes = [];
-        
-        for (let i = 0; i < nodeCount; i++) {
-          const geometry = new THREE.SphereGeometry(0.3, 16, 16);
-          const material = new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: opacity * 4
-          });
-          const node = new THREE.Mesh(geometry, material);
-          
-          const angle = (i / nodeCount) * Math.PI * 2;
-          const radius = 15;
-          node.position.x = Math.cos(angle) * radius;
-          node.position.y = Math.sin(angle) * radius;
-          node.position.z = (Math.random() - 0.5) * 10;
-          
-          node.userData = { 
-            angle: angle,
-            radius: radius,
-            speed: 0.002 + Math.random() * 0.001,
-            phase: i / nodeCount
-          };
-          
-          scene.add(node);
-          nodes.push(node);
-          sceneObjects.push(node);
-        }
-        
-        // Connecting lines
-        const lineGeometry = new THREE.BufferGeometry();
-        const lineMaterial = new THREE.LineBasicMaterial({
-          color: color,
-          transparent: true,
-          opacity: opacity * 2
-        });
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        lines.userData = { nodes: nodes };
-        scene.add(lines);
-        sceneObjects.push(lines);
       }
-      
-      scenes.push(scene);
-      renderers.push(renderer);
-      cameras.push(camera);
-      objects.push(sceneObjects);
-    }
-    
-    // Initialize all scenes
-    initWebGL('canvas-hero', 'hero');
-    initWebGL('canvas-products', 'products');
-    initWebGL('canvas-custom', 'custom');
-    initWebGL('canvas-track', 'track');
-    
-    // Animation loop
-    let time = 0;
-    function animateWebGL() {
-      requestAnimationFrame(animateWebGL);
-      time += 0.01;
-      
-      scenes.forEach((scene, sceneIndex) => {
-        const sceneObjs = objects[sceneIndex];
-        
-        sceneObjs.forEach(obj => {
-          if (obj.userData.rotSpeedX !== undefined) {
-            obj.rotation.x += obj.userData.rotSpeedX;
-            obj.rotation.y += obj.userData.rotSpeedY;
-            obj.position.y = obj.userData.baseY + Math.sin(time * obj.userData.floatSpeed + obj.userData.floatOffset) * 2;
-          }
-          if (obj.userData.rotSpeed !== undefined) {
-            obj.rotation.z += obj.userData.rotSpeed;
-            obj.position.z = obj.userData.baseZ + Math.sin(time + obj.userData.rotSpeed * 100) * 1;
-          }
-          if (obj.userData.angle !== undefined) {
-            obj.userData.angle += obj.userData.speed;
-            obj.position.x = Math.cos(obj.userData.angle) * obj.userData.radius;
-            obj.position.y = Math.sin(obj.userData.angle) * obj.userData.radius;
-          }
-          if (obj.userData.nodes) {
-            // Update connecting lines
-            const nodes = obj.userData.nodes;
-            const positions = [];
-            for (let i = 0; i < nodes.length; i++) {
-              for (let j = i + 1; j < nodes.length; j++) {
-                const dist = nodes[i].position.distanceTo(nodes[j].position);
-                if (dist < 25) {
-                  positions.push(
-                    nodes[i].position.x, nodes[i].position.y, nodes[i].position.z,
-                    nodes[j].position.x, nodes[j].position.y, nodes[j].position.z
-                  );
-                }
-              }
-            }
-            obj.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-          }
-        });
-        
-        if (renderers[sceneIndex]) {
-          renderers[sceneIndex].render(scene, cameras[sceneIndex]);
-        }
-      });
-    }
-    animateWebGL();
-    
-    // Update WebGL colors on theme change
-    function updateWebGLColors(theme) {
-      const color = theme === 'dark' ? 0xffffff : 0x000000;
-      const opacity = theme === 'dark' ? 0.15 : 0.08;
-      
-      scenes.forEach((scene, i) => {
-        objects[i].forEach(obj => {
-          if (obj.material) {
-            if (Array.isArray(obj.material)) {
-              obj.material.forEach(m => {
-                m.color.setHex(color);
-                if (m.opacity !== undefined) {
-                  m.opacity = opacity * (m.userData?.opacityMult || 1);
-                }
-              });
-            } else {
-              obj.material.color.setHex(color);
-              if (obj.material.opacity !== undefined) {
-                obj.material.opacity = opacity * (obj.userData?.opacityMult || 1);
-              }
-            }
-          }
-        });
-        if (renderers[i]) renderers[i].render(scene, cameras[i]);
-      });
-    }
-    
-    // Resize handler
-    window.addEventListener('resize', () => {
-      scenes.forEach((scene, i) => {
-        if (cameras[i]) {
-          cameras[i].aspect = window.innerWidth / window.innerHeight;
-          cameras[i].updateProjectionMatrix();
-        }
-        if (renderers[i]) {
-          renderers[i].setSize(window.innerWidth, window.innerHeight);
-        }
-      });
-    });
-    
-    // ========================================
-    // GSAP SECTION ANIMATIONS
-    // ========================================
-    function animateSection(index) {
-      const section = sections[index];
-      
-      // Reset all animations
-      if (index === 0) {
-        gsap.fromTo('.jp-title', 
-          { opacity: 0, y: 50 },
-          { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.2 }
-        );
-        gsap.fromTo('.en-title',
-          { opacity: 0 },
-          { opacity: 0.7, duration: 1, ease: 'power2.out', delay: 0.8 }
-        );
-      } else if (index === 1) {
-        gsap.fromTo('#section-1 .section-label',
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-        );
-        gsap.fromTo('.product-cell',
-          { opacity: 0, y: 30, rotateY: -15 },
-          { 
-            opacity: 1, 
-            y: 0, 
-            rotateY: 0,
-            duration: 0.6, 
-            ease: 'power3.out',
-            stagger: 0.08,
-            delay: 0.2
-          }
-        );
-      } else if (index === 2) {
-        gsap.fromTo('#section-2 .section-label',
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-        );
-        gsap.fromTo('.upload-zone',
-          { opacity: 0, scale: 0.9 },
-          { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', delay: 0.3 }
-        );
-      } else if (index === 3) {
-        gsap.fromTo('#section-3 .section-label',
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-        );
-        gsap.fromTo('.track-input-container',
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.3 }
-        );
-      }
-    }
-    
-    // Initialize hero
-    setTimeout(() => animateSection(0), 100);
-    
-    // ========================================
-    // PRODUCT INTERACTIONS
-    // ========================================
-    document.querySelectorAll('.product-cell').forEach(cell => {
-      cell.addEventListener('click', () => {
-        const product = cell.dataset.product;
-        alert(`View ${product} details\n\nFull product page coming soon.`);
-      });
-    });
-    
-    // ========================================
-    // FILE UPLOAD & STL PREVIEW
-    // ========================================
-    const uploadZone = document.getElementById('uploadZone');
-    const stlUpload = document.getElementById('stl-upload');
-    const preview3d = document.getElementById('preview-3d');
-    const fileInfo = document.getElementById('fileInfo');
-    const fileName = document.getElementById('fileName');
-    const fileVolume = document.getElementById('fileVolume');
-    
-    // STL Preview variables
-    let stlScene, stlCamera, stlRenderer, stlMesh, stlControls, stlMaterial;
-    let currentFile = null;
-    let estimatedGrams = 50; // Default estimate
-    
-    // Drag and drop
-    uploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadZone.classList.add('dragging');
-    });
-    
-    uploadZone.addEventListener('dragleave', () => {
-      uploadZone.classList.remove('dragging');
-    });
-    
-    uploadZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadZone.classList.remove('dragging');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) loadSTL(files[0]);
-    });
-    
-    stlUpload.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) loadSTL(e.target.files[0]);
-    });
-    
-    // Material configuration
-    const materialConfig = {
-      pla: {
-        name: 'PLA',
-        price: 3,
-        desc: 'Strong, matte finish',
-        colors: [
-          { name: 'White', hex: '#ffffff' },
-          { name: 'Black', hex: '#1a1a1a' },
-          { name: 'Gray', hex: '#6b7280' },
-          { name: 'Red', hex: '#dc2626' },
-          { name: 'Blue', hex: '#2563eb' },
-          { name: 'Green', hex: '#16a34a' }
-        ]
-      },
-      petg: {
-        name: 'PETG',
-        price: 4,
-        desc: 'Durable, glossy finish',
-        colors: [
-          { name: 'Clear', hex: 'transparent' },
-          { name: 'White', hex: '#ffffff' },
-          { name: 'Black', hex: '#1a1a1a' },
-          { name: 'Orange', hex: '#ea580c' }
-        ]
-      },
-      tpu: {
-        name: 'TPU',
-        price: 5,
-        desc: 'Flexible, rubber-like',
-        colors: [
-          { name: 'Black', hex: '#1a1a1a' },
-          { name: 'Red', hex: '#dc2626' },
-          { name: 'Blue', hex: '#2563eb' },
-          { name: 'Yellow', hex: '#ca8a04' }
-        ]
-      }
-    };
-    
-    // State
-    let currentMaterial = 'pla';
-    let currentColor = '#ffffff';
-    
-    // Material tabs
-    document.querySelectorAll('.material-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.material-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentMaterial = tab.dataset.material;
-        document.getElementById('materialDesc').textContent = materialConfig[currentMaterial].desc;
-        renderColors();
-        updateCost();
-      });
-    });
-    
-    // Render color options
-    function renderColors() {
-      const colorGrid = document.getElementById('colorGrid');
-      const colors = materialConfig[currentMaterial].colors;
-      currentColor = colors[0].hex;
-      
-      colorGrid.innerHTML = colors.map((color, i) => `
-        <div class="color-option ${i === 0 ? 'active' : ''}" 
-             data-color="${color.hex}"
-             style="background: ${color.hex === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)' : color.hex}; background-size: ${color.hex === 'transparent' ? '10px 10px' : 'auto'}; background-position: ${color.hex === 'transparent' ? '0 0, 5px 5px' : 'auto'};"
-             title="${color.name}">
-        </div>
-      `).join('');
-      
-      document.querySelectorAll('.color-option').forEach(opt => {
-        opt.addEventListener('click', () => {
-          document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
-          opt.classList.add('active');
-          currentColor = opt.dataset.color;
-          updateModelColor();
-          updateCost();
-        });
-      });
-      
-      updateModelColor();
-    }
-    
-    // Initialize colors
-    renderColors();
-    
-    // Load STL file
-    function loadSTL(file) {
-      if (!file.name.toLowerCase().endsWith('.stl')) {
-        alert('Please upload an STL file');
-        return;
-      }
-      
-      currentFile = file;
-      fileName.textContent = file.name;
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const loader = new THREE.STLLoader();
-          const geometry = loader.parse(e.target.result);
-          
-          // Calculate volume (approximate grams assuming 1.25g/cm³ density for PLA)
-          const volume = calculateVolume(geometry);
-          estimatedGrams = Math.ceil(volume * 1.25);
-          fileVolume.textContent = `~${estimatedGrams}g`;
-          fileInfo.classList.add('visible');
-          
-          // Switch UI
-          uploadZone.style.display = 'none';
-          preview3d.style.display = 'block';
-          
-          // Init 3D preview
-          initSTLPreview(geometry);
-          updateCost();
-        } catch (err) {
-          console.error('Error parsing STL:', err);
-          alert('Error loading STL file. Please check the file.');
-          resetUpload();
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-    
-    // Calculate mesh volume using tetrahedron method
-    function calculateVolume(geometry) {
-      let volume = 0;
-      const positions = geometry.attributes.position.array;
-      
-      for (let i = 0; i < positions.length; i += 9) {
-        const x1 = positions[i], y1 = positions[i+1], z1 = positions[i+2];
-        const x2 = positions[i+3], y2 = positions[i+4], z2 = positions[i+5];
-        const x3 = positions[i+6], y3 = positions[i+7], z3 = positions[i+8];
-        
-        // Calculate signed volume of tetrahedron formed by triangle and origin
-        volume += (x1 * (y2 * z3 - y3 * z2) +
-                   x2 * (y3 * z1 - y1 * z3) +
-                   x3 * (y1 * z2 - y2 * z1)) / 6;
-      }
-      
-      // Convert to cm³ (assuming units are in mm)
-      return Math.abs(volume) / 1000;
-    }
-    
-    // Initialize 3D preview
-    function initSTLPreview(geometry) {
-      // Clean up existing
-      if (stlRenderer) {
-        stlRenderer.dispose();
-        preview3d.innerHTML = '';
-      }
-      
-      stlScene = new THREE.Scene();
-      stlCamera = new THREE.PerspectiveCamera(45, preview3d.clientWidth / preview3d.clientHeight, 0.1, 1000);
-      stlCamera.position.set(0, 0, 30);
-      
-      stlRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      stlRenderer.setSize(preview3d.clientWidth, preview3d.clientHeight);
-      stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      preview3d.appendChild(stlRenderer.domElement);
-      
-      // Center geometry
-      geometry.computeBoundingBox();
-      const center = new THREE.Vector3();
-      geometry.boundingBox.getCenter(center);
-      geometry.translate(-center.x, -center.y, -center.z);
-      
-      // Scale to fit
-      const size = new THREE.Vector3();
-      geometry.boundingBox.getSize(size);
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 15 / maxDim;
-      geometry.scale(scale, scale, scale);
-      
-      // Create material
-      stlMaterial = new THREE.MeshStandardMaterial({
-        color: currentColor === 'transparent' ? 0xffffff : new THREE.Color(currentColor),
-        metalness: 0.1,
-        roughness: 0.4,
-        transparent: currentColor === 'transparent',
-        opacity: currentColor === 'transparent' ? 0.3 : 1,
-        side: THREE.DoubleSide
-      });
-      
-      stlMesh = new THREE.Mesh(geometry, stlMaterial);
-      stlScene.add(stlMesh);
-      
-      // Wireframe overlay
-      const wireframe = new THREE.WireframeGeometry(geometry);
-      const wireframeMaterial = new THREE.LineBasicMaterial({ 
-        color: html.getAttribute('data-theme') === 'dark' ? 0x444444 : 0xcccccc,
-        transparent: true,
-        opacity: 0.3
-      });
-      const wireframeMesh = new THREE.LineSegments(wireframe, wireframeMaterial);
-      stlMesh.add(wireframeMesh);
-      
-      // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      stlScene.add(ambientLight);
-      
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(10, 10, 10);
-      stlScene.add(directionalLight);
-      
-      const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-      directionalLight2.position.set(-10, -10, -10);
-      stlScene.add(directionalLight2);
-      
-      // Controls
-      stlControls = new THREE.OrbitControls(stlCamera, stlRenderer.domElement);
-      stlControls.enableDamping = true;
-      stlControls.dampingFactor = 0.05;
-      stlControls.autoRotate = true;
-      stlControls.autoRotateSpeed = 2;
-      
-      // Animation loop
-      function animate() {
-        requestAnimationFrame(animate);
-        if (stlControls) {
-          stlControls.update();
-          stlRenderer.render(stlScene, stlCamera);
-        }
-      }
-      animate();
-    }
-    
-    // Update model color
-    function updateModelColor() {
-      if (stlMaterial) {
-        stlMaterial.color.set(currentColor === 'transparent' ? 0xffffff : currentColor);
-        stlMaterial.transparent = currentColor === 'transparent';
-        stlMaterial.opacity = currentColor === 'transparent' ? 0.3 : 1;
-      }
-    }
-    
-    // Calculate cost
-    function calculateCost() {
-      const pricePerGram = materialConfig[currentMaterial].price;
-      const infill = parseInt(document.getElementById('infill').value) / 100;
-      
-      // Adjust grams based on infill (simplified: assume 20% shell, rest is infill)
-      const shellWeight = estimatedGrams * 0.2;
-      const infillWeight = estimatedGrams * 0.8 * infill;
-      const adjustedGrams = Math.ceil(shellWeight + infillWeight);
-      
-      const materialCost = adjustedGrams * pricePerGram;
-      const setupCost = 50;
-      const total = materialCost + setupCost;
-      
-      return { materialCost, setupCost, total, grams: adjustedGrams };
-    }
-    
-    function updateCost() {
-      const cost = calculateCost();
-      document.getElementById('material-cost').textContent = `₹${cost.materialCost}`;
-      document.getElementById('setup-cost').textContent = `₹${cost.setupCost}`;
-      document.getElementById('total-cost').textContent = `₹${cost.total}`;
-    }
-    
-    // Update cost on settings change
-    document.getElementById('layer-height').addEventListener('change', updateCost);
-    document.getElementById('infill').addEventListener('change', updateCost);
-    
-    // Open WhatsApp with order details
-    function openWhatsApp() {
-      const cost = calculateCost();
-      const layerHeight = document.getElementById('layer-height').value;
-      const infill = document.getElementById('infill').value;
-      
-      const colorName = materialConfig[currentMaterial].colors.find(c => c.hex === currentColor)?.name || 'Unknown';
-      
-      const message = `Hi MagniPrints! I'd like to order a 3D print:
-
-📁 File: ${currentFile ? currentFile.name : 'Sample file'}
-🔧 Material: ${materialConfig[currentMaterial].name} (${colorName})
-⚖️ Weight: ~${cost.grams}g
-📏 Layer Height: ${layerHeight}mm
-🧱 Infill: ${infill}%
-
-💰 Cost Breakdown:
-• Material: ₹${cost.materialCost}
-• Setup: ₹${cost.setupCost}
-• Total: ₹${cost.total}
-
-Please confirm the order details. Thank you!`;
-      
-      const encodedMessage = encodeURIComponent(message);
-      window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
-    }
-    
-    function resetUpload() {
-      currentFile = null;
-      estimatedGrams = 50;
-      uploadZone.style.display = 'flex';
-      preview3d.style.display = 'none';
-      preview3d.innerHTML = '';
-      fileInfo.classList.remove('visible');
-      stlUpload.value = '';
-      if (stlRenderer) stlRenderer.dispose();
-      stlScene = null;
-      stlCamera = null;
-      stlRenderer = null;
-      stlMesh = null;
-      stlControls = null;
-      stlMaterial = null;
-      updateCost();
-    }
-    
-    // Handle window resize for preview
-    window.addEventListener('resize', () => {
-      if (stlRenderer && stlCamera && preview3d) {
-        stlCamera.aspect = preview3d.clientWidth / preview3d.clientHeight;
-        stlCamera.updateProjectionMatrix();
-        stlRenderer.setSize(preview3d.clientWidth, preview3d.clientHeight);
-      }
-    });
-    
-    // Initial cost update
-    updateCost();
-    
-    // ========================================
-    // TRACK ORDER
-    // ========================================
-    const orderInput = document.getElementById('orderInput');
-    const trackBtn = document.getElementById('trackBtn');
-    const trackInput = document.getElementById('trackInput');
-    const trackResult = document.getElementById('trackResult');
-    const statusText = document.getElementById('statusText');
-    const trackDetails = document.getElementById('trackDetails');
-    
-    trackBtn.addEventListener('click', trackOrder);
-    orderInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') trackOrder();
-    });
-    
-    function trackOrder() {
-      const orderId = orderInput.value.trim().toUpperCase();
-      if (!orderId) return;
-      
-      trackInput.style.opacity = '0';
-      trackInput.style.pointerEvents = 'none';
-      
-      setTimeout(() => {
-        const statuses = [
-          { jp: '受注済み', en: 'Order Received', detail: 'Payment confirmed' },
-          { jp: '準備中', en: 'Preparing', detail: 'Files processed' },
-          { jp: '印刷中', en: 'Printing', detail: 'Layer 342/1200' },
-          { jp: '仕上げ', en: 'Finishing', detail: 'Post-processing' },
-          { jp: '発送済み', en: 'Shipped', detail: 'Out for delivery' }
-        ];
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
-        
-        statusText.textContent = status.jp;
-        trackDetails.textContent = `${status.en} — ${status.detail}`;
-        
-        trackResult.classList.add('active');
-        
-        // Hide after 5 seconds
-        setTimeout(() => {
-          trackResult.classList.remove('active');
-          setTimeout(() => {
-            trackInput.style.opacity = '1';
-            trackInput.style.pointerEvents = 'all';
-            orderInput.value = '';
-          }, 500);
-        }, 5000);
-      }, 500);
-    }
-    
-    // ========================================
-    // MOUSE PARALLAX
-    // ========================================
-    let mouseX = 0, mouseY = 0;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-      
-      cameras.forEach(camera => {
-        if (camera) {
-          camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-          camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
-          camera.lookAt(0, 0, 0);
-        }
-      });
     });
   </script>
 </body>

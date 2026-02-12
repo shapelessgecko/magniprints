@@ -1,0 +1,482 @@
+<!--
+  ========================================
+  MagniPrints - Products Page
+  /root/.openclaw/workspace/magniprints/products.html
+  WordPress Template: Products Archive (archive-products.php)
+  ========================================
+-->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse our collection of premium 3D printed products. From desk accessories to home decor, all printed with precision.">
+  
+  <title>Products | MagniPrints</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+</head>
+<body>
+  <!-- Skip to content -->
+  <a href="#main-content" class="mp-visually-hidden">Skip to main content</a>
+  
+  <!-- ========================================
+       HEADER / NAVIGATION
+       ======================================== -->
+  <header class="mp-header" role="banner">
+    <div class="mp-container mp-header__container">
+      <a href="index.html" class="mp-logo" aria-label="MagniPrints Home">
+        <span class="mp-logo__icon">🖨️</span>
+        <span class="mp-logo__text">Magni<span class="mp-logo__text--bold">Prints</span></span>
+      </a>
+      
+      <nav class="mp-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="mp-nav__link">Home</a>
+        <a href="products.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Products</a>
+        <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+        <a href="track.html" class="mp-nav__link">Track Order</a>
+      </nav>
+      
+      <div class="mp-header__actions">
+        <button class="mp-theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">
+          <span class="mp-theme-toggle__icon">☀️</span>
+        </button>
+        <button class="mp-menu-toggle" id="menuToggle" aria-expanded="false" aria-label="Toggle mobile menu">
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+        </button>
+      </div>
+    </div>
+    
+    <nav class="mp-nav mp-nav--mobile" id="mobileNav" aria-expanded="false" aria-label="Mobile navigation">
+      <a href="index.html" class="mp-nav__link">Home</a>
+      <a href="products.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Products</a>
+      <a href="custom.html" class="mp-nav__link">Custom Upload</a>
+      <a href="track.html" class="mp-nav__link">Track Order</a>
+    </nav>
+  </header>
+  
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <main id="main-content" class="mp-section mp-section--compact" style="padding-top: 120px;">
+    <div class="mp-container">
+      
+      <!-- Page Header -->
+      <header class="mp-featured__header" data-animate>
+        <p class="mp-featured__subtitle">Shop Collection</p>
+        <h1 class="mp-heading mp-heading--1">All Products</h1>
+        <p class="mp-text mp-text--large">Browse our complete collection of precision 3D printed products. Each item is crafted with care and quality.</p>
+      </header>
+      
+      <!-- Filters (Optional - for future WordPress expansion) -->
+      <!-- 
+      <div class="mp-filters" data-animate>
+        <button class="mp-btn mp-btn--ghost mp-btn--sm mp-btn--active">All</button>
+        <button class="mp-btn mp-btn--ghost mp-btn--sm">Desk Accessories</button>
+        <button class="mp-btn mp-btn--ghost mp-btn--sm">Home Decor</button>
+        <button class="mp-btn mp-btn--ghost mp-btn--sm">Tech Accessories</button>
+      </div>
+      -->
+      
+      <!-- Products Grid -->
+      <div class="mp-products-grid">
+        
+        <!-- Product 1: Phone Stand -->
+        <article class="mp-card mp-product-card" data-product="phone-stand" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">📱</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Phone Stand</h3>
+            <p class="mp-card__description">Adjustable multi-angle stand compatible with all smartphone sizes. Non-slip base with clean cable routing.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹149
+                <span class="mp-card__price-note">starting</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('phone-stand')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 2: Planter -->
+        <article class="mp-card mp-product-card" data-product="planter" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">🪴</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Geometric Planter</h3>
+            <p class="mp-card__description">Modern low-poly geometric design perfect for succulents and small indoor plants. Includes drainage holes.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹299
+                <span class="mp-card__price-note">starting</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('planter')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 3: Cable Organizer -->
+        <article class="mp-card mp-product-card" data-product="cable-organizer" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">🔌</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Cable Organizer</h3>
+            <p class="mp-card__description">Modular cable management system. Connect multiple units for complete desk organization.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹199
+                <span class="mp-card__price-note">/3-pack</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('cable-organizer')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 4: Keychain -->
+        <article class="mp-card mp-product-card" data-product="keychain" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">🔑</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Custom Keychain</h3>
+            <p class="mp-card__description">Personalized 3D printed keychains. Add your name, initials, or custom text.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹99
+                <span class="mp-card__price-note">/each</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('keychain')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 5: Controller Stand -->
+        <article class="mp-card mp-product-card" data-product="controller-stand" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">🎮</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Controller Stand</h3>
+            <p class="mp-card__description">Display stand for gaming controllers. Fits PS5, Xbox, Switch Pro, and most standard controllers.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹249
+                <span class="mp-card__price-note">starting</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('controller-stand')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 6: Desk Organizer -->
+        <article class="mp-card mp-product-card" data-product="desk-organizer" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">📦</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Desk Organizer</h3>
+            <p class="mp-card__description">Multi-compartment organizer for pens, pencils, phone, and small desk items.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹399
+                <span class="mp-card__price-note">/set</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('desk-organizer')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Product 7: Lithophane -->
+        <article class="mp-card mp-product-card" data-product="lithophane" data-animate>
+          <div class="mp-product-card__preview">
+            <span class="mp-product-card__icon">🖼️</span>
+          </div>
+          <div class="mp-card__content">
+            <h3 class="mp-card__title">Custom Lithophane</h3>
+            <p class="mp-card__description">3D printed photo that comes to life when backlit. Perfect gift for any occasion.</p>
+            <div class="mp-card__footer">
+              <span class="mp-card__price">
+                ₹349
+                <span class="mp-card__price-note">starting</span>
+              </span>
+              <button class="mp-btn mp-btn--sm mp-btn--primary" onclick="openProductModal('lithophane')">View Details</button>
+            </div>
+          </div>
+        </article>
+        
+      </div>
+      
+      <!-- Custom Order CTA -->
+      <div class="mp-card mp-mt-4" style="background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.05) 0%, transparent 100%);">
+        <div class="mp-card__content" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);">
+          <div>
+            <h3 class="mp-card__title">Don't see what you need?</h3>
+            <p class="mp-card__description">Upload your own 3D model and we'll print it for you.</p>
+          </div>
+          <a href="custom.html" class="mp-btn mp-btn--primary">
+            <span>Upload Custom Design</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+      
+    </div>
+  </main>
+  
+  <!-- ========================================
+       PRODUCT MODAL
+       ======================================== -->
+  <div class="mp-modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="mp-modal__content">
+      <div class="mp-modal__header">
+        <h2 id="modalTitle" class="mp-modal__title">Product Details</h2>
+        <button class="mp-modal__close" onclick="closeProductModal()" aria-label="Close modal">
+          <span>✕</span>
+        </button>
+      </div>
+      <div class="mp-modal__body" id="modalBody">
+        <!-- Dynamic content inserted here -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+  <footer class="mp-footer" role="contentinfo">
+    <div class="mp-container mp-footer__container">
+      <div class="mp-footer__brand">
+        <div class="mp-footer__logo">MagniPrints</div>
+        <p class="mp-footer__tagline">Premium 3D printing services. Precision, quality, and creativity in every print.</p>
+        <div class="mp-footer__socials">
+          <a href="#" class="mp-footer__social" aria-label="Instagram">📷</a>
+          <a href="#" class="mp-footer__social" aria-label="Twitter">🐦</a>
+          <a href="#" class="mp-footer__social" aria-label="WhatsApp">💬</a>
+        </div>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Quick Links</h4>
+        <a href="index.html" class="mp-footer__link">Home</a>
+        <a href="products.html" class="mp-footer__link">Products</a>
+        <a href="custom.html" class="mp-footer__link">Custom Upload</a>
+        <a href="track.html" class="mp-footer__link">Track Order</a>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Materials</h4>
+        <span class="mp-footer__link">PLA</span>
+        <span class="mp-footer__link">PETG</span>
+        <span class="mp-footer__link">TPU / Flexible</span>
+        <span class="mp-footer__link">ABS</span>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Support</h4>
+        <a href="#" class="mp-footer__link">FAQ</a>
+        <a href="#" class="mp-footer__link">Contact Us</a>
+        <a href="#" class="mp-footer__link">Shipping Info</a>
+        <a href="#" class="mp-footer__link">Terms of Service</a>
+      </div>
+    </div>
+    <div class="mp-container mp-footer__bottom">
+      <p class="mp-footer__copyright">© 2024 MagniPrints. All rights reserved. Made with precision in India.</p>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+  <script>
+    // Product data
+    const productsData = {
+      'phone-stand': {
+        name: 'Phone Stand',
+        icon: '📱',
+        price: '₹149',
+        description: 'Adjustable multi-angle stand compatible with all smartphone sizes. Features a non-slip base, clean cable routing channel, and compact foldable design.',
+        specs: [
+          'Material: PLA / PETG',
+          'Dimensions: 8cm x 6cm x 12cm (folded)',
+          'Angle range: 45° - 75°',
+          'Weight: ~45g'
+        ],
+        colors: ['White', 'Black', 'Gray', 'Red', 'Blue'],
+        whatsappMsg: 'Hi! I\'d like to order a Phone Stand. Please provide more details.'
+      },
+      'planter': {
+        name: 'Geometric Planter',
+        icon: '🪴',
+        price: '₹299',
+        description: 'Modern low-poly geometric design that adds a contemporary touch to any space. Includes drainage holes and saucer to prevent overwatering.',
+        specs: [
+          'Material: PLA / PETG',
+          'Dimensions: 12cm x 12cm x 10cm',
+          'Pot depth: 8cm',
+          'Weight: ~120g'
+        ],
+        colors: ['White', 'Terracotta', 'Mint', 'Charcoal'],
+        whatsappMsg: 'Hi! I\'d like to order a Geometric Planter. Please provide more details.'
+      },
+      'cable-organizer': {
+        name: 'Cable Organizer',
+        icon: '🔌',
+        price: '₹199',
+        description: 'Modular cable management system. Connect multiple units for a complete desk organization solution. Keeps cables tidy and accessible.',
+        specs: [
+          'Material: TPU / PLA',
+          'Pack: 3 units',
+          'Dimensions per unit: 3cm x 3cm x 2cm',
+          'Weight: ~15g per unit'
+        ],
+        colors: ['Black', 'White', 'Gray', 'Blue'],
+        whatsappMsg: 'Hi! I\'d like to order a Cable Organizer (3-pack). Please provide more details.'
+      },
+      'keychain': {
+        name: 'Custom Keychain',
+        icon: '🔑',
+        price: '₹99',
+        description: 'Personalized 3D printed keychains with your name, initials, or custom text. Durable and lightweight for everyday use.',
+        specs: [
+          'Material: PLA / PETG',
+          'Max text length: 8 characters',
+          'Dimensions: Custom based on text',
+          'Weight: ~10-15g'
+        ],
+        colors: ['Any color available'],
+        whatsappMsg: 'Hi! I\'d like to order a Custom Keychain. Please provide more details.'
+      },
+      'controller-stand': {
+        name: 'Controller Stand',
+        icon: '🎮',
+        price: '₹249',
+        description: 'Display stand for gaming controllers. Compatible with PS5, Xbox Series X/S, Xbox One, Switch Pro, and most standard controllers.',
+        specs: [
+          'Material: PLA / PETG',
+          'Dimensions: 15cm x 10cm x 8cm',
+          'Universal fit design',
+          'Weight: ~80g'
+        ],
+        colors: ['Black', 'White', 'Red', 'Blue', 'Custom'],
+        whatsappMsg: 'Hi! I\'d like to order a Controller Stand. Please provide more details.'
+      },
+      'desk-organizer': {
+        name: 'Desk Organizer',
+        icon: '📦',
+        price: '₹399',
+        description: 'Multi-compartment organizer for pens, pencils, markers, phone, and small desk items. Modular pieces that can be rearranged.',
+        specs: [
+          'Material: PLA / PETG',
+          'Set includes: 4 modular pieces',
+          'Overall dimensions: 20cm x 12cm x 10cm',
+          'Weight: ~200g total'
+        ],
+        colors: ['White', 'Black', 'Wood-like', 'Custom'],
+        whatsappMsg: 'Hi! I\'d like to order a Desk Organizer set. Please provide more details.'
+      },
+      'lithophane': {
+        name: 'Custom Lithophane',
+        icon: '🖼️',
+        price: '₹349',
+        description: '3D printed photo that creates a stunning image when backlit. The perfect personalized gift for any occasion.',
+        specs: [
+          'Material: White PLA (recommended)',
+          'Upload: Your high-res photo',
+          'Sizes: 10cm / 15cm / 20cm',
+          'Includes LED base option'
+        ],
+        colors: ['White only (for best effect)'],
+        whatsappMsg: 'Hi! I\'d like to order a Custom Lithophane. Please provide more details.'
+      }
+    };
+    
+    // Modal functions
+    function openProductModal(productId) {
+      const product = productsData[productId];
+      if (!product) return;
+      
+      const modal = document.getElementById('productModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      
+      title.textContent = product.name;
+      
+      body.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+          <div style="font-size: 8rem; text-align: center; background: var(--color-bg-elevated); border-radius: var(--radius-lg); padding: var(--space-6);">
+            ${product.icon}
+          </div>
+          <div>
+            <p style="font-size: var(--font-h3); font-weight: var(--font-semibold); color: var(--color-accent); margin-bottom: var(--space-3);">${product.price}</p>
+            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">${product.description}</p>
+            
+            <h4 style="font-size: var(--font-small); font-weight: var(--font-semibold); margin-bottom: var(--space-2);">Specifications:</h4>
+            <ul style="list-style: none; margin-bottom: var(--space-4);">
+              ${product.specs.map(spec => `<li style="font-size: var(--font-small); color: var(--color-text-muted); padding: var(--space-1) 0;">• ${spec}</li>`).join('')}
+            </ul>
+            
+            <h4 style="font-size: var(--font-small); font-weight: var(--font-semibold); margin-bottom: var(--space-2);">Available Colors:</h4>
+            <p style="font-size: var(--font-small); color: var(--color-text-muted); margin-bottom: var(--space-4);">${product.colors.join(', ')}</p>
+            
+            <a href="https://wa.me/?text=${encodeURIComponent(product.whatsappMsg)}" target="_blank" class="mp-btn mp-btn--primary mp-btn--lg mp-w-full mp-text-center" style="text-decoration: none;">
+              <span>Order via WhatsApp</span>
+              <span>💬</span>
+            </a>
+          </div>
+        </div>
+      `;
+      
+      modal.classList.add('mp-modal--active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeProductModal() {
+      const modal = document.getElementById('productModal');
+      modal.classList.remove('mp-modal--active');
+      document.body.style.overflow = '';
+    }
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeProductModal();
+    });
+    
+    // Close modal on backdrop click
+    document.getElementById('productModal').addEventListener('click', (e) => {
+      if (e.target.id === 'productModal') closeProductModal();
+    });
+    
+    // Page animations
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.utils.toArray('[data-animate]').forEach(el => {
+          gsap.from(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 30,
+            duration: 0.6,
+            ease: 'power2.out'
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

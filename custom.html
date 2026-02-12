@@ -1,0 +1,809 @@
+<!--
+  ========================================
+  MagniPrints - Custom Upload Page
+  /root/.openclaw/workspace/magniprints/custom.html
+  WordPress Template: Custom Order (page-custom.php)
+  ========================================
+-->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Upload your STL files for custom 3D printing. Get instant quotes and order via WhatsApp.">
+  
+  <title>Custom Upload | MagniPrints</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdmirror.com/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+</head>
+<body>
+  <!-- Skip to content -->
+  <a href="#main-content" class="mp-visually-hidden">Skip to main content</a>
+  
+  <!-- ========================================
+       HEADER / NAVIGATION
+       ======================================== -->
+  <header class="mp-header" role="banner">
+    <div class="mp-container mp-header__container">
+      <a href="index.html" class="mp-logo" aria-label="MagniPrints Home">
+        <span class="mp-logo__icon">🖨️</span>
+        <span class="mp-logo__text">Magni<span class="mp-logo__text--bold">Prints</span></span>
+      </a>
+      
+      <nav class="mp-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="mp-nav__link">Home</a>
+        <a href="products.html" class="mp-nav__link">Products</a>
+        <a href="custom.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Custom Upload</a>
+        <a href="track.html" class="mp-nav__link">Track Order</a>
+      </nav>
+      
+      <div class="mp-header__actions">
+        <button class="mp-theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">
+          <span class="mp-theme-toggle__icon">☀️</span>
+        </button>
+        <button class="mp-menu-toggle" id="menuToggle" aria-expanded="false" aria-label="Toggle mobile menu">
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+          <span class="mp-menu-toggle__line"></span>
+        </button>
+      </div>
+    </div>
+    
+    <nav class="mp-nav mp-nav--mobile" id="mobileNav" aria-expanded="false" aria-label="Mobile navigation">
+      <a href="index.html" class="mp-nav__link">Home</a>
+      <a href="products.html" class="mp-nav__link">Products</a>
+      <a href="custom.html" class="mp-nav__link mp-nav__link--active" aria-current="page">Custom Upload</a>
+      <a href="track.html" class="mp-nav__link">Track Order</a>
+    </nav>
+  </header>
+  
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <main id="main-content" class="mp-section" style="padding-top: 120px;">
+    <div class="mp-container">
+      
+      <!-- Page Header -->
+      <header class="mp-featured__header" data-animate>
+        <p class="mp-featured__subtitle">Upload Your Design</p>
+        <h1 class="mp-heading mp-heading--1">Custom 3D Printing</h1>
+        <p class="mp-text mp-text--large">Upload your STL file, choose your materials, and get an instant quote. We'll handle the rest.</p>
+      </header>
+      
+      <!-- Upload Section -->
+      <div class="mp-card" data-animate>
+        <div class="mp-card__content">
+          <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--space-6);">
+            
+            <!-- Left: Upload & Preview -->
+            <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+              
+              <!-- Upload Zone -->
+              <div class="mp-upload" id="uploadZone" role="button" tabindex="0" aria-label="Upload STL file">
+                <input type="file" id="stlUpload" class="mp-upload__input" accept=".stl" aria-describedby="upload-help">
+                <span class="mp-upload__icon">⬆️</span>
+                <span class="mp-upload__text">Drop STL file here or click to browse</span>
+                <span class="mp-upload__subtext" id="upload-help">Maximum file size: 50MB • .stl format only</span>
+              </div>
+              
+              <!-- 3D Preview -->
+              <div class="mp-upload__preview" id="previewContainer" style="display: none;">
+                <canvas id="previewCanvas"></canvas>
+              </div>
+              
+              <!-- File Info -->
+              <div class="mp-upload__file-info" id="fileInfo" style="display: none;">
+                <span class="mp-upload__file-name" id="fileName"></span>
+                <span class="mp-upload__file-meta" id="fileMeta"></span>
+              </div>
+              
+              <!-- Error Message -->
+              <div class="mp-alert mp-alert--error" id="uploadError" style="display: none;" role="alert">
+                <span>⚠️</span>
+                <span id="errorText">Invalid file format. Please upload an STL file.</span>
+              </div>
+              
+            </div>
+            
+            <!-- Right: Options Panel -->
+            <div style="display: flex; flex-direction: column; gap: var(--space-5);">
+              
+              <!-- Filament Selector -->
+              <div class="mp-filament-selector">
+                <label class="mp-filament-selector__label">Material Type</label>
+                <div class="mp-material-tabs">
+                  <button type="button" class="mp-material-tab mp-material-tab--active" data-material="pla" aria-pressed="true">PLA — ₹3/g</button>
+                  <button type="button" class="mp-material-tab" data-material="petg" aria-pressed="false">PETG — ₹4/g</button>
+                  <button type="button" class="mp-material-tab" data-material="tpu" aria-pressed="false">TPU — ₹5/g</button>
+                </div>
+                <p class="mp-material-desc" id="materialDesc">Strong, matte finish. Best for prototypes and decorative items.</p>
+                
+                <label class="mp-filament-selector__label" style="margin-top: var(--space-3);">Color</label>
+                <div class="mp-color-grid" id="colorGrid">
+                  <!-- Colors injected by JS -->
+                </div>
+              </div>
+              
+              <!-- Print Settings -->
+              <div class="mp-settings">
+                <label class="mp-filament-selector__label">Print Settings</label>
+                
+                <div class="mp-setting-row">
+                  <span class="mp-setting-label">Layer Height</span>
+                  <div class="mp-setting-control">
+                    <select class="mp-select" id="layerHeight" aria-label="Select layer height">
+                      <option value="0.1">0.1mm (Ultra Fine)</option>
+                      <option value="0.2" selected>0.2mm (Standard)</option>
+                      <option value="0.3">0.3mm (Fast)</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="mp-setting-row" style="flex-direction: column; align-items: stretch; gap: var(--space-2);">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span class="mp-setting-label">Infill Density</span>
+                    <span style="font-size: var(--font-small); font-weight: var(--font-medium);" id="infillValue">20%</span>
+                  </div>
+                  <input type="range" class="mp-slider" id="infill" min="10" max="100" value="20" step="10" aria-label="Infill percentage">
+                  <div style="display: flex; justify-content: space-between; font-size: var(--font-xs); color: var(--color-text-muted);">
+                    <span>Light</span>
+                    <span>Standard</span>
+                    <span>Solid</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cost Estimator -->
+              <div class="mp-cost" id="costContainer">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);">
+                  <span class="mp-filament-selector__label" style="margin: 0;">Cost Estimate</span>
+                  <span class="mp-cost__live-indicator">Live</span>
+                </div>
+                
+                <div class="mp-cost__row">
+                  <span class="mp-cost__label">Material Usage</span>
+                  <span class="mp-cost__value" id="materialUsage">~50g</span>
+                </div>
+                <div class="mp-cost__row">
+                  <span class="mp-cost__label">Material Cost</span>
+                  <span class="mp-cost__value" id="materialCost">₹150</span>
+                </div>
+                <div class="mp-cost__row">
+                  <span class="mp-cost__label">Setup Fee</span>
+                  <span class="mp-cost__value">₹50</span>
+                </div>
+                <div class="mp-cost__divider"></div>
+                <div class="mp-cost__total">
+                  <span class="mp-cost__total-label">Estimated Total</span>
+                  <span class="mp-cost__total-value" id="totalCost">₹200</span>
+                </div>
+              </div>
+              
+              <!-- Order Button -->
+              <button type="button" class="mp-btn mp-btn--primary mp-btn--lg" id="orderBtn" disabled>
+                <span>Upload File to Continue</span>
+              </button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- How It Works -->
+      <section class="mp-section mp-section--compact" aria-labelledby="how-it-works">
+        <div class="mp-container" style="max-width: 900px;">
+          <h2 id="how-it-works" class="mp-heading mp-heading--2 mp-text-center mp-mb-4">How It Works</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); text-align: center;">
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">1️⃣</div>
+                <h3 class="mp-card__title" style="font-size: var(--font-body);">Upload</h3>
+                <p class="mp-card__description">Drag & drop your STL file</p>
+              </div>
+            </div>
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">2️⃣</div>
+                <h3 class="mp-card__title" style="font-size: var(--font-body);">Configure</h3>
+                <p class="mp-card__description">Choose material & settings</p>
+              </div>
+            </div>
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">3️⃣</div>
+                <h3 class="mp-card__title" style="font-size: var(--font-body);">Quote</h3>
+                <p class="mp-card__description">Get instant price estimate</p>
+              </div>
+            </div>
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">4️⃣</div>
+                <h3 class="mp-card__title" style="font-size: var(--font-body);">Print</h3>
+                <p class="mp-card__description">Order via WhatsApp</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Material Info -->
+      <section class="mp-section mp-section--compact" aria-labelledby="material-guide">
+        <div class="mp-container">
+          <h2 id="material-guide" class="mp-heading mp-heading--2 mp-text-center mp-mb-4">Material Guide</h2>
+          
+          <div class="mp-products-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">PLA</h3>
+                <p class="mp-text--accent" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-2);">₹3 per gram</p>
+                <p class="mp-card__description">Biodegradable, easy to print, great for prototypes and decorative items. Matte finish, rigid but brittle.</p>
+                <p class="mp-form-hint">Best for: Beginners, decorative prints, prototypes</p>
+              </div>
+            </div>
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">PETG</h3>
+                <p class="mp-text--accent" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-2);">₹4 per gram</p>
+                <p class="mp-card__description">Strong, durable, and chemical resistant. Slight flexibility, glossy finish. Food-safe options available.</p>
+                <p class="mp-form-hint">Best for: Functional parts, mechanical items, outdoor use</p>
+              </div>
+            </div>
+            <div class="mp-card" data-animate>
+              <div class="mp-card__content">
+                <h3 class="mp-card__title">TPU / Flexible</h3>
+                <p class="mp-text--accent" style="font-size: var(--font-small); font-weight: var(--font-medium); margin-bottom: var(--space-2);">₹5 per gram</p>
+                <p class="mp-card__description">Rubber-like flexible material. High impact resistance, elastic, and durable. Great for wearables and gaskets.</p>
+                <p class="mp-form-hint">Best for: Phone cases, gaskets, wearables, flexible parts</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+  </main>
+  
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+  <footer class="mp-footer" role="contentinfo">
+    <div class="mp-container mp-footer__container">
+      <div class="mp-footer__brand">
+        <div class="mp-footer__logo">MagniPrints</div>
+        <p class="mp-footer__tagline">Premium 3D printing services. Precision, quality, and creativity in every print.</p>
+        <div class="mp-footer__socials">
+          <a href="#" class="mp-footer__social" aria-label="Instagram">📷</a>
+          <a href="#" class="mp-footer__social" aria-label="Twitter">🐦</a>
+          <a href="#" class="mp-footer__social" aria-label="WhatsApp">💬</a>
+        </div>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Quick Links</h4>
+        <a href="index.html" class="mp-footer__link">Home</a>
+        <a href="products.html" class="mp-footer__link">Products</a>
+        <a href="custom.html" class="mp-footer__link">Custom Upload</a>
+        <a href="track.html" class="mp-footer__link">Track Order</a>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Materials</h4>
+        <span class="mp-footer__link">PLA</span>
+        <span class="mp-footer__link">PETG</span>
+        <span class="mp-footer__link">TPU / Flexible</span>
+        <span class="mp-footer__link">ABS</span>
+      </div>
+      <div class="mp-footer__links">
+        <h4 class="mp-footer__title">Support</h4>
+        <a href="#" class="mp-footer__link">FAQ</a>
+        <a href="#" class="mp-footer__link">Contact Us</a>
+        <a href="#" class="mp-footer__link">Shipping Info</a>
+        <a href="#" class="mp-footer__link">Terms of Service</a>
+      </div>
+    </div>
+    <div class="mp-container mp-footer__bottom">
+      <p class="mp-footer__copyright">© 2024 MagniPrints. All rights reserved. Made with precision in India.</p>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+  <script>
+    // ========================================
+    // MATERIAL CONFIGURATION
+    // ========================================
+    const materialConfig = {
+      pla: {
+        name: 'PLA',
+        price: 3,
+        desc: 'Strong, matte finish. Best for prototypes and decorative items.',
+        colors: [
+          { name: 'White', hex: '#ffffff' },
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'Gray', hex: '#6b7280' },
+          { name: 'Red', hex: '#dc2626' },
+          { name: 'Blue', hex: '#2563eb' },
+          { name: 'Green', hex: '#16a34a' },
+          { name: 'Yellow', hex: '#eab308' },
+          { name: 'Orange', hex: '#ea580c' }
+        ]
+      },
+      petg: {
+        name: 'PETG',
+        price: 4,
+        desc: 'Durable, glossy finish. Chemical and impact resistant.',
+        colors: [
+          { name: 'Clear', hex: 'transparent' },
+          { name: 'White', hex: '#ffffff' },
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'Blue', hex: '#2563eb' },
+          { name: 'Green', hex: '#16a34a' },
+          { name: 'Orange', hex: '#ea580c' }
+        ]
+      },
+      tpu: {
+        name: 'TPU',
+        price: 5,
+        desc: 'Flexible, rubber-like material. Great for functional parts.',
+        colors: [
+          { name: 'Black', hex: '#1a1a1a' },
+          { name: 'White', hex: '#ffffff' },
+          { name: 'Red', hex: '#dc2626' },
+          { name: 'Blue', hex: '#2563eb' },
+          { name: 'Yellow', hex: '#eab308' },
+          { name: 'Green', hex: '#16a34a' }
+        ]
+      }
+    };
+    
+    // State
+    let currentMaterial = 'pla';
+    let currentColor = '#ffffff';
+    let estimatedGrams = 50; // Default estimate
+    let fileUploaded = false;
+    
+    // ========================================
+    // THREE.JS PREVIEW VIEWER
+    // ========================================
+    let stlScene, stlCamera, stlRenderer, stlMesh, stlControls, stlMaterial;
+    let currentFile = null;
+    
+    function initSTLPreview(geometry) {
+      const container = document.getElementById('previewContainer');
+      const canvas = document.getElementById('previewCanvas');
+      
+      // Clean up existing
+      if (stlRenderer) {
+        stlRenderer.dispose();
+      }
+      
+      stlScene = new THREE.Scene();
+      stlCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      stlCamera.position.set(0, 0, 30);
+      
+      stlRenderer = new THREE.WebGLRenderer({ 
+        canvas, 
+        antialias: true, 
+        alpha: true 
+      });
+      stlRenderer.setSize(container.clientWidth, container.clientHeight);
+      stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      // Center geometry
+      geometry.computeBoundingBox();
+      const center = new THREE.Vector3();
+      geometry.boundingBox.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+      
+      // Scale to fit
+      const size = new THREE.Vector3();
+      geometry.boundingBox.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 15 / maxDim;
+      geometry.scale(scale, scale, scale);
+      
+      // Create material
+      stlMaterial = new THREE.MeshStandardMaterial({
+        color: currentColor === 'transparent' ? 0xffffff : new THREE.Color(currentColor),
+        metalness: 0.1,
+        roughness: 0.4,
+        transparent: currentColor === 'transparent',
+        opacity: currentColor === 'transparent' ? 0.3 : 1,
+        side: THREE.DoubleSide
+      });
+      
+      stlMesh = new THREE.Mesh(geometry, stlMaterial);
+      stlScene.add(stlMesh);
+      
+      // Wireframe overlay
+      const wireframe = new THREE.WireframeGeometry(geometry);
+      const wireframeMaterial = new THREE.LineBasicMaterial({ 
+        color: document.documentElement.getAttribute('data-theme') === 'dark' ? 0x444444 : 0xcccccc,
+        transparent: true,
+        opacity: 0.3
+      });
+      const wireframeMesh = new THREE.LineSegments(wireframe, wireframeMaterial);
+      stlMesh.add(wireframeMesh);
+      
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      stlScene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(10, 10, 10);
+      stlScene.add(directionalLight);
+      
+      const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+      directionalLight2.position.set(-10, -10, -10);
+      stlScene.add(directionalLight2);
+      
+      // Controls
+      stlControls = new THREE.OrbitControls(stlCamera, stlRenderer.domElement);
+      stlControls.enableDamping = true;
+      stlControls.dampingFactor = 0.05;
+      stlControls.autoRotate = true;
+      stlControls.autoRotateSpeed = 2;
+      
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        if (stlControls) {
+          stlControls.update();
+          stlRenderer.render(stlScene, stlCamera);
+        }
+      }
+      animate();
+      
+      // Handle resize
+      window.addEventListener('resize', () => {
+        if (stlRenderer && stlCamera && container) {
+          stlCamera.aspect = container.clientWidth / container.clientHeight;
+          stlCamera.updateProjectionMatrix();
+          stlRenderer.setSize(container.clientWidth, container.clientHeight);
+        }
+      });
+    }
+    
+    // Calculate mesh volume
+    function calculateVolume(geometry) {
+      let volume = 0;
+      const positions = geometry.attributes.position.array;
+      
+      for (let i = 0; i < positions.length; i += 9) {
+        const x1 = positions[i], y1 = positions[i+1], z1 = positions[i+2];
+        const x2 = positions[i+3], y2 = positions[i+4], z2 = positions[i+5];
+        const x3 = positions[i+6], y3 = positions[i+7], z3 = positions[i+8];
+        
+        volume += (x1 * (y2 * z3 - y3 * z2) + 
+                   x2 * (y3 * z1 - y1 * z3) + 
+                   x3 * (y1 * z2 - y2 * z1)) / 6;
+      }
+      
+      return Math.abs(volume) / 1000; // Convert to cm³
+    }
+    
+    // ========================================
+    // FILE UPLOAD HANDLERS
+    // ========================================
+    const uploadZone = document.getElementById('uploadZone');
+    const stlUpload = document.getElementById('stlUpload');
+    const previewContainer = document.getElementById('previewContainer');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileMeta = document.getElementById('fileMeta');
+    const uploadError = document.getElementById('uploadError');
+    const errorText = document.getElementById('errorText');
+    const orderBtn = document.getElementById('orderBtn');
+    
+    // Drag and drop
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('mp-upload--dragging');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('mp-upload--dragging');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('mp-upload--dragging');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) handleFile(files[0]);
+    });
+    
+    stlUpload.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+    
+    // Click to upload
+    uploadZone.addEventListener('click', () => stlUpload.click());
+    uploadZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        stlUpload.click();
+      }
+    });
+    
+    function handleFile(file) {
+      // Reset error
+      uploadError.style.display = 'none';
+      uploadZone.classList.remove('mp-upload--error');
+      
+      // Validate
+      if (!file.name.toLowerCase().endsWith('.stl')) {
+        showError('Invalid file format. Please upload an STL file.');
+        return;
+      }
+      
+      if (file.size > 50 * 1024 * 1024) {
+        showError('File too large. Maximum size is 50MB.');
+        return;
+      }
+      
+      currentFile = file;
+      fileName.textContent = file.name;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const loader = new THREE.STLLoader();
+          const geometry = loader.parse(e.target.result);
+          
+          // Calculate volume
+          const volume = calculateVolume(geometry);
+          const density = 1.25; // PLA density g/cm³
+          estimatedGrams = Math.ceil(volume * density);
+          
+          fileMeta.textContent = `~${estimatedGrams}g • ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+          
+          // Show preview
+          uploadZone.style.display = 'none';
+          previewContainer.style.display = 'block';
+          fileInfo.style.display = 'flex';
+          
+          initSTLPreview(geometry);
+          fileUploaded = true;
+          updateOrderButton();
+          updateCost();
+          
+        } catch (err) {
+          console.error('Error parsing STL:', err);
+          showError('Error loading STL file. Please check the file is valid.');
+          resetUpload();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+    
+    function showError(message) {
+      errorText.textContent = message;
+      uploadError.style.display = 'flex';
+      uploadZone.classList.add('mp-upload--error');
+    }
+    
+    function resetUpload() {
+      currentFile = null;
+      estimatedGrams = 50;
+      fileUploaded = false;
+      stlUpload.value = '';
+      
+      uploadZone.style.display = 'flex';
+      previewContainer.style.display = 'none';
+      previewContainer.innerHTML = '<canvas id="previewCanvas"></canvas>';
+      fileInfo.style.display = 'none';
+      
+      if (stlRenderer) {
+        stlRenderer.dispose();
+        stlScene = null;
+        stlCamera = null;
+        stlRenderer = null;
+        stlMesh = null;
+        stlControls = null;
+      }
+      
+      updateOrderButton();
+      updateCost();
+    }
+    
+    // ========================================
+    // MATERIAL & COLOR SELECTORS
+    // ========================================
+    const materialTabs = document.querySelectorAll('.mp-material-tab');
+    const colorGrid = document.getElementById('colorGrid');
+    const materialDesc = document.getElementById('materialDesc');
+    
+    function renderColors() {
+      const colors = materialConfig[currentMaterial].colors;
+      currentColor = colors[0].hex;
+      
+      colorGrid.innerHTML = colors.map((color, i) => `
+        <div class="mp-color-option ${i === 0 ? 'mp-color-option--active' : ''}" 
+             data-color="${color.hex}"
+             data-name="${color.name}"
+             style="background: ${color.hex === 'transparent' 
+               ? 'linear-gradient(45deg, #888 25%, transparent 25%, transparent 75%, #888 75%, #888), linear-gradient(45deg, #888 25%, transparent 25%, transparent 75%, #888 75%, #888); background-size: 10px 10px; background-position: 0 0, 5px 5px' 
+               : color.hex};"
+             title="${color.name}"
+             role="button"
+             tabindex="0"
+             aria-label="Select ${color.name} color">
+        </div>
+      `).join('');
+      
+      // Add click handlers
+      colorGrid.querySelectorAll('.mp-color-option').forEach(opt => {
+        const handleSelect = () => {
+          colorGrid.querySelectorAll('.mp-color-option').forEach(o => o.classList.remove('mp-color-option--active'));
+          opt.classList.add('mp-color-option--active');
+          currentColor = opt.dataset.color;
+          updateModelColor();
+          updateCost();
+        };
+        
+        opt.addEventListener('click', handleSelect);
+        opt.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelect();
+          }
+        });
+      });
+      
+      updateModelColor();
+      materialDesc.textContent = materialConfig[currentMaterial].desc;
+    }
+    
+    // Material tab click handlers
+    materialTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        materialTabs.forEach(t => {
+          t.classList.remove('mp-material-tab--active');
+          t.setAttribute('aria-pressed', 'false');
+        });
+        tab.classList.add('mp-material-tab--active');
+        tab.setAttribute('aria-pressed', 'true');
+        
+        currentMaterial = tab.dataset.material;
+        renderColors();
+        updateCost();
+      });
+    });
+    
+    function updateModelColor() {
+      if (stlMaterial) {
+        stlMaterial.color.set(currentColor === 'transparent' ? 0xffffff : currentColor);
+        stlMaterial.transparent = currentColor === 'transparent';
+        stlMaterial.opacity = currentColor === 'transparent' ? 0.3 : 1;
+      }
+    }
+    
+    // ========================================
+    // PRINT SETTINGS
+    // ========================================
+    const layerHeight = document.getElementById('layerHeight');
+    const infill = document.getElementById('infill');
+    const infillValue = document.getElementById('infillValue');
+    
+    infill.addEventListener('input', (e) => {
+      infillValue.textContent = e.target.value + '%';
+      updateCost();
+    });
+    
+    layerHeight.addEventListener('change', updateCost);
+    
+    // ========================================
+    // COST CALCULATOR
+    // ========================================
+    const materialUsageEl = document.getElementById('materialUsage');
+    const materialCostEl = document.getElementById('materialCost');
+    const totalCostEl = document.getElementById('totalCost');
+    
+    function calculateCost() {
+      const pricePerGram = materialConfig[currentMaterial].price;
+      const infillPercent = parseInt(infill.value) / 100;
+      
+      // Shell is always 100%, infill varies
+      const shellWeight = estimatedGrams * 0.3;
+      const infillWeight = estimatedGrams * 0.7 * infillPercent;
+      const adjustedGrams = Math.ceil(shellWeight + infillWeight);
+      
+      const materialCost = adjustedGrams * pricePerGram;
+      const setupCost = 50;
+      const total = materialCost + setupCost;
+      
+      return { 
+        adjustedGrams, 
+        materialCost, 
+        setupCost, 
+        total,
+        pricePerGram
+      };
+    }
+    
+    function updateCost() {
+      const cost = calculateCost();
+      
+      materialUsageEl.textContent = `~${cost.adjustedGrams}g`;
+      materialCostEl.textContent = `₹${cost.materialCost}`;
+      totalCostEl.textContent = `₹${cost.total}`;
+    }
+    
+    function updateOrderButton() {
+      if (fileUploaded && currentFile) {
+        orderBtn.disabled = false;
+        orderBtn.innerHTML = '<span>Order via WhatsApp</span><span>💬</span>';
+        orderBtn.onclick = openWhatsApp;
+      } else {
+        orderBtn.disabled = true;
+        orderBtn.innerHTML = '<span>Upload File to Continue</span>';
+        orderBtn.onclick = null;
+      }
+    }
+    
+    // ========================================
+    // WHATSAPP ORDER
+    // ========================================
+    function openWhatsApp() {
+      const cost = calculateCost();
+      const colorName = materialConfig[currentMaterial].colors.find(c => c.hex === currentColor)?.name || 'Unknown';
+      
+      const message = `Hi MagniPrints! I'd like to order a custom 3D print:
+
+📁 File: ${currentFile.name}
+🔧 Material: ${materialConfig[currentMaterial].name} (${colorName})
+⚖️ Estimated Weight: ~${cost.adjustedGrams}g
+📏 Layer Height: ${layerHeight.value}mm
+🧱 Infill: ${infill.value}%
+
+💰 Cost Breakdown:
+• Material: ₹${cost.materialCost} (${cost.adjustedGrams}g × ₹${cost.pricePerGram}/g)
+• Setup Fee: ₹${cost.setupCost}
+• Total: ₹${cost.total}
+
+Please confirm the order details and let me know the next steps. Thank you!`;
+      
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+    }
+    
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderColors();
+      updateCost();
+      updateOrderButton();
+      
+      // Page animations
+      if (typeof gsap !== 'undefined') {
+        gsap.utils.toArray('[data-animate]').forEach(el => {
+          gsap.from(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 30,
+            duration: 0.6,
+            ease: 'power2.out'
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
