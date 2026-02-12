@@ -1,795 +1,1311 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MAGNIPRINTS | Premium 3D Printing</title>
-  <meta name="description" content="Premium 3D printing services - custom products, designs, and precision manufacturing.">
+  <title>マグニプリンツ | MagniPrints</title>
+  <meta name="description" content="Premium 3D printing services - precision meets creativity.">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Noto+Sans+JP:wght@100;200;300;400;500;700&display=swap" rel="stylesheet">
   
   <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   
   <style>
-    /* Hero Section */
-    .hero {
+    :root {
+      --bg: #050505;
+      --bg-rgb: 5, 5, 5;
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.3);
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] {
+      --bg: #fafafa;
+      --bg-rgb: 250, 250, 250;
+      --text: #000000;
+      --text-secondary: rgba(0, 0, 0, 0.6);
+      --text-muted: rgba(0, 0, 0, 0.3);
+      --border: rgba(0, 0, 0, 0.1);
+    }
+    
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-behavior: auto;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+    
+    /* Lenis smooth scroll */
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    
+    .lenis.lenis-scrolling iframe {
+      pointer-events: none;
+    }
+    
+    /* Split Letter Navigation */
+    .split-nav {
+      position: fixed;
+      left: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+    
+    .split-nav span {
+      font-size: 0.7rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transition: color 0.3s ease, opacity 0.3s ease;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    
+    .split-nav span:hover {
+      color: var(--text);
+    }
+    
+    .split-nav span.active {
+      color: var(--text);
+      font-weight: 400;
+    }
+    
+    /* Section Numbers */
+    .section-num {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .section-num a {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      transition: color 0.3s ease;
+    }
+    
+    .section-num a.active {
+      color: var(--text);
+    }
+    
+    .section-num .num {
+      font-size: 0.9rem;
+      font-weight: 200;
+      min-width: 1.5rem;
+    }
+    
+    .section-num a.active .num {
+      font-weight: 400;
+    }
+    
+    .section-num .label {
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: all 0.3s ease;
+    }
+    
+    .section-num a:hover .label,
+    .section-num a.active .label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      z-index: 100;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+      opacity: 0.7;
+    }
+    
+    .theme-toggle:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    /* Navigation Buttons */
+    .nav-btn {
+      position: fixed;
+      bottom: 2rem;
+      z-index: 100;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .nav-btn:hover {
+      border-color: var(--text);
+      color: var(--text);
+    }
+    
+    .nav-btn.skip {
+      left: 2rem;
+    }
+    
+    .nav-btn.next {
+      right: 2rem;
+    }
+    
+    .nav-btn.top {
+      left: 50%;
+      transform: translateX(-50%);
+      border: none;
+      opacity: 0.5;
+    }
+    
+    /* Sections */
+    .section {
       position: relative;
+      width: 100%;
       height: 100vh;
-      min-height: 700px;
+      min-height: 600px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
     
-    #hero-canvas {
+    .section-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    /* WebGL Canvas */
+    .webgl-bg {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
+      z-index: 1;
+      opacity: 0.6;
     }
     
-    .hero-content {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      max-width: 800px;
-      padding: 0 2rem;
-    }
-    
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
+    /* Hero */
+    .hero .jp-title {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 100;
+      letter-spacing: 0.3em;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
       margin-bottom: 2rem;
+      opacity: 0;
+    }
+    
+    .hero .en-title {
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      opacity: 0;
+      margin-top: 2rem;
     }
     
-    .hero-badge span {
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse-glow 2s infinite;
-    }
-    
-    .hero h1 {
-      font-size: clamp(2.5rem, 8vw, 5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-      letter-spacing: -0.02em;
-    }
-    
-    .hero h1 .jp-text {
-      display: block;
-      font-size: 1.2em;
-      opacity: 0.9;
-      letter-spacing: 0.1em;
-      margin-top: 0.5rem;
-    }
-    
-    .hero p {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .hero-buttons {
-      display: flex;
+    /* Products Section */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
       gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
+      max-width: 90vw;
+      perspective: 1000px;
     }
     
-    .jp-text-hero {
+    .product-cell {
+      width: clamp(80px, 10vw, 120px);
+      height: clamp(120px, 16vw, 180px);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .product-cell:hover {
+      transform: translateZ(30px) scale(1.1);
+      border-color: var(--text);
+      z-index: 10;
+    }
+    
+    .product-cell .icon {
+      font-size: 2rem;
+      transition: transform 0.5s ease;
+      filter: grayscale(100%);
+    }
+    
+    .product-cell:hover .icon {
+      transform: scale(1.2);
+      filter: grayscale(0%);
+    }
+    
+    .product-cell .name {
       position: absolute;
-      font-size: clamp(6rem, 20vw, 18rem);
-      opacity: 0.06;
+      bottom: 0.5rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .product-cell:hover .name {
+      opacity: 1;
+    }
+    
+    .section-label {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      opacity: 0;
+    }
+    
+    /* Custom Section */
+    .upload-zone {
+      width: clamp(280px, 40vw, 500px);
+      height: clamp(200px, 30vh, 350px);
+      border: 1px dashed var(--border);
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      transition: all 0.4s ease;
+      cursor: pointer;
+      position: relative;
+      opacity: 0;
+    }
+    
+    .upload-zone:hover,
+    .upload-zone.dragging {
+      border-color: var(--text);
+      background: rgba(var(--bg-rgb), 0.5);
+    }
+    
+    .upload-zone .icon {
+      font-size: 3rem;
+      opacity: 0.5;
+      transition: transform 0.3s ease;
+    }
+    
+    .upload-zone:hover .icon {
+      transform: translateY(-5px);
+    }
+    
+    .upload-text {
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+    }
+    
+    .upload-sub {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    
+    /* Track Section */
+    .track-input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      opacity: 0;
+    }
+    
+    .track-input {
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.5rem;
+      font-weight: 200;
+      letter-spacing: 0.2em;
+      text-align: center;
+      padding: 1rem;
+      width: clamp(250px, 40vw, 400px);
+      outline: none;
+      transition: border-color 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .track-input:focus {
+      border-color: var(--text);
+    }
+    
+    .track-input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .track-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 1rem 3rem;
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .track-btn:hover {
+      border-color: var(--text);
+      color: var(--text);
+    }
+    
+    /* Track Result */
+    .track-result {
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 1;
-      user-select: none;
-    }
-    
-    /* Features Section */
-    .features {
-      padding: 8rem 2rem;
-      position: relative;
-    }
-    
-    .section-container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    
-    .section-header {
       text-align: center;
-      margin-bottom: 4rem;
-      position: relative;
-    }
-    
-    .section-header h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-    
-    .section-header p {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-    }
-    
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-    
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 2.5rem;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-      transform: scaleX(0);
-      transition: transform 0.4s ease;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--accent);
-      box-shadow: 0 30px 60px var(--shadow-color);
-    }
-    
-    .feature-card:hover::before {
-      transform: scaleX(1);
-    }
-    
-    .feature-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 10px 30px var(--accent-glow);
-    }
-    
-    .feature-card h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-    }
-    
-    .feature-card p {
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    
-    /* Products Preview Section */
-    .products-preview {
-      padding: 8rem 2rem;
-      background: var(--bg-secondary);
-      position: relative;
-    }
-    
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-    
-    .product-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      cursor: pointer;
-      text-decoration: none;
-      display: block;
-    }
-    
-    .product-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--accent);
-      box-shadow: 0 25px 50px var(--shadow-color);
-    }
-    
-    .product-image {
-      aspect-ratio: 4/3;
-      background: var(--bg-tertiary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .product-image::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent, rgba(102, 126, 234, 0.1));
-    }
-    
-    .product-info {
-      padding: 1.5rem;
-    }
-    
-    .product-info h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      color: var(--text-primary);
-    }
-    
-    .product-price {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    
-    .view-all {
-      text-align: center;
-      margin-top: 3rem;
-    }
-    
-    /* CTA Section */
-    .cta {
-      padding: 8rem 2rem;
-      position: relative;
-      text-align: center;
-    }
-    
-    .cta-content {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 4rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .cta-content::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at center, var(--accent-glow), transparent 70%);
-      animation: spin-slow 20s linear infinite;
-      pointer-events: none;
-    }
-    
-    .cta h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 800;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-    
-    .cta p {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      margin-bottom: 2rem;
-      position: relative;
-      z-index: 1;
-    }
-    
-    /* Footer */
-    footer {
-      padding: 4rem 2rem;
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border);
-    }
-    
-    .footer-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 3rem;
-    }
-    
-    .footer-brand h3 {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-    }
-    
-    .footer-brand p {
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    
-    .footer-links h4 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 1rem;
-      color: var(--text-muted);
-    }
-    
-    .footer-links ul {
-      list-style: none;
-    }
-    
-    .footer-links li {
-      margin-bottom: 0.5rem;
-    }
-    
-    .footer-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    
-    .footer-links a:hover {
-      color: var(--accent);
-    }
-    
-    .footer-bottom {
-      max-width: 1400px;
-      margin: 3rem auto 0;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-    
-    /* Scroll reveal animation classes */
-    .reveal {
       opacity: 0;
-      transform: translateY(30px);
+      pointer-events: none;
+      transition: all 0.5s ease;
     }
     
+    .track-result.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .track-status {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 100;
+      margin-bottom: 1rem;
+    }
+    
+    .track-details {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.1em;
+    }
+    
+    /* Preview canvas */
+    .preview-canvas {
+      position: absolute;
+      top: 50%;
+      right: 10%;
+      transform: translateY(-50%);
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+      opacity: 0;
+    }
+    
+    /* Responsive */
     @media (max-width: 768px) {
-      .hero h1 .jp-text {
-        font-size: 0.8em;
+      .split-nav {
+        left: 1rem;
+        top: auto;
+        bottom: 6rem;
+        transform: none;
+        flex-direction: row;
+        gap: 0.5rem;
       }
       
-      .hero-buttons {
-        flex-direction: column;
-        align-items: center;
+      .split-nav span {
+        writing-mode: horizontal-tb;
+        font-size: 0.65rem;
       }
       
-      .btn {
-        width: 100%;
-        max-width: 280px;
+      .section-num {
+        display: none;
       }
       
-      .cta-content {
-        padding: 2rem;
+      .nav-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.65rem;
       }
+      
+      .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 0.5rem;
+      }
+      
+      .product-cell:nth-child(7) {
+        grid-column: 2;
+      }
+      
+      .product-cell {
+        width: auto;
+        height: 100px;
+      }
+      
+      .theme-toggle {
+        top: 1rem;
+        right: 1rem;
+      }
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+    
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Canvas visibility */
+    canvas.webgl-bg {
+      display: block !important;
+      visibility: visible !important;
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav-container">
-    <a href="index.html" class="logo">
-      <span>◉</span> MAGNIPRINTS
-    </a>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="products/index.html">Products</a></li>
-      <li><a href="custom/index.html">Custom</a></li>
-      <li><a href="track/index.html">Track</a></li>
-    </ul>
+  <!-- Split Letter Navigation -->
+  <nav class="split-nav">
+    <span onclick="scrollToSection(0)" class="nav-letter">M</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">a</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">g</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">n</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">i</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">P</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">r</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">i</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">n</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">t</span>
+    <span onclick="scrollToSection(0)" class="nav-letter">s</span>
   </nav>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="jp-text-hero jp-text">マグニプリンツ</div>
-    
-    <div class="hero-content">
-      <div class="hero-badge"><span></span> Now Accepting Orders</div>
-      <h1>
-        Precision 3D Printing
-        <span class="jp-text">マグニプリンツ</span>
-      </h1>
-      <p>Transform your ideas into reality. Premium desktop FDM printing with meticulous attention to detail, quality, and craftsmanship.</p>
-      <div class="hero-buttons">
-        <a href="products/index.html" class="btn btn-primary">Browse Products</a>
-        <a href="custom/index.html" class="btn btn-secondary">Custom Print</a>
-      </div>
-    </div>
-    
-    <!-- Scroll indicator -->
-    <div style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; opacity: 0.5; animation: float 3s ease-in-out infinite;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
-      </svg>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="features">
-    <span class="jp-text-section jp-text">特徴</span>
-    <div class="section-container">
-      <div class="section-header reveal">
-        <h2>Why Choose <span class="text-gradient">MagniPrints</span>?</h2>
-        <p>Premium 3D printing services tailored for quality enthusiasts</p>
-      </div>
-      
-      <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon">📐</div>
-          <h3>Precision Crafted</h3>
-          <p>0.1mm layer height resolution ensures every detail is captured with exceptional accuracy and smooth surface finish.</p>
-        </div>
-        
-        <div class="feature-card reveal">
-          <div class="feature-icon">⚡</div>
-          <h3>Lightning Fast</h3>
-          <p>Fast turnaround times with optimized print settings. Most orders complete within 24-48 hours of confirmation.</p>
-        </div>
-        
-        <div class="feature-card reveal">
-          <div class="feature-icon">✨</div>
-          <h3>Premium Materials</h3>
-          <p>Choose from high-quality PLA, durable PETG, or flexible TPU. Each print is post-processed for perfect finish.</p>
-        </div>
-      </div>
+  
+  <!-- Section Numbers -->
+  <div class="section-num">
+    <a href="#section-0" class="num-link active" data-section="0">
+      <span class="num">00</span>
+      <span class="label">Top</span>
+    </a>
+    <a href="#section-1" class="num-link" data-section="1">
+      <span class="num">01</span>
+      <span class="label">Products</span>
+    </a>
+    <a href="#section-2" class="num-link" data-section="2">
+      <span class="num">02</span>
+      <span class="label">Custom</span>
+    </a>
+    <a href="#section-3" class="num-link" data-section="3">
+      <span class="num">03</span>
+      <span class="label">Track</span>
+    </a>
+  </div>
+  
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <span class="theme-icon">☀️</span>
+  </button>
+  
+  <!-- Navigation Buttons -->
+  <button class="nav-btn skip" id="skipBtn">Skip</button>
+  <button class="nav-btn next" id="nextBtn">Next</button>
+  
+  <!-- Section 0: Hero -->
+  <section class="section hero" id="section-0" data-section="0">
+    <canvas class="webgl-bg" id="canvas-hero"></canvas>
+    <div class="section-content">
+      <h1 class="jp-title">マグニプリンツ</h1>
+      <p class="en-title">MagniPrints</p>
     </div>
   </section>
-
-  <!-- Products Preview -->
-  <section class="products-preview">
-    <span class="jp-text-section jp-text">製品</span>
-    <div class="section-container">
-      <div class="section-header reveal">
-        <h2>Featured <span class="text-gradient">Products</span></h2>
-        <p>Functional designs, ready to print</p>
-      </div>
-      
+  
+  <!-- Section 1: Products -->
+  <section class="section" id="section-1" data-section="1">
+    <canvas class="webgl-bg" id="canvas-products"></canvas>
+    <span class="section-label">01 / Products</span>
+    <div class="section-content">
       <div class="products-grid">
-        <a href="products/index.html?product=phone-stand" class="product-card reveal">
-          <div class="product-image">📱</div>
-          <div class="product-info">
-            <h3>Phone Stand</h3>
-            <div class="product-price">₹250</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=succulent-planter" class="product-card reveal">
-          <div class="product-image">🪴</div>
-          <div class="product-info">
-            <h3>Succulent Planter</h3>
-            <div class="product-price">₹350</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=cable-organizer" class="product-card reveal">
-          <div class="product-image">🔌</div>
-          <div class="product-info">
-            <h3>Cable Organizer</h3>
-            <div class="product-price">₹180</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=keychain" class="product-card reveal">
-          <div class="product-image">🔑</div>
-          <div class="product-info">
-            <h3>Keychain</h3>
-            <div class="product-price">₹120</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=controller-stand" class="product-card reveal">
-          <div class="product-image">🎮</div>
-          <div class="product-info">
-            <h3>Controller Stand</h3>
-            <div class="product-price">₹450</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=desk-organizer" class="product-card reveal">
-          <div class="product-image">📦</div>
-          <div class="product-info">
-            <h3>Desk Organizer</h3>
-            <div class="product-price">₹550</div>
-          </div>
-        </a>
-        
-        <a href="products/index.html?product=lithophane-frame" class="product-card reveal">
-          <div class="product-image">🖼️</div>
-          <div class="product-info">
-            <h3>Lithophane Frame</h3>
-            <div class="product-price">₹800</div>
-          </div>
-        </a>
-      </div>
-      
-      <div class="view-all reveal">
-        <a href="products/index.html" class="btn btn-primary">View All Products</a>
+        <div class="product-cell" data-product="phone-stand">
+          <span class="icon">📱</span>
+          <span class="name">Phone Stand</span>
+        </div>
+        <div class="product-cell" data-product="planter">
+          <span class="icon">🪴</span>
+          <span class="name">Planter</span>
+        </div>
+        <div class="product-cell" data-product="cable">
+          <span class="icon">🔌</span>
+          <span class="name">Cable Organizer</span>
+        </div>
+        <div class="product-cell" data-product="keychain">
+          <span class="icon">🔑</span>
+          <span class="name">Keychain</span>
+        </div>
+        <div class="product-cell" data-product="controller">
+          <span class="icon">🎮</span>
+          <span class="name">Controller Stand</span>
+        </div>
+        <div class="product-cell" data-product="desk">
+          <span class="icon">📦</span>
+          <span class="name">Desk Organizer</span>
+        </div>
+        <div class="product-cell" data-product="lithophane">
+          <span class="icon">🖼️</span>
+          <span class="name">Lithophane</span>
+        </div>
       </div>
     </div>
   </section>
-
-  <!-- CTA Section -->
-  <section class="cta">
-    <div class="section-container">
-      <div class="cta-content reveal">
-        <h2>Ready to Create?</h2>
-        <p>Have your own design? Upload your STL file and get an instant quote. We print with precision and deliver with care.</p>
-        <a href="custom/index.html" class="btn btn-primary">Upload Your Design</a>
+  
+  <!-- Section 2: Custom -->
+  <section class="section" id="section-2" data-section="2">
+    <canvas class="webgl-bg" id="canvas-custom"></canvas>
+    <span class="section-label">02 / Custom</span>
+    <div class="section-content">
+      <div class="upload-zone" id="uploadZone">
+        <span class="icon">⬆️</span>
+        <span class="upload-text">Drop STL file here</span>
+        <span class="upload-sub">or click to browse</span>
+        <input type="file" id="fileInput" accept=".stl" style="display: none;">
+      </div>
+    </div>
+    <canvas class="preview-canvas" id="preview-canvas"></canvas>
+  </section>
+  
+  <!-- Section 3: Track -->
+  <section class="section" id="section-3" data-section="3">
+    <canvas class="webgl-bg" id="canvas-track"></canvas>
+    <span class="section-label">03 / Track</span>
+    <div class="section-content">
+      <div class="track-input-container" id="trackInput">
+        <input type="text" class="track-input" id="orderInput" placeholder="ORDER ID" maxlength="10">
+        <button class="track-btn" id="trackBtn">Track</button>
+      </div>
+      <div class="track-result" id="trackResult">
+        <div class="track-status" id="statusText">処理中</div>
+        <div class="track-details" id="trackDetails">Processing</div>
       </div>
     </div>
   </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <div class="footer-brand">
-        <h3>◉ MAGNIPRINTS</h3>
-        <p>Premium 3D printing services. Precision, quality, and innovation in every print.</p>
-      </div>
-      
-      <div class="footer-links">
-        <h4>Shop</h4>
-        <ul>
-          <li><a href="products/index.html">Products</a></li>
-          <li><a href="custom/index.html">Custom Print</a></li>
-          <li><a href="track/index.html">Track Order</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-links">
-        <h4>Support</h4>
-        <ul>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Printing Guide</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2026 MagniPrints. All rights reserved. マグニプリンツ</p>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="js/theme.js"></script>
   
   <script>
     // ========================================
-    // HERO WEBGL PARTICLE SPHERE
+    // LENIS SMOOTH SCROLL
     // ========================================
-    const canvas = document.getElementById('hero-canvas');
-    const renderer = new THREE.WebGLRenderer({ 
-      canvas, 
-      antialias: true,
-      alpha: true 
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      smoothTouch: false,
+      touchMultiplier: 2
     });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 30;
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
     
-    // Particle sphere
-    const particleCount = 1500;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
+    // GSAP ScrollTrigger integration
+    gsap.registerPlugin(ScrollTrigger);
     
-    const radius = 12;
-    for (let i = 0; i < particleCount; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos((Math.random() * 2) - 1);
-      const r = radius + (Math.random() - 0.5) * 4;
-      
-      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      positions[i * 3 + 2] = r * Math.cos(phi);
-      
-      // Theme-aware colors (will be updated)
-      colors[i * 3] = 0.4;
-      colors[i * 3 + 1] = 0.49;
-      colors[i * 3 + 2] = 0.92;
+    lenis.on('scroll', ScrollTrigger.update);
+    
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    
+    gsap.ticker.lagSmoothing(0);
+    
+    // ========================================
+    // SECTION NAVIGATION
+    // ========================================
+    let currentSection = 0;
+    const totalSections = 4;
+    const sections = document.querySelectorAll('.section');
+    
+    function scrollToSection(index) {
+      if (index >= 0 && index < totalSections) {
+        lenis.scrollTo(sections[index]);
+      }
     }
     
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    function updateActiveSection(index) {
+      currentSection = index;
+      
+      // Update section numbers
+      document.querySelectorAll('.num-link').forEach((link, i) => {
+        link.classList.toggle('active', i === index);
+      });
+      
+      // Update split nav
+      document.querySelectorAll('.nav-letter').forEach(letter => {
+        letter.classList.toggle('active', index > 0);
+      });
+      
+      // Update nav buttons
+      const skipBtn = document.getElementById('skipBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      if (index === 0) {
+        skipBtn.textContent = 'Skip';
+        skipBtn.onclick = () => scrollToSection(1);
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = () => scrollToSection(1);
+      } else if (index === totalSections - 1) {
+        skipBtn.textContent = 'Back';
+        skipBtn.onclick = () => scrollToSection(index - 1);
+        nextBtn.textContent = 'Top';
+        nextBtn.onclick = () => scrollToSection(0);
+      } else {
+        skipBtn.textContent = 'Skip';
+        skipBtn.onclick = () => scrollToSection(index + 1);
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = () => scrollToSection(index + 1);
+      }
+      
+      // Trigger section animations
+      animateSection(index);
+    }
     
-    const material = new THREE.PointsMaterial({
-      size: 0.2,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending
+    // Intersection Observer for sections
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0
+    };
+    
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.dataset.section);
+          updateActiveSection(index);
+        }
+      });
+    }, observerOptions);
+    
+    sections.forEach(section => sectionObserver.observe(section));
+    
+    // Section click handlers
+    document.querySelectorAll('.num-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const index = parseInt(link.dataset.section);
+        scrollToSection(index);
+      });
     });
     
-    const sphere = new THREE.Points(geometry, material);
-    scene.add(sphere);
+    // Initialize
+    updateActiveSection(0);
     
-    // Inner wireframe icosahedron
-    const icoGeom = new THREE.IcosahedronGeometry(8, 1);
-    const icoMat = new THREE.MeshBasicMaterial({
-      color: 0x667eea,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.15
+    // ========================================
+    // THEME TOGGLE
+    // ========================================
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    const html = document.documentElement;
+    
+    // Check saved theme
+    const savedTheme = localStorage.getItem('magniprints-theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('magniprints-theme', newTheme);
+      updateThemeIcon(newTheme);
+      updateWebGLColors(newTheme);
     });
-    const icosahedron = new THREE.Mesh(icoGeom, icoMat);
-    scene.add(icosahedron);
     
-    // Mouse tracking
+    function updateThemeIcon(theme) {
+      themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    
+    // ========================================
+    // WEBGL BACKGROUNDS
+    // ========================================
+    const scenes = [];
+    const renderers = [];
+    const cameras = [];
+    const objects = [];
+    
+    function initWebGL(canvasId, type) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+      
+      const renderer = new THREE.WebGLRenderer({ 
+        canvas, 
+        antialias: true,
+        alpha: true 
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      const sceneObjects = [];
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const color = isDark ? 0xffffff : 0x000000;
+      const opacity = isDark ? 0.15 : 0.08;
+      
+      if (type === 'hero') {
+        // Floating geometric shapes
+        const geometryTypes = [
+          new THREE.IcosahedronGeometry(4, 0),
+          new THREE.OctahedronGeometry(3, 0),
+          new THREE.TetrahedronGeometry(3, 0),
+          new THREE.BoxGeometry(3, 3, 3),
+          new THREE.DodecahedronGeometry(3, 0)
+        ];
+        
+        for (let i = 0; i < 12; i++) {
+          const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
+          const material = new THREE.MeshBasicMaterial({
+            color: color,
+            wireframe: true,
+            transparent: true,
+            opacity: opacity
+          });
+          const mesh = new THREE.Mesh(geometry, material);
+          
+          mesh.position.x = (Math.random() - 0.5) * 50;
+          mesh.position.y = (Math.random() - 0.5) * 40;
+          mesh.position.z = (Math.random() - 0.5) * 20;
+          mesh.rotation.x = Math.random() * Math.PI;
+          mesh.rotation.y = Math.random() * Math.PI;
+          
+          mesh.userData = {
+            rotSpeedX: (Math.random() - 0.5) * 0.01,
+            rotSpeedY: (Math.random() - 0.5) * 0.01,
+            floatSpeed: Math.random() * 0.5 + 0.5,
+            floatOffset: Math.random() * Math.PI * 2,
+            baseY: mesh.position.y
+          };
+          
+          scene.add(mesh);
+          sceneObjects.push(mesh);
+        }
+      } else if (type === 'products') {
+        // Product particles
+        const particleCount = 300;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+          positions[i * 3] = (Math.random() - 0.5) * 60;
+          positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        const material = new THREE.PointsMaterial({
+          color: color,
+          size: 0.3,
+          transparent: true,
+          opacity: opacity * 2
+        });
+        
+        const points = new THREE.Points(geometry, material);
+        points.userData = { speed: 0.1 };
+        scene.add(points);
+        sceneObjects.push(points);
+        
+        // Wireframe grid
+        const gridHelper = new THREE.GridHelper(50, 20, color, color);
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = opacity * 0.5;
+        gridHelper.position.y = -15;
+        scene.add(gridHelper);
+        sceneObjects.push(gridHelper);
+      } else if (type === 'custom') {
+        // Rotating 3D print layers
+        const ringCount = 8;
+        for (let i = 0; i < ringCount; i++) {
+          const radius = 3 + i * 1.5;
+          const geometry = new THREE.RingGeometry(radius - 0.3, radius, 64);
+          const material = new THREE.MeshBasicMaterial({
+            color: color,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: opacity * (1 - i / ringCount * 0.5)
+          });
+          const ring = new THREE.Mesh(geometry, material);
+          ring.position.z = i * 1 - ringCount / 2;
+          ring.userData = { 
+            rotSpeed: (ringCount - i) * 0.002,
+            baseZ: i * 1 - ringCount / 2
+          };
+          scene.add(ring);
+          sceneObjects.push(ring);
+        }
+      } else if (type === 'track') {
+        // Connected nodes (tracking network)
+        const nodeCount = 8;
+        const nodes = [];
+        
+        for (let i = 0; i < nodeCount; i++) {
+          const geometry = new THREE.SphereGeometry(0.3, 16, 16);
+          const material = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: opacity * 4
+          });
+          const node = new THREE.Mesh(geometry, material);
+          
+          const angle = (i / nodeCount) * Math.PI * 2;
+          const radius = 15;
+          node.position.x = Math.cos(angle) * radius;
+          node.position.y = Math.sin(angle) * radius;
+          node.position.z = (Math.random() - 0.5) * 10;
+          
+          node.userData = { 
+            angle: angle,
+            radius: radius,
+            speed: 0.002 + Math.random() * 0.001,
+            phase: i / nodeCount
+          };
+          
+          scene.add(node);
+          nodes.push(node);
+          sceneObjects.push(node);
+        }
+        
+        // Connecting lines
+        const lineGeometry = new THREE.BufferGeometry();
+        const lineMaterial = new THREE.LineBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: opacity * 2
+        });
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        lines.userData = { nodes: nodes };
+        scene.add(lines);
+        sceneObjects.push(lines);
+      }
+      
+      scenes.push(scene);
+      renderers.push(renderer);
+      cameras.push(camera);
+      objects.push(sceneObjects);
+    }
+    
+    // Initialize all scenes
+    initWebGL('canvas-hero', 'hero');
+    initWebGL('canvas-products', 'products');
+    initWebGL('canvas-custom', 'custom');
+    initWebGL('canvas-track', 'track');
+    
+    // Animation loop
+    let time = 0;
+    function animateWebGL() {
+      requestAnimationFrame(animateWebGL);
+      time += 0.01;
+      
+      scenes.forEach((scene, sceneIndex) => {
+        const sceneObjs = objects[sceneIndex];
+        
+        sceneObjs.forEach(obj => {
+          if (obj.userData.rotSpeedX !== undefined) {
+            obj.rotation.x += obj.userData.rotSpeedX;
+            obj.rotation.y += obj.userData.rotSpeedY;
+            obj.position.y = obj.userData.baseY + Math.sin(time * obj.userData.floatSpeed + obj.userData.floatOffset) * 2;
+          }
+          if (obj.userData.rotSpeed !== undefined) {
+            obj.rotation.z += obj.userData.rotSpeed;
+            obj.position.z = obj.userData.baseZ + Math.sin(time + obj.userData.rotSpeed * 100) * 1;
+          }
+          if (obj.userData.angle !== undefined) {
+            obj.userData.angle += obj.userData.speed;
+            obj.position.x = Math.cos(obj.userData.angle) * obj.userData.radius;
+            obj.position.y = Math.sin(obj.userData.angle) * obj.userData.radius;
+          }
+          if (obj.userData.nodes) {
+            // Update connecting lines
+            const nodes = obj.userData.nodes;
+            const positions = [];
+            for (let i = 0; i < nodes.length; i++) {
+              for (let j = i + 1; j < nodes.length; j++) {
+                const dist = nodes[i].position.distanceTo(nodes[j].position);
+                if (dist < 25) {
+                  positions.push(
+                    nodes[i].position.x, nodes[i].position.y, nodes[i].position.z,
+                    nodes[j].position.x, nodes[j].position.y, nodes[j].position.z
+                  );
+                }
+              }
+            }
+            obj.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+          }
+        });
+        
+        if (renderers[sceneIndex]) {
+          renderers[sceneIndex].render(scene, cameras[sceneIndex]);
+        }
+      });
+    }
+    animateWebGL();
+    
+    // Update WebGL colors on theme change
+    function updateWebGLColors(theme) {
+      const color = theme === 'dark' ? 0xffffff : 0x000000;
+      const opacity = theme === 'dark' ? 0.15 : 0.08;
+      
+      scenes.forEach((scene, i) => {
+        objects[i].forEach(obj => {
+          if (obj.material) {
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach(m => {
+                m.color.setHex(color);
+                if (m.opacity !== undefined) {
+                  m.opacity = opacity * (m.userData?.opacityMult || 1);
+                }
+              });
+            } else {
+              obj.material.color.setHex(color);
+              if (obj.material.opacity !== undefined) {
+                obj.material.opacity = opacity * (obj.userData?.opacityMult || 1);
+              }
+            }
+          }
+        });
+        if (renderers[i]) renderers[i].render(scene, cameras[i]);
+      });
+    }
+    
+    // Resize handler
+    window.addEventListener('resize', () => {
+      scenes.forEach((scene, i) => {
+        if (cameras[i]) {
+          cameras[i].aspect = window.innerWidth / window.innerHeight;
+          cameras[i].updateProjectionMatrix();
+        }
+        if (renderers[i]) {
+          renderers[i].setSize(window.innerWidth, window.innerHeight);
+        }
+      });
+    });
+    
+    // ========================================
+    // GSAP SECTION ANIMATIONS
+    // ========================================
+    function animateSection(index) {
+      const section = sections[index];
+      
+      // Reset all animations
+      if (index === 0) {
+        gsap.fromTo('.jp-title', 
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.2 }
+        );
+        gsap.fromTo('.en-title',
+          { opacity: 0 },
+          { opacity: 0.7, duration: 1, ease: 'power2.out', delay: 0.8 }
+        );
+      } else if (index === 1) {
+        gsap.fromTo('#section-1 .section-label',
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+        );
+        gsap.fromTo('.product-cell',
+          { opacity: 0, y: 30, rotateY: -15 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            rotateY: 0,
+            duration: 0.6, 
+            ease: 'power3.out',
+            stagger: 0.08,
+            delay: 0.2
+          }
+        );
+      } else if (index === 2) {
+        gsap.fromTo('#section-2 .section-label',
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+        );
+        gsap.fromTo('.upload-zone',
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', delay: 0.3 }
+        );
+      } else if (index === 3) {
+        gsap.fromTo('#section-3 .section-label',
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+        );
+        gsap.fromTo('.track-input-container',
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.3 }
+        );
+      }
+    }
+    
+    // Initialize hero
+    setTimeout(() => animateSection(0), 100);
+    
+    // ========================================
+    // PRODUCT INTERACTIONS
+    // ========================================
+    document.querySelectorAll('.product-cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const product = cell.dataset.product;
+        alert(`View ${product} details\n\nFull product page coming soon.`);
+      });
+    });
+    
+    // ========================================
+    // FILE UPLOAD
+    // ========================================
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewCanvas = document.getElementById('preview-canvas');
+    
+    uploadZone.addEventListener('click', () => fileInput.click());
+    
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragging');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragging');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragging');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) handleFile(files[0]);
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+    
+    let previewRenderer, previewScene, previewCamera, previewMesh;
+    
+    function handleFile(file) {
+      if (!file.name.toLowerCase().endsWith('.stl')) {
+        alert('Please upload an STL file');
+        return;
+      }
+      
+      uploadZone.innerHTML = `
+        <span class="icon">✓</span>
+        <span class="upload-text">${file.name}</span>
+        <span class="upload-sub">Processing...</span>
+      `;
+      
+      // Show preview canvas animation
+      gsap.to('.upload-zone', { x: -100, duration: 0.5 });
+      gsap.to('#preview-canvas', { opacity: 1, duration: 0.5, delay: 0.3 });
+      
+      // Init preview WebGL
+      initPreviewWebGL();
+      
+      setTimeout(() => {
+        alert(`Quote for ${file.name}:\nEstimated: ₹${Math.floor(Math.random() * 500 + 200)}\nTime: ${Math.floor(Math.random() * 24 + 12)} hours\n\nProceed to checkout?`);
+        resetUpload();
+      }, 2000);
+    }
+    
+    function initPreviewWebGL() {
+      if (previewRenderer) return;
+      
+      previewScene = new THREE.Scene();
+      previewCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      previewCamera.position.z = 5;
+      
+      previewRenderer = new THREE.WebGLRenderer({ 
+        canvas: previewCanvas,
+        antialias: true,
+        alpha: true
+      });
+      previewRenderer.setSize(200, 200);
+      
+      // Spinning cube as placeholder for STL preview
+      const geometry = new THREE.BoxGeometry(2, 2, 2);
+      const material = new THREE.MeshBasicMaterial({ 
+        color: html.getAttribute('data-theme') === 'dark' ? 0xffffff : 0x000000,
+        wireframe: true
+      });
+      previewMesh = new THREE.Mesh(geometry, material);
+      previewScene.add(previewMesh);
+      
+      function animatePreview() {
+        if (!previewRenderer) return;
+        requestAnimationFrame(animatePreview);
+        previewMesh.rotation.x += 0.01;
+        previewMesh.rotation.y += 0.01;
+        previewRenderer.render(previewScene, previewCamera);
+      }
+      animatePreview();
+    }
+    
+    function resetUpload() {
+      gsap.to('.upload-zone', { x: 0, duration: 0.5 });
+      gsap.to('#preview-canvas', { opacity: 0, duration: 0.3 });
+      uploadZone.innerHTML = `
+        <span class="icon">⬆️</span>
+        <span class="upload-text">Drop STL file here</span>
+        <span class="upload-sub">or click to browse</span>
+      `;
+      uploadZone.appendChild(fileInput);
+    }
+    
+    // ========================================
+    // TRACK ORDER
+    // ========================================
+    const orderInput = document.getElementById('orderInput');
+    const trackBtn = document.getElementById('trackBtn');
+    const trackInput = document.getElementById('trackInput');
+    const trackResult = document.getElementById('trackResult');
+    const statusText = document.getElementById('statusText');
+    const trackDetails = document.getElementById('trackDetails');
+    
+    trackBtn.addEventListener('click', trackOrder);
+    orderInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') trackOrder();
+    });
+    
+    function trackOrder() {
+      const orderId = orderInput.value.trim().toUpperCase();
+      if (!orderId) return;
+      
+      trackInput.style.opacity = '0';
+      trackInput.style.pointerEvents = 'none';
+      
+      setTimeout(() => {
+        const statuses = [
+          { jp: '受注済み', en: 'Order Received', detail: 'Payment confirmed' },
+          { jp: '準備中', en: 'Preparing', detail: 'Files processed' },
+          { jp: '印刷中', en: 'Printing', detail: 'Layer 342/1200' },
+          { jp: '仕上げ', en: 'Finishing', detail: 'Post-processing' },
+          { jp: '発送済み', en: 'Shipped', detail: 'Out for delivery' }
+        ];
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        statusText.textContent = status.jp;
+        trackDetails.textContent = `${status.en} — ${status.detail}`;
+        
+        trackResult.classList.add('active');
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+          trackResult.classList.remove('active');
+          setTimeout(() => {
+            trackInput.style.opacity = '1';
+            trackInput.style.pointerEvents = 'all';
+            orderInput.value = '';
+          }, 500);
+        }, 5000);
+      }, 500);
+    }
+    
+    // ========================================
+    // MOUSE PARALLAX
+    // ========================================
     let mouseX = 0, mouseY = 0;
     document.addEventListener('mousemove', (e) => {
       mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-    
-    // Animation loop
-    let time = 0;
-    function animate() {
-      requestAnimationFrame(animate);
-      time += 0.01;
       
-      // Rotate sphere
-      sphere.rotation.y += 0.001;
-      sphere.rotation.x = mouseY * 0.1;
-      
-      // Rotate icosahedron
-      icosahedron.rotation.y -= 0.002;
-      icosahedron.rotation.x += 0.001;
-      icosahedron.rotation.z = mouseX * 0.1;
-      
-      // Pulse effect
-      const scale = 1 + Math.sin(time * 2) * 0.02;
-      sphere.scale.set(scale, scale, scale);
-      
-      renderer.render(scene, camera);
-    }
-    animate();
-    
-    // Update colors based on theme
-    function updateColors(theme) {
-      const colorAttr = geometry.getAttribute('color');
-      const icoColor = theme === 'light' ? 0x22c55e : 0x667eea;
-      
-      for (let i = 0; i < particleCount; i++) {
-        if (theme === 'light') {
-          colorAttr.setXYZ(i, 0.133, 0.773, 0.369); // Green
-        } else {
-          colorAttr.setXYZ(i, 0.4, 0.49, 0.92); // Purple
+      cameras.forEach(camera => {
+        if (camera) {
+          camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+          camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
+          camera.lookAt(0, 0, 0);
         }
-      }
-      colorAttr.needsUpdate = true;
-      icoMat.color.setHex(icoColor);
-    }
-    
-    // Listen for theme changes
-    window.addEventListener('themechange', (e) => {
-      updateColors(e.detail.theme);
-    });
-    
-    // Handle resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    
-    // ========================================
-    // GSAP SCROLL ANIMATIONS
-    // ========================================
-    gsap.registerPlugin(ScrollTrigger);
-    
-    // Reveal animations
-    gsap.utils.toArray('.reveal').forEach((elem, i) => {
-      gsap.to(elem, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: elem,
-          start: 'top 85%',
-          toggleActions: 'play none none none'
-        },
-        delay: i % 3 * 0.1
       });
     });
-    
-    // Stagger product cards
-    gsap.from('.product-card', {
-      opacity: 0,
-      y: 40,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.products-grid',
-        start: 'top 80%'
-      }
-    });
-    
-    // Hero parallax
-    gsap.to('.hero-content', {
-      y: 100,
-      opacity: 0,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.hero',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-      }
-    });
-    
-    gsap.to('#hero-canvas', {
-      scale: 1.5,
-      opacity: 0,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.hero',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-      }
-    });
-    
-    // Initialize colors based on saved theme
-    const savedTheme = localStorage.getItem('magniprints-theme') || 'dark';
-    updateColors(savedTheme);
   </script>
 </body>
 </html>
