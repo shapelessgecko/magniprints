@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MagniPrints — Premium 3D Printing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- WebGL Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg viewBox="0 0 40 40" class="logo-icon">
+                <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
+                <circle cx="20" cy="22" r="4" fill="currentColor"/>
+            </svg>
+            <span class="logo-text">MagniPrints</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="products/">Products</a>
+            <a href="custom/">Custom Print</a>
+            <a href="track/">Track</a>
+        </div>
+        <button class="theme-toggle" aria-label="Toggle theme">
+            <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>
+            <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-line" data-3d-text>Bring Ideas</span>
+                <span class="title-line" data-3d-text>Into Reality</span>
+            </h1>
+            <p class="hero-subtitle">Premium 3D printed products crafted with precision and purpose</p>
+            <div class="hero-buttons">
+                <a href="products/" class="btn btn-primary">
+                    <span>Explore Products</span>
+                    <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+                </a>
+                <a href="custom/" class="btn btn-secondary">Custom Order</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose MagniPrints</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 48 48"><path d="M24 4L4 14v20l20 10 20-10V14L24 4z" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M24 14L12 20v16l12 6 12-6V20L24 14z" fill="currentColor" opacity="0.2"/></svg>
+                    </div>
+                    <h3>Precision Engineering</h3>
+                    <p>0.1mm layer height accuracy for flawless prints every time</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M24 12v12l8 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    </div>
+                    <h3>Fast Turnaround</h3>
+                    <p>Most orders ship within 24-48 hours of confirmation</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 48 48"><path d="M12 24c0-8 6-14 12-14s12 6 12 14-6 14-12 14" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="24" cy="24" r="6" fill="currentColor" opacity="0.3"/></svg>
+                    </div>
+                    <h3>Eco-Friendly</h3>
+                    <p>Sustainable materials and biodegradable packaging</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 20h16M16 28h10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    </div>
+                    <h3>Quality Guaranteed</h3>
+                    <p>100% satisfaction guarantee or your money back</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Showcase Section -->
+    <section class="showcase">
+        <div class="showcase-bg"></div>
+        <div class="container">
+            <div class="showcase-content">
+                <h2 class="section-title">Interactive 3D Showcase</h2>
+                <p class="section-subtitle">Experience our products in full 3D before you buy</p>
+            </div>
+            <div id="showcase-canvas" class="showcase-viewer"></div>
+            <div class="showcase-products">
+                <button class="showcase-btn active" data-product="stand">Phone Stand</button>
+                <button class="showcase-btn" data-product="planter">Planter</button>
+                <button class="showcase-btn" data-product="organizer">Organizer</button>
+                <button class="showcase-btn" data-product="controller">Controller Stand</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="15000">0</span>
+                    <span class="stat-label">Prints Delivered</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-count="98">0</span>
+                    <span class="stat-suffix">%</span>
+                    <span class="stat-label">Happy Customers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-count="24">0</span>
+                    <span class="stat-suffix">h</span>
+                    <span class="stat-label">Avg. Delivery</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-count="50">0</span>
+                    <span class="stat-suffix">+</span>
+                    <span class="stat-label">Product Designs</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to bring your ideas to life?</h2>
+                <p>Start with a custom print or explore our curated collection</p>
+                <div class="cta-buttons">
+                    <a href="custom/" class="btn btn-primary">Upload Your Design</a>
+                    <a href="products/" class="btn btn-outline">Browse Products</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo">
+                        <svg viewBox="0 0 40 40" class="logo-icon">
+                            <path d="M20 2L4 12v16l16 10 16-10V12L20 2z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M20 8L10 14v12l10 6 10-6V14L20 8z" fill="currentColor" opacity="0.3"/>
+                            <circle cx="20" cy="22" r="4" fill="currentColor"/>
+                        </svg>
+                        <span class="logo-text">MagniPrints</span>
+                    </div>
+                    <p>Premium 3D printing for everyone. Quality, speed, and precision in every print.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="products/">Products</a>
+                    <a href="custom/">Custom Print</a>
+                    <a href="track/">Track Order</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="mailto:support@magniprints.com">Contact</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#shipping">Shipping Info</a>
+                </div>
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/></svg></a>
+                        <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+                        <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 016.5 11.4 8.5 8.5 0 0111.3 3.9 8.38 8.38 0 0115.2 3 8.5 8.5 0 0121 11.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 MagniPrints. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/hero-3d.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
